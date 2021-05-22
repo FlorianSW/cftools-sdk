@@ -1,4 +1,4 @@
-# Discord Player Count Bot
+# cftools-sdk
 
 [![npm](https://img.shields.io/npm/v/cftools-sdk?style=flat-square)](https://www.npmjs.com/package/cftools-sdk)
 [![Discord](https://img.shields.io/discord/729467994832371813?color=7289da&label=Discord&logo=discord&logoColor=ffffff&style=flat-square)](https://go2tech.de/discord)
