@@ -1,7 +1,7 @@
 import {InvalidCredentials, LoginCredentials} from '../types';
 import {URL} from 'url';
 import got, {HTTPError} from 'got';
-import {baseUrl} from './constants';
+import {httpClient} from './http';
 
 interface GetTokenRequest {
     application_id: string,
@@ -43,9 +43,8 @@ export class CFToolsAuthorizationProvider {
     }
 
     private async fetchToken(): Promise<string> {
-        const url = new URL('/v1/auth/register', baseUrl);
         try {
-            const response = await got.post(url, {
+            const response = await httpClient.post('v1/auth/register', {
                 body: JSON.stringify({
                     application_id: this.credentials.applicationId,
                     secret: this.credentials.secret

@@ -5,14 +5,11 @@ import {
     CFToolsId,
     LoginCredentials,
     Player,
-    ResourceNotFound,
     ServerApiId,
     SteamId64
 } from './types';
-import got, {HTTPError} from 'got';
-import {URL} from 'url';
 import {CFToolsAuthorizationProvider} from './internal/auth';
-import {baseUrl} from './internal/constants';
+import {httpClient} from './internal/http';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -67,43 +64,26 @@ class GotCFToolsClient implements CFToolsClient {
     }
 
     private async fetchPlayer(id: CFToolsId) {
-        const url: URL = new URL('/v1/server/' + this.serverApiId.id + '/player', baseUrl);
-        url.searchParams.append('cftools_id', id.id);
         const token = await this.auth.provideToken();
-        try {
-            const response = await got(url, {
-                headers: {
-                    Authorization: 'Bearer ' + token
-                }
-            }).json<GetPlayerResponse>();
-            return {
-                names: response[id.id].omega.name_history,
-            };
-        } catch (error) {
-            if (error instanceof HTTPError && error.response.statusCode === 404) {
-                throw new ResourceNotFound();
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/player?cftools_id=${id.id}`, {
+            headers: {
+                Authorization: 'Bearer ' + token
             }
-            throw error;
-        }
+        }).json<GetPlayerResponse>();
+        return {
+            names: response[id.id].omega.name_history,
+        };
     }
 
     private async lookup(id: SteamId64 | BattlEyeGUID | BohemiaInteractiveId): Promise<CFToolsId> {
-        const url: URL = new URL('/v1/users/lookup', baseUrl);
         let identifier: string;
         if (id instanceof SteamId64 || id instanceof BohemiaInteractiveId) {
             identifier = id.id;
         } else {
             identifier = id.guid;
         }
-        url.searchParams.append('identifier', identifier);
-        try {
-            const response = await got(url).json<GetUserLookupResponse>();
-            return CFToolsId.of(response.cftools_id);
-        } catch (error) {
-            if (error instanceof HTTPError && error.response.statusCode === 404) {
-                throw new ResourceNotFound();
-            }
-            throw error;
-        }
+
+        const response = await httpClient(`v1/users/lookup?identifier=${identifier}`).json<GetUserLookupResponse>();
+        return CFToolsId.of(response.cftools_id);
     }
 }
