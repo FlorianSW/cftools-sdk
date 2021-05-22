@@ -80,17 +80,27 @@ describe('CFToolsClient', () => {
     });
 
     describe('priority queue', () => {
+        afterEach(async () => {
+            await client.deletePriorityQueue(existingCfToolsId);
+        });
+
         it('returns null if not in priority queue', async () => {
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toBeNull();
         });
 
-        // TODO: Include once test setup is automatic (when priority queue can be created through api)
-        xit('returns priority queue entry', async () => {
+        it('persists priority queue item', async () => {
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + 1);
+            await client.putPriorityQueue({
+                id: existingCfToolsId,
+                comment: 'A_COMMENT',
+                expires: expireDate
+            });
+
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toMatchObject({
                 createdBy: existingCfToolsId,
-                comment: 'Test',
-                created: new Date(),
-                expiration: 'Permanent'
+                comment: 'A_COMMENT',
+                expiration: expireDate,
             } as PriorityQueueItem);
         });
     });

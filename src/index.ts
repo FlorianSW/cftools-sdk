@@ -7,7 +7,7 @@ import {
     LeaderboardItem,
     LoginCredentials,
     Player,
-    PriorityQueueItem,
+    PriorityQueueItem, PutPriorityQueueItemRequest,
     ServerApiId,
     SteamId64
 } from './types';
@@ -90,6 +90,13 @@ interface GetPriorityQueueEntry {
     }[]
 }
 
+function asDate(dateAsString: string): Date {
+    if (dateAsString.indexOf('+') !== -1 || dateAsString.endsWith('Z')) {
+        return new Date(dateAsString)
+    }
+    return new Date(dateAsString + 'Z')
+}
+
 class GotCFToolsClient implements CFToolsClient {
     private readonly auth: CFToolsAuthorizationProvider;
 
@@ -160,7 +167,7 @@ class GotCFToolsClient implements CFToolsClient {
         return {
             createdBy: CFToolsId.of(entry.creator.cftools_id),
             comment: entry.meta.comment,
-            expiration: entry.meta.expiration ? new Date(entry.meta.expiration) : 'Permanent',
+            expiration: entry.meta.expiration ? asDate(entry.meta.expiration) : 'Permanent',
             created: new Date(entry.created_at)
         } as PriorityQueueItem;
     }
@@ -182,5 +189,34 @@ class GotCFToolsClient implements CFToolsClient {
             },
         }).json<GetUserLookupResponse>();
         return CFToolsId.of(response.cftools_id);
+    }
+
+    async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
+        let expires = '';
+        if (request.expires !== 'Permanent') {
+            expires = request.expires.toISOString();
+        }
+        await httpClient.post(`v1/server/${this.serverApiId.id}/queuepriority`, {
+            body: JSON.stringify({
+                cftools_id: request.id.id,
+                comment: request.comment,
+                expires_at: expires
+            }),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth.provideToken()
+            },
+        });
+    }
+
+    async deletePriorityQueue(playerId: GenericId): Promise<void> {
+        const id = await this.resolve(playerId);
+        await httpClient.delete(`v1/server/${this.serverApiId.id}/queuepriority`, {
+            searchParams: {
+                cftools_id: id.id
+            },
+            headers: {
+                Authorization: 'Bearer ' + await this.auth.provideToken()
+            },
+        });
     }
 }

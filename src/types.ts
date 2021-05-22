@@ -4,6 +4,8 @@ export interface CFToolsClient {
     getPlayerDetails(id: GenericId): Promise<Player>
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
     getPriorityQueue(id: GenericId): Promise<PriorityQueueItem | null>
+    putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void>
+    deletePriorityQueue(id: GenericId): Promise<void>
 }
 
 export class ServerApiId {
@@ -90,6 +92,12 @@ export interface PriorityQueueItem {
     createdBy: CFToolsId,
     comment: string,
     expiration: Date | 'Permanent',
+}
+
+export interface PutPriorityQueueItemRequest {
+    expires: Date | 'Permanent',
+    comment: string,
+    id: CFToolsId,
 }
 
 export interface Player {
