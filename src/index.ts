@@ -1,12 +1,13 @@
 import {
-    BattlEyeGUID,
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    GenericId,
     GetLeaderboardRequest,
     LeaderboardItem,
     LoginCredentials,
     Player,
+    PriorityQueueItem,
     ServerApiId,
     SteamId64
 } from './types';
@@ -59,14 +60,33 @@ interface GetUserLookupResponse {
 }
 
 interface GetLeaderboardResponse {
-    leaderboard: [{
+    leaderboard: {
         cftools_id: string,
         environment_deaths: number,
         latest_name: string,
         playtime: number,
         rank: number,
         suicides: number,
-    }]
+    }[]
+}
+
+interface GetPriorityQueueEntry {
+    entries: {
+        created_at: string,
+        creator: {
+            cftools_id: string
+        },
+        meta: {
+            comment: string,
+            expiration: string | null,
+            from_api: boolean
+        },
+        updated_at: string,
+        user: {
+            cftools_id: string
+        },
+        uuid: string
+    }[]
 }
 
 class GotCFToolsClient implements CFToolsClient {
@@ -76,15 +96,20 @@ class GotCFToolsClient implements CFToolsClient {
         this.auth = new CFToolsAuthorizationProvider(credentials);
     }
 
-    async playerDetails(id: SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId): Promise<Player> {
-        if (id instanceof CFToolsId) {
-            return await this.fetchPlayer(id);
-        }
-        const cftoolsId = await this.lookup(id);
-        return await this.fetchPlayer(cftoolsId);
+    async getPlayerDetails(playerId: GenericId): Promise<Player> {
+        const id = await this.resolve(playerId);
+        const token = await this.auth.provideToken();
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/player?cftools_id=${id.id}`, {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        }).json<GetPlayerResponse>();
+        return {
+            names: response[id.id].omega.name_history,
+        };
     }
 
-    async leaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
+    async getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
         const token = await this.auth.provideToken();
         let url = `v1/server/${this.serverApiId.id}/leaderboard?stat=${request.statistic}&`;
         if (request.order === 'ASC') {
@@ -112,19 +137,29 @@ class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    private async fetchPlayer(id: CFToolsId) {
-        const token = await this.auth.provideToken();
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/player?cftools_id=${id.id}`, {
+    async getPriorityQueue(playerId: GenericId): Promise<PriorityQueueItem | null> {
+        const id = await this.resolve(playerId);
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/queuepriority?cftools_id=${id.id}`, {
             headers: {
-                Authorization: 'Bearer ' + token
+                Authorization: 'Bearer ' + await this.auth.provideToken()
             }
-        }).json<GetPlayerResponse>();
+        }).json<GetPriorityQueueEntry>();
+        if (response.entries.length === 0) {
+            return null;
+        }
+        const entry = response.entries[0];
         return {
-            names: response[id.id].omega.name_history,
-        };
+            createdBy: CFToolsId.of(entry.creator.cftools_id),
+            comment: entry.meta.comment,
+            expiration: entry.meta.expiration ? new Date(entry.meta.expiration) : 'Permanent',
+            created: new Date(entry.created_at)
+        } as PriorityQueueItem;
     }
 
-    private async lookup(id: SteamId64 | BattlEyeGUID | BohemiaInteractiveId): Promise<CFToolsId> {
+    private async resolve(id: GenericId): Promise<CFToolsId> {
+        if (id instanceof CFToolsId) {
+            return id;
+        }
         let identifier: string;
         if (id instanceof SteamId64 || id instanceof BohemiaInteractiveId) {
             identifier = id.id;

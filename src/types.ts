@@ -1,6 +1,9 @@
+export type GenericId = SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId;
+
 export interface CFToolsClient {
-    playerDetails(id: SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId): Promise<Player>
-    leaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
+    getPlayerDetails(id: GenericId): Promise<Player>
+    getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
+    getPriorityQueue(id: GenericId): Promise<PriorityQueueItem | null>
 }
 
 export class ServerApiId {
@@ -80,6 +83,13 @@ export interface LeaderboardItem {
     rank: 1,
     suicides?: 1,
     environmentDeaths?: number,
+}
+
+export interface PriorityQueueItem {
+    created: Date,
+    createdBy: CFToolsId,
+    comment: string,
+    expiration: Date | 'Permanent',
 }
 
 export interface Player {
