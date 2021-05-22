@@ -13,6 +13,7 @@ import {
 } from './types';
 import {CFToolsAuthorizationProvider} from './internal/auth';
 import {httpClient} from './internal/http';
+import {URLSearchParams} from 'url';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -99,7 +100,10 @@ class GotCFToolsClient implements CFToolsClient {
     async getPlayerDetails(playerId: GenericId): Promise<Player> {
         const id = await this.resolve(playerId);
         const token = await this.auth.provideToken();
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/player?cftools_id=${id.id}`, {
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/player`, {
+            searchParams: {
+                cftools_id: id.id,
+            },
             headers: {
                 Authorization: 'Bearer ' + token
             }
@@ -111,16 +115,18 @@ class GotCFToolsClient implements CFToolsClient {
 
     async getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
         const token = await this.auth.provideToken();
-        let url = `v1/server/${this.serverApiId.id}/leaderboard?stat=${request.statistic}&`;
+        const params = new URLSearchParams();
+        params.append('stat', request.statistic);
         if (request.order === 'ASC') {
-            url = `${url}order=-1&`;
+            params.append('order', '-1');
         } else {
-            url = `${url}order=1&`;
+            params.append('order', '1');
         }
         if (request.limit && request.limit > 0 && request.limit <= 100) {
-            url = `${url}limit=${request.limit}&`;
+            params.append('limit', request.limit.toString());
         }
-        const response = await httpClient(url, {
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/leaderboard`, {
+            searchParams: params,
             headers: {
                 Authorization: 'Bearer ' + token
             }
@@ -139,7 +145,10 @@ class GotCFToolsClient implements CFToolsClient {
 
     async getPriorityQueue(playerId: GenericId): Promise<PriorityQueueItem | null> {
         const id = await this.resolve(playerId);
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/queuepriority?cftools_id=${id.id}`, {
+        const response = await httpClient(`v1/server/${this.serverApiId.id}/queuepriority`, {
+            searchParams: {
+                cftools_id: id.id,
+            },
             headers: {
                 Authorization: 'Bearer ' + await this.auth.provideToken()
             }
@@ -167,7 +176,11 @@ class GotCFToolsClient implements CFToolsClient {
             identifier = id.guid;
         }
 
-        const response = await httpClient(`v1/users/lookup?identifier=${identifier}`).json<GetUserLookupResponse>();
+        const response = await httpClient('v1/users/lookup', {
+            searchParams: {
+                identifier,
+            },
+        }).json<GetUserLookupResponse>();
         return CFToolsId.of(response.cftools_id);
     }
 }
