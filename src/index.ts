@@ -7,7 +7,8 @@ import {
     LeaderboardItem,
     LoginCredentials,
     Player,
-    PriorityQueueItem, PutPriorityQueueItemRequest,
+    PriorityQueueItem,
+    PutPriorityQueueItemRequest,
     ServerApiId,
     SteamId64
 } from './types';
@@ -172,25 +173,6 @@ class GotCFToolsClient implements CFToolsClient {
         } as PriorityQueueItem;
     }
 
-    private async resolve(id: GenericId): Promise<CFToolsId> {
-        if (id instanceof CFToolsId) {
-            return id;
-        }
-        let identifier: string;
-        if (id instanceof SteamId64 || id instanceof BohemiaInteractiveId) {
-            identifier = id.id;
-        } else {
-            identifier = id.guid;
-        }
-
-        const response = await httpClient('v1/users/lookup', {
-            searchParams: {
-                identifier,
-            },
-        }).json<GetUserLookupResponse>();
-        return CFToolsId.of(response.cftools_id);
-    }
-
     async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
         let expires = '';
         if (request.expires !== 'Permanent') {
@@ -219,4 +201,25 @@ class GotCFToolsClient implements CFToolsClient {
             },
         });
     }
+
+    private async resolve(id: GenericId): Promise<CFToolsId> {
+        if (id instanceof CFToolsId) {
+            return id;
+        }
+        let identifier: string;
+        if (id instanceof SteamId64 || id instanceof BohemiaInteractiveId) {
+            identifier = id.id;
+        } else {
+            identifier = id.guid;
+        }
+
+        const response = await httpClient('v1/users/lookup', {
+            searchParams: {
+                identifier,
+            },
+        }).json<GetUserLookupResponse>();
+        return CFToolsId.of(response.cftools_id);
+    }
 }
+
+export * from './types';
