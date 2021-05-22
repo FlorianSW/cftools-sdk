@@ -1,13 +1,41 @@
 export type GenericId = SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId;
 
 export interface CFToolsClient {
+    /**
+     * Returns metdata about an individual player.
+     */
     getPlayerDetails(id: GenericId): Promise<Player>
+
+    /**
+     * Creates a leaderboard based on the requested statistic in the requested order.
+     * The fields of an individual leaderboard item may vary based on the requested base statistics.
+     */
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
+
+    /**
+     * Returns the meta information of the priority queue of the player. If the player does
+     * not have priority queue for this server, it will return null.
+     */
     getPriorityQueue(id: GenericId): Promise<PriorityQueueItem | null>
+
+    /**
+     * Creates a priority queue entry for the given player. The entry will grant the player either permanent or
+     * temporary priority queue access for the server.
+     * If the player already has a priority queue entry, this entry will be deleted before the new one is created.
+     */
     putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void>
+
+    /**
+     * Drops the priority queue of the player if the player has a priority queue entry for the server. Does not error
+     * when the player does not have a priority queue entry.
+     */
     deletePriorityQueue(id: GenericId): Promise<void>
 }
 
+/**
+ * The CFTools Cloud identifier for a specific server in CFTools Cloud. This ID can be found in the API
+ * settings of the server.
+ */
 export class ServerApiId {
     private constructor(public readonly id: string) {
     }
@@ -17,6 +45,10 @@ export class ServerApiId {
     }
 }
 
+/**
+ * API Credentials are necessary for API actions which require access to a specific server (nearly any action).
+ * These credentials can be retrieved from the CFTools developer portal. You need to create an application first.
+ */
 export class LoginCredentials {
     private constructor(public readonly applicationId: string, public readonly secret: string) {
     }
