@@ -2,12 +2,11 @@ import {config} from 'dotenv';
 import {CFToolsClient, CFToolsId, InvalidCredentials, Player, ResourceNotFound, SteamId64} from './types';
 import {CFToolsClientBuilder} from './index';
 
-config();
-
 describe('CFToolsClient', () => {
     let client: CFToolsClient;
 
     beforeEach(() => {
+        config();
         client = new CFToolsClientBuilder()
             .withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '')
             .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
@@ -15,14 +14,14 @@ describe('CFToolsClient', () => {
     });
 
     describe('authentication', () => {
-        it('returns invalid credentials on wrong credentials', () => {
+        it('returns invalid credentials on wrong credentials', async () => {
             process.env.CFTOOLS_API_TOKEN = '';
             client = new CFToolsClientBuilder()
                 .withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '')
-                .withCredentials('INVALID', 'INVALID')
+                .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', 'INVALID')
                 .build();
 
-            expect(client.playerDetails(CFToolsId.of('UNKNOWN'))).rejects.toThrowError(new InvalidCredentials())
+            await expect(client.playerDetails(CFToolsId.of('UNKNOWN'))).rejects.toThrowError(new InvalidCredentials())
         });
     });
 

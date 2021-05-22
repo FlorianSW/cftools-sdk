@@ -54,8 +54,7 @@ export class CFToolsAuthorizationProvider {
             this.setToken(response.token);
             return response.token;
         } catch (error) {
-            // TODO: Change to 401 when changed in API
-            if (error instanceof HTTPError && error.response.statusCode === 500) {
+            if (error instanceof HTTPError && (error.response.statusCode === 500 || error.response.statusCode === 403)) {
                 throw new InvalidCredentials();
             }
             throw error;
