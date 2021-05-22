@@ -1,5 +1,5 @@
 import {config} from 'dotenv';
-import {CFToolsClient, CFToolsId, InvalidCredentials, Player, ResourceNotFound, SteamId64} from './domain/client';
+import {CFToolsClient, CFToolsId, InvalidCredentials, Player, ResourceNotFound, SteamId64} from './types';
 import {CFToolsClientBuilder} from './index';
 
 config();

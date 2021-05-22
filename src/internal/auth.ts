@@ -1,7 +1,7 @@
-import {InvalidCredentials, LoginCredentials} from './domain/client';
+import {InvalidCredentials, LoginCredentials} from '../types';
 import {URL} from 'url';
 import got, {HTTPError} from 'got';
-import {baseUrl} from './index';
+import {baseUrl} from './constants';
 
 interface GetTokenRequest {
     application_id: string,

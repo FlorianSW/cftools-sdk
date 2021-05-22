@@ -8,10 +8,11 @@ import {
     ResourceNotFound,
     ServerApiId,
     SteamId64
-} from './domain/client';
+} from './types';
 import got, {HTTPError} from 'got';
 import {URL} from 'url';
-import {CFToolsAuthorizationProvider} from './auth';
+import {CFToolsAuthorizationProvider} from './internal/auth';
+import {baseUrl} from './internal/constants';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -49,8 +50,6 @@ interface GetPlayerResponse {
 interface GetUserLookupResponse {
     cftools_id: string,
 }
-
-export const baseUrl = 'https://data.cftools.cloud';
 
 class GotCFToolsClient implements CFToolsClient {
     private readonly auth: CFToolsAuthorizationProvider;
