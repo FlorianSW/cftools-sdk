@@ -1,5 +1,6 @@
 export interface CFToolsClient {
     playerDetails(id: SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId): Promise<Player>
+    leaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
 }
 
 export class ServerApiId {
@@ -54,6 +55,31 @@ export class CFToolsId {
     static of(id: string): CFToolsId {
         return new CFToolsId(id);
     }
+}
+
+export enum Statistic {
+    KILLS = 'kills',
+    DEATHS = 'deaths',
+    SUICIDES = 'suicides',
+    PLAYTIME = 'playtime',
+    LONGEST_KILL = 'longest_kill',
+    LONGEST_SHOT = 'longest_shot',
+    KILL_DEATH_RATION = 'kdratio',
+}
+
+export interface GetLeaderboardRequest {
+    order: 'ASC' | 'DESC',
+    statistic: Statistic,
+    limit?: number,
+}
+
+export interface LeaderboardItem {
+    id: CFToolsId,
+    name: string,
+    playtime: number,
+    rank: 1,
+    suicides?: 1,
+    environmentDeaths?: number,
 }
 
 export interface Player {

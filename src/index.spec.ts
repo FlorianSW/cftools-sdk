@@ -1,5 +1,5 @@
 import {config} from 'dotenv';
-import {CFToolsClient, CFToolsId, InvalidCredentials, Player, ResourceNotFound, SteamId64} from './types';
+import {CFToolsClient, CFToolsId, InvalidCredentials, Player, ResourceNotFound, Statistic, SteamId64} from './types';
 import {CFToolsClientBuilder} from './index';
 
 describe('CFToolsClient', () => {
@@ -52,6 +52,18 @@ describe('CFToolsClient', () => {
             await expect(client.playerDetails(SteamId64.of('9WWg8tLpyc6G-shAuda4gA_crUBpqJcFIdx3Q5-kgTk='))).resolves.toMatchObject({
                 names: ['FlorianSW']
             } as Player);
+        });
+    });
+
+    describe('leaderboard', () => {
+        it('returns players on leaderboard', async () => {
+            const leaderboard = await client.leaderboard({
+                order: 'ASC',
+                statistic: Statistic.PLAYTIME,
+                limit: 2
+            });
+
+            expect(leaderboard[0].name).toBe('FlorianSW');
         });
     });
 });

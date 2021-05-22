@@ -3,6 +3,8 @@ import {
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    GetLeaderboardRequest,
+    LeaderboardItem,
     LoginCredentials,
     Player,
     ServerApiId,
@@ -40,12 +42,31 @@ interface GetPlayerResponse {
     [key: string]: {
         omega: {
             name_history: string[],
+            playtime: number,
+            sessions: number,
         },
+        game: {
+            general: {
+                environment_deaths: number,
+                suicides: number,
+            }
+        }
     },
 }
 
 interface GetUserLookupResponse {
     cftools_id: string,
+}
+
+interface GetLeaderboardResponse {
+    leaderboard: [{
+        cftools_id: string,
+        environment_deaths: number,
+        latest_name: string,
+        playtime: number,
+        rank: number,
+        suicides: number,
+    }]
 }
 
 class GotCFToolsClient implements CFToolsClient {
@@ -61,6 +82,34 @@ class GotCFToolsClient implements CFToolsClient {
         }
         const cftoolsId = await this.lookup(id);
         return await this.fetchPlayer(cftoolsId);
+    }
+
+    async leaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
+        const token = await this.auth.provideToken();
+        let url = `v1/server/${this.serverApiId.id}/leaderboard?stat=${request.statistic}&`;
+        if (request.order === 'ASC') {
+            url = `${url}order=-1&`;
+        } else {
+            url = `${url}order=1&`;
+        }
+        if (request.limit && request.limit > 0 && request.limit <= 100) {
+            url = `${url}limit=${request.limit}&`;
+        }
+        const response = await httpClient(url, {
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        }).json<GetLeaderboardResponse>();
+        return response.leaderboard.map((raw) => {
+            return {
+                name: raw.latest_name,
+                rank: raw.rank,
+                suicides: raw.suicides,
+                environmentDeaths: raw.environment_deaths,
+                playtime: raw.playtime,
+                id: CFToolsId.of(raw.cftools_id),
+            } as LeaderboardItem;
+        });
     }
 
     private async fetchPlayer(id: CFToolsId) {
