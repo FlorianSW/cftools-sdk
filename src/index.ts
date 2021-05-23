@@ -1,17 +1,23 @@
 import {
+    AuthenticationRequired,
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    DeletePriorityQueueRequest,
     GameServerItem,
     GenericId,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
+    GetPlayerDetailsRequest,
+    GetPriorityQueueRequest,
     LeaderboardItem,
     LoginCredentials,
+    OverrideServerApiId,
     Player,
     PriorityQueueItem,
     PutPriorityQueueItemRequest,
     ServerApiId,
+    ServerApiIdRequired,
     SteamId64
 } from './types';
 import {CFToolsAuthorizationProvider} from './internal/auth';
@@ -23,23 +29,30 @@ export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
     private credentials: LoginCredentials | undefined;
 
+    /**
+     * Set the default server api ID identifying the CFTools Cloud server instance.
+     * This default API ID is not required. Methods will allow to override this default id, otherwise this ID
+     * needs to be set in order for the method to succeed.
+     *
+     * Methods that require authentication are marked in their documentation, that they require an authenticated client.
+     */
     public withServerApiId(serverApiId: string): CFToolsClientBuilder {
         this.serverApiId = ServerApiId.of(serverApiId);
         return this;
     }
 
+    /**
+     * Sets the API credentials used to authenticate against endpoints that require authentication.
+     * Not every endpoint of the CFTools Cloud API requires authentication. Where not needed, the SDK will make
+     * unauthenticated requests. Whenever an endpoint requires authentication, these credentials must be set in order
+     * for the method to succeed.
+     */
     public withCredentials(applicationId: string, secret: string): CFToolsClientBuilder {
         this.credentials = LoginCredentials.of(applicationId, secret);
         return this;
     }
 
     public build(): CFToolsClient {
-        if (this.serverApiId === undefined) {
-            throw new Error('ServerApiId needs to be set.');
-        }
-        if (this.credentials === undefined) {
-            throw new Error('Credentials need to be provided.');
-        }
         return new GotCFToolsClient(this.serverApiId, this.credentials)
     }
 }
@@ -178,16 +191,19 @@ function asDate(dateAsString: string): Date {
 }
 
 class GotCFToolsClient implements CFToolsClient {
-    private readonly auth: CFToolsAuthorizationProvider;
+    private readonly auth?: CFToolsAuthorizationProvider;
 
-    constructor(private serverApiId: ServerApiId, credentials: LoginCredentials) {
-        this.auth = new CFToolsAuthorizationProvider(credentials);
+    constructor(private serverApiId?: ServerApiId, credentials?: LoginCredentials) {
+        if (credentials) {
+            this.auth = new CFToolsAuthorizationProvider(credentials);
+        }
     }
 
-    async getPlayerDetails(playerId: GenericId): Promise<Player> {
+    async getPlayerDetails(playerId: GetPlayerDetailsRequest | GenericId): Promise<Player> {
+        this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const token = await this.auth.provideToken();
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/player`, {
+        const token = await this.auth!.provideToken();
+        const response = await httpClient(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`, {
             searchParams: {
                 cftools_id: id.id,
             },
@@ -201,7 +217,8 @@ class GotCFToolsClient implements CFToolsClient {
     }
 
     async getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
-        const token = await this.auth.provideToken();
+        this.assertAuthentication();
+        const token = await this.auth!.provideToken();
         const params = new URLSearchParams();
         params.append('stat', request.statistic);
         if (request.order === 'ASC') {
@@ -212,7 +229,7 @@ class GotCFToolsClient implements CFToolsClient {
         if (request.limit && request.limit > 0 && request.limit <= 100) {
             params.append('limit', request.limit.toString());
         }
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/leaderboard`, {
+        const response = await httpClient(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
             searchParams: params,
             headers: {
                 Authorization: 'Bearer ' + token
@@ -230,14 +247,15 @@ class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async getPriorityQueue(playerId: GenericId): Promise<PriorityQueueItem | null> {
+    async getPriorityQueue(playerId: GetPriorityQueueRequest | GenericId): Promise<PriorityQueueItem | null> {
+        this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await httpClient(`v1/server/${this.serverApiId.id}/queuepriority`, {
+        const response = await httpClient(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id,
             },
             headers: {
-                Authorization: 'Bearer ' + await this.auth.provideToken()
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
             }
         }).json<GetPriorityQueueEntry>();
         if (response.entries.length === 0) {
@@ -253,30 +271,32 @@ class GotCFToolsClient implements CFToolsClient {
     }
 
     async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
+        this.assertAuthentication();
         let expires = '';
         if (request.expires && request.expires !== 'Permanent') {
             expires = request.expires.toISOString();
         }
-        await httpClient.post(`v1/server/${this.serverApiId.id}/queuepriority`, {
+        await httpClient.post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
             body: JSON.stringify({
                 cftools_id: request.id.id,
                 comment: request.comment,
                 expires_at: expires
             }),
             headers: {
-                Authorization: 'Bearer ' + await this.auth.provideToken()
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
         });
     }
 
-    async deletePriorityQueue(playerId: GenericId): Promise<void> {
+    async deletePriorityQueue(playerId: DeletePriorityQueueRequest | GenericId): Promise<void> {
+        this.assertAuthentication();
         const id = await this.resolve(playerId);
-        await httpClient.delete(`v1/server/${this.serverApiId.id}/queuepriority`, {
+        await httpClient.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id
             },
             headers: {
-                Authorization: 'Bearer ' + await this.auth.provideToken()
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
         });
     }
@@ -347,15 +367,37 @@ class GotCFToolsClient implements CFToolsClient {
         } as GameServerItem
     }
 
-    private async resolve(id: GenericId): Promise<CFToolsId> {
-        if (id instanceof CFToolsId) {
-            return id;
+    private assertAuthentication() {
+        if (!this.auth) {
+            throw new AuthenticationRequired();
+        }
+    }
+
+    private resolveServerApiId(request?: OverrideServerApiId): ServerApiId {
+        if (request?.serverApiId) {
+            return request.serverApiId;
+        }
+        if (this.serverApiId) {
+            return this.serverApiId;
+        }
+        throw new ServerApiIdRequired();
+    }
+
+    private async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
+        let playerId: GenericId;
+        if ('playerId' in id) {
+            playerId = id.playerId;
+        } else {
+            playerId = id;
+        }
+        if (playerId instanceof CFToolsId) {
+            return playerId;
         }
         let identifier: string;
-        if (id instanceof SteamId64 || id instanceof BohemiaInteractiveId) {
-            identifier = id.id;
+        if (playerId instanceof SteamId64 || playerId instanceof BohemiaInteractiveId) {
+            identifier = playerId.id;
         } else {
-            identifier = id.guid;
+            identifier = playerId.guid;
         }
 
         const response = await httpClient('v1/users/lookup', {

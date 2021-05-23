@@ -2,35 +2,55 @@ export type GenericId = SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFTool
 
 export interface CFToolsClient {
     /**
-     * Returns metdata about an individual player.
+     * Returns metadata about an individual player.
+     *
+     * This request requires an authenticated client.
      */
     getPlayerDetails(id: GenericId): Promise<Player>
+
+    getPlayerDetails(id: GetPlayerDetailsRequest): Promise<Player>
 
     /**
      * Creates a leaderboard based on the requested statistic in the requested order.
      * The fields of an individual leaderboard item may vary based on the requested base statistics.
+     *
+     * This request requires an authenticated client.
      */
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]>
 
     /**
      * Returns the meta information of the priority queue of the player. If the player does
      * not have priority queue for this server, it will return null.
+     *
+     * This request requires an authenticated client.
      */
     getPriorityQueue(id: GenericId): Promise<PriorityQueueItem | null>
+
+    getPriorityQueue(id: GetPriorityQueueRequest): Promise<PriorityQueueItem | null>
 
     /**
      * Creates a priority queue entry for the given player. The entry will grant the player either permanent or
      * temporary priority queue access for the server.
      * If the player already has a priority queue entry, this entry will be deleted before the new one is created.
+     *
+     * This request requires an authenticated client.
      */
     putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void>
 
     /**
      * Drops the priority queue of the player if the player has a priority queue entry for the server. Does not error
      * when the player does not have a priority queue entry.
+     *
+     * This request requires an authenticated client.
      */
     deletePriorityQueue(id: GenericId): Promise<void>
 
+    deletePriorityQueue(id: DeletePriorityQueueRequest): Promise<void>
+
+    /**
+     * Return information about a specific game server instance. These information are not related to a specific
+     * CFTools Cloud server instance.
+     */
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
 }
 
@@ -106,7 +126,20 @@ export enum Statistic {
     KILL_DEATH_RATION = 'kdratio',
 }
 
-export interface GetLeaderboardRequest {
+interface IdRequest extends OverrideServerApiId {
+    playerId: GenericId,
+}
+
+export interface GetPlayerDetailsRequest extends IdRequest {
+}
+
+export interface GetPriorityQueueRequest extends IdRequest {
+}
+
+export interface DeletePriorityQueueRequest extends IdRequest {
+}
+
+export interface GetLeaderboardRequest extends OverrideServerApiId {
     order: 'ASC' | 'DESC',
     statistic: Statistic,
     limit?: number,
@@ -128,7 +161,7 @@ export interface PriorityQueueItem {
     expiration: Date | 'Permanent',
 }
 
-export interface PutPriorityQueueItemRequest {
+export interface PutPriorityQueueItemRequest extends OverrideServerApiId {
     expires?: Date | 'Permanent',
     comment: string,
     id: CFToolsId,
@@ -156,14 +189,14 @@ export interface GameHost {
 
 export interface GameHostGeolocation {
     available: boolean,
-        city: {
+    city: {
         name: string | null,
-            region: string | null,
+        region: string | null,
     },
     continent: string,
-        country: {
+    country: {
         code: string,
-            name: string,
+        name: string,
     },
     timezone: string,
 }
@@ -223,5 +256,36 @@ export interface GameServerItem {
     },
 }
 
-export class ResourceNotFound extends Error {}
-export class InvalidCredentials extends Error {}
+export interface OverrideServerApiId {
+    serverApiId?: ServerApiId,
+}
+
+/**
+ * Indicates that the requested resource (e.g. a server, a priority queue entry or a player ID) does not exist
+ * in the CFTools Cloud database.
+ */
+export class ResourceNotFound extends Error {
+}
+
+/**
+ * The client tried to receive an authentication token with the provided API credentials (application ID and secret)
+ * but failed with an error that indicates that the provided credentials are invalid or expired.
+ */
+export class InvalidCredentials extends Error {
+}
+
+/**
+ * Indicates that a method/an endpoint was called which requires authentication. However, the used client instance
+ * is not authenticated.
+ * @see CFToolsClientBuilder.withCredentials
+ */
+export class AuthenticationRequired extends Error {
+}
+
+/**
+ * Indicates that a method/an endpoint was called which requires a server API ID. However, the request to the method
+ * did not contain a server API ID and the client did not have a default server API ID set. Re-call the method with either
+ * a client which has a default server API ID set or provide on in the request parameter of the method.
+ */
+export class ServerApiIdRequired extends Error {
+}

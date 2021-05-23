@@ -1,16 +1,21 @@
 import {config} from 'dotenv';
 import {
+    AuthenticationRequired,
     BattlEyeGUID,
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
-    Game, GameHost, GameServerItem,
+    Game,
+    GameServerItem,
     InvalidCredentials,
     Player,
     PriorityQueueItem,
     ResourceNotFound,
+    ServerApiId,
+    ServerApiIdRequired,
     Statistic,
-    SteamId64, SteamWorkshopMod
+    SteamId64,
+    SteamWorkshopMod
 } from './types';
 import {CFToolsClientBuilder} from './index';
 
@@ -35,6 +40,12 @@ describe('CFToolsClient', () => {
                 .build();
 
             await expect(client.getPlayerDetails(CFToolsId.of('UNKNOWN'))).rejects.toThrowError(new InvalidCredentials())
+        });
+
+        it('throws when executing functions which require auth without auth', async () => {
+            client = new CFToolsClientBuilder().withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '').build();
+
+            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(new AuthenticationRequired());
         });
     });
 
@@ -63,6 +74,27 @@ describe('CFToolsClient', () => {
 
         it('returns player for BIS ID', async () => {
             await expect(client.getPlayerDetails(BohemiaInteractiveId.of('9WWg8tLpyc6G-shAuda4gA_crUBpqJcFIdx3Q5-kgTk='))).resolves.toMatchObject({
+                names: ['FlorianSW']
+            } as Player);
+        });
+
+        it('throws on missing server api ID', async () => {
+            client = new CFToolsClientBuilder()
+                .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
+                .build();
+
+            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(new ServerApiIdRequired());
+        });
+
+        it('uses overridden server api ID', async () => {
+            client = new CFToolsClientBuilder()
+                .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
+                .build();
+
+            await expect(client.getPlayerDetails({
+                playerId: existingCfToolsId,
+                serverApiId: ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '')
+            })).resolves.toMatchObject({
                 names: ['FlorianSW']
             } as Player);
         });
