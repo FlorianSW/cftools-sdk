@@ -175,7 +175,7 @@ class GotCFToolsClient implements CFToolsClient {
 
     async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
         let expires = '';
-        if (request.expires !== 'Permanent') {
+        if (request.expires && request.expires !== 'Permanent') {
             expires = request.expires.toISOString();
         }
         await httpClient.post(`v1/server/${this.serverApiId.id}/queuepriority`, {

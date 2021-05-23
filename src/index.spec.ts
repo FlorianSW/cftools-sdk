@@ -103,5 +103,16 @@ describe('CFToolsClient', () => {
                 expiration: expireDate,
             } as PriorityQueueItem);
         });
+
+        it('creates a permanent priority queue entry', async () => {
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + 1);
+            await client.putPriorityQueue({
+                id: existingCfToolsId,
+                comment: 'A_COMMENT',
+            });
+
+            await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toHaveProperty('expiration', 'Permanent');
+        });
     });
 });

@@ -127,7 +127,7 @@ export interface PriorityQueueItem {
 }
 
 export interface PutPriorityQueueItemRequest {
-    expires: Date | 'Permanent',
+    expires?: Date | 'Permanent',
     comment: string,
     id: CFToolsId,
 }
