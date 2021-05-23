@@ -14,3 +14,8 @@ jobs:
           node-version: '14'
       - run: npm ci
       - run: npm test
+        env:
+          CFTOOLS_APPLICATION_ID: ${{ secrets.CFTOOLS_APPLICATION_ID }}
+          CFTOOLS_SECRET: ${{ secrets.CFTOOLS_SECRET }}
+          CFTOOLS_SERVER_API_ID: ${{ secrets.CFTOOLS_SERVER_API_ID }}
+          CFTOOLS_API_TOKEN: ${{ secrets.CFTOOLS_API_TOKEN }}
