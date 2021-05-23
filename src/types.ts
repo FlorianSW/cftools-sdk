@@ -30,6 +30,8 @@ export interface CFToolsClient {
      * when the player does not have a priority queue entry.
      */
     deletePriorityQueue(id: GenericId): Promise<void>
+
+    getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
 }
 
 /**
@@ -134,6 +136,91 @@ export interface PutPriorityQueueItemRequest {
 
 export interface Player {
     names: string[],
+}
+
+export enum Game {
+    DayZ = '1'
+}
+
+export interface GetGameServerDetailsRequest {
+    game: Game,
+    ip: string,
+    port: number,
+}
+
+export interface GameHost {
+    address: string,
+    gamePort: number,
+    queryPort: number,
+}
+
+export interface GameHostGeolocation {
+    available: boolean,
+        city: {
+        name: string | null,
+            region: string | null,
+    },
+    continent: string,
+        country: {
+        code: string,
+            name: string,
+    },
+    timezone: string,
+}
+
+export interface GameSecurity {
+    battleye: boolean,
+    vac: boolean,
+    password: boolean,
+}
+
+export interface SteamWorkshopMod {
+    fileId: number,
+    name: string,
+}
+
+export interface GameEnvironment {
+    perspectives: {
+        firstPersonPerspective: boolean,
+        thirdPersonPerspective: boolean,
+    },
+    time: string,
+    timeAcceleration: {
+        general: number,
+        night: number
+    },
+}
+
+export interface GameServerItem {
+    name: string,
+    rank: number,
+    rating: number,
+    version: string,
+    map: string,
+    status: {
+        players: {
+            online: number,
+            queue: number,
+            slots: number,
+        },
+    },
+    security: GameSecurity,
+    online: boolean,
+    mods: SteamWorkshopMod[],
+    host: GameHost,
+    geolocation: GameHostGeolocation,
+    environment: GameEnvironment,
+    attributes: {
+        dlc: boolean,
+        dlcs: {
+            livonia: boolean,
+        },
+        experimental: boolean,
+        hive: 'private' | 'public',
+        modded: boolean,
+        official: boolean,
+        whitelist: boolean,
+    },
 }
 
 export class ResourceNotFound extends Error {}

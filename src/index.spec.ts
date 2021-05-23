@@ -4,12 +4,13 @@ import {
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    Game, GameHost, GameServerItem,
     InvalidCredentials,
     Player,
     PriorityQueueItem,
     ResourceNotFound,
     Statistic,
-    SteamId64
+    SteamId64, SteamWorkshopMod
 } from './types';
 import {CFToolsClientBuilder} from './index';
 
@@ -113,6 +114,88 @@ describe('CFToolsClient', () => {
             });
 
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toHaveProperty('expiration', 'Permanent');
+        });
+    });
+
+    describe('getGameServerDetails', () => {
+        it('returns game server details for existing server', async () => {
+            const ip = '37.59.34.178';
+            const server = await client.getGameServerDetails({
+                game: Game.DayZ,
+                ip: ip,
+                port: 2302,
+            });
+
+            expect(server).toMatchObject({
+                name: 'go2tech.de Rostow [GT2][Expansion|Trader|Weapons Mod]',
+                host: {
+                    address: ip,
+                    gamePort: 2302,
+                    queryPort: 27016
+                },
+                attributes: {
+                    dlc: false,
+                    dlcs: {
+                        livonia: false,
+                    },
+                    experimental: false,
+                    hive: 'private',
+                    modded: true,
+                    official: false,
+                },
+                environment: {
+                    perspectives: {
+                        firstPersonPerspective: true,
+                        thirdPersonPerspective: true,
+                    },
+                    timeAcceleration: {
+                        general: 12.0,
+                        night: 1.0,
+                    },
+                },
+                geolocation: {
+                    available: false,
+                    city: {
+                        region: null,
+                        name: null,
+                    },
+                    continent: 'EU',
+                    country: {
+                        code: 'FR',
+                        name: 'France'
+                    },
+                    timezone: 'Europe/Paris',
+                },
+                mods: expect.arrayContaining([{
+                    fileId: 2344585107,
+                    name: 'Rostow',
+                }] as SteamWorkshopMod[]),
+                map: 'rostow',
+                online: true,
+                rating: expect.any(Number),
+                rank: expect.any(Number),
+                security: {
+                    vac: true,
+                    battleye: true,
+                    password: false,
+                },
+                status: {
+                    players: {
+                        online: expect.any(Number),
+                        slots: 40,
+                        queue: expect.any(Number),
+                    },
+                },
+                version: expect.any(String),
+            } as Partial<GameServerItem>);
+        });
+
+        it('returns not found for non-existing server', async () => {
+            await expect(client.getGameServerDetails({
+                game: Game.DayZ,
+                ip: '127.0.0.1',
+                port: 2302,
+            })).rejects.toThrowError(new ResourceNotFound());
         });
     });
 });

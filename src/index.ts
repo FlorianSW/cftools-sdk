@@ -2,7 +2,9 @@ import {
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    GameServerItem,
     GenericId,
+    GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     LeaderboardItem,
     LoginCredentials,
@@ -15,6 +17,7 @@ import {
 import {CFToolsAuthorizationProvider} from './internal/auth';
 import {httpClient} from './internal/http';
 import {URLSearchParams} from 'url';
+import * as crypto from 'crypto';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -89,6 +92,82 @@ interface GetPriorityQueueEntry {
         },
         uuid: string
     }[]
+}
+
+interface GetGameServerDetailsResponse {
+    [key: string]: {
+        attributes: {
+            dlc: boolean,
+            dlcs: {
+                livonia: boolean,
+            },
+            experimental: boolean,
+            hive: 'private' | 'public',
+            modded: boolean,
+            official: boolean,
+            shard: string,
+            whitelist: boolean,
+        },
+        environment: {
+            perspectives: {
+                '1rd': boolean,
+                '3rd': boolean,
+            },
+            time: string,
+            time_acceleration: {
+                general: number,
+                night: number
+            },
+        },
+        game: number,
+        geolocation: {
+            available: boolean,
+            city: {
+                name: string | null,
+                region: string | null,
+            },
+            continent: string,
+            country: {
+                code: string,
+                name: string,
+            },
+            timezone: string,
+        },
+        host: {
+            address: string,
+            game_port: number,
+            os: 'w' | 'l',
+            query_port: number,
+        },
+        map: string,
+        mods: {
+            file_id: number,
+            name: string,
+        }[],
+        name: string,
+        offline: boolean,
+        online: boolean,
+        publisher: {
+            monetization: boolean,
+        },
+        rank: number,
+        rating: number,
+        security: {
+            battleye: boolean,
+            password: boolean,
+            vac: boolean,
+        },
+        status: {
+            bots: boolean,
+            players: number,
+            queue: {
+                active: boolean,
+                size: number,
+            },
+            slots: number,
+        },
+        version: string
+    },
 }
 
 function asDate(dateAsString: string): Date {
@@ -200,6 +279,72 @@ class GotCFToolsClient implements CFToolsClient {
                 Authorization: 'Bearer ' + await this.auth.provideToken()
             },
         });
+    }
+
+    async getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem> {
+        const hash = crypto.createHash('sha1');
+        hash.update(request.game);
+        hash.update(request.ip);
+        hash.update(request.port.toString(10));
+        const serverResource = hash.digest('hex');
+
+        const response = await httpClient(`v1/gameserver/${serverResource}`).json<GetGameServerDetailsResponse>();
+        const server = response[serverResource];
+        return {
+            name: server.name,
+            version: server.version,
+            status: {
+                players: {
+                    slots: server.status.slots,
+                    online: server.status.players,
+                    queue: server.status.queue.size,
+                },
+            },
+            security: {
+                vac: server.security.vac,
+                battleye: server.security.battleye,
+                password: server.security.password,
+            },
+            rating: server.rating,
+            rank: server.rank,
+            online: server.online,
+            map: server.map,
+            mods: server.mods.map((m) => {
+                return {
+                    name: m.name,
+                    fileId: m.file_id,
+                };
+            }),
+            geolocation: {
+                timezone: server.geolocation.timezone,
+                country: server.geolocation.country,
+                continent: server.geolocation.continent,
+                city: server.geolocation.city,
+                available: server.geolocation.available,
+            },
+            environment: {
+                perspectives: {
+                    firstPersonPerspective: server.environment.perspectives['1rd'],
+                    thirdPersonPerspective: server.environment.perspectives['3rd'],
+                },
+                timeAcceleration: server.environment.time_acceleration,
+                time: server.environment.time,
+            },
+            attributes: {
+                dlc: server.attributes.dlc,
+                dlcs: server.attributes.dlcs,
+                official: server.attributes.official,
+                modded: server.attributes.modded,
+                hive: server.attributes.hive,
+                experimental: server.attributes.experimental,
+                whitelist: server.attributes.whitelist,
+            },
+            host: {
+                address: server.host.address,
+                gamePort: server.host.game_port,
+                queryPort: server.host.query_port,
+            },
+        } as GameServerItem
     }
 
     private async resolve(id: GenericId): Promise<CFToolsId> {
