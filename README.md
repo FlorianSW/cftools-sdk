@@ -27,7 +27,7 @@ const client = new CFToolsClientBuilder()
     .withServerApiId('your-server-api-id')
     .withCredentials('your-application-id', 'your-secret');
 
-client.getPriorityQueue(SteamId64('a-steam-id')).then((item: PriorityQueueItem) => {
+client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueItem) => {
     // Do something
 });
 ```
