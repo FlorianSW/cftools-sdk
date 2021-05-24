@@ -289,3 +289,60 @@ export class AuthenticationRequired extends Error {
  */
 export class ServerApiIdRequired extends Error {
 }
+
+/**
+ * The request exceeded the rate limit of the requested route. Consult the documentation to find out the limit for the
+ * requested resource and try the request again after the rate limit passed.
+ */
+export class RequestLimitExceeded extends Error {
+}
+
+/**
+ * The request attempted to create the requested resource but failed as the resource already exists.
+ *
+ * For an SDK method that ensures, that the resource which creation is attempted does not exist before creating it, this
+ * usually means the resource was created after the resource was checked for existence or deletion, but before the
+ * resource could be created by the SDK.
+ */
+export class DuplicateResourceCreation extends Error {
+}
+
+/**
+ * The request was aborted with an internal server error indicating that an unexpected error occurred. You may want to
+ * retry the request in order to see if that was a temporary problem, consult the documentation for indicators why
+ * this could happen or contact the support.
+ */
+export class UnknownError extends Error {
+    constructor(public readonly requestId: string) {
+        super(requestId);
+    }
+}
+
+/**
+ * The request was aborted as it exceeded the maximum time it is supposed to run. This could be the result of
+ * temporary overload of the CFTools service.
+ */
+export class TimeoutError extends Error {
+}
+
+/**
+ * The request was aborted by CFTools indicating that the service is currently unavailable. Consult the status page
+ * of the service to gather information about the problem. Contact the support if the problem persists.
+ */
+export class CFToolsUnavailable extends Error {
+}
+
+/**
+ * The request tried to interact with a resource for which the provided application credentials do not have access to.
+ * Make sure you grant access to the resource for the application (see the grant flow in the documentation).
+ */
+export class GrantRequired extends Error {
+}
+
+/**
+ * The supplied authentication token in the request is valid but expired and needs to be re-generated.
+ *
+ * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
+ */
+export class TokenExpired extends Error {
+}

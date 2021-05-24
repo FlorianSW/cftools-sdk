@@ -35,7 +35,7 @@ export class CFToolsAuthorizationProvider {
     private setToken(token: string) {
         this.token = token;
         this.expired = new Date();
-        this.expired.setDate(this.expired.getDate() + 1);
+        this.expired.setDate(this.expired.getHours() + 23);
     }
 
     private hasToken(): boolean {

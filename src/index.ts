@@ -202,13 +202,12 @@ class GotCFToolsClient implements CFToolsClient {
     async getPlayerDetails(playerId: GetPlayerDetailsRequest | GenericId): Promise<Player> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const token = await this.auth!.provideToken();
         const response = await httpClient(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`, {
             searchParams: {
                 cftools_id: id.id,
             },
             headers: {
-                Authorization: 'Bearer ' + token
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
             }
         }).json<GetPlayerResponse>();
         return {
@@ -218,7 +217,6 @@ class GotCFToolsClient implements CFToolsClient {
 
     async getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
         this.assertAuthentication();
-        const token = await this.auth!.provideToken();
         const params = new URLSearchParams();
         params.append('stat', request.statistic);
         if (request.order === 'ASC') {
@@ -232,7 +230,7 @@ class GotCFToolsClient implements CFToolsClient {
         const response = await httpClient(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
             searchParams: params,
             headers: {
-                Authorization: 'Bearer ' + token
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
             }
         }).json<GetLeaderboardResponse>();
         return response.leaderboard.map((raw) => {
