@@ -1,6 +1,5 @@
 import {InvalidCredentials, LoginCredentials} from '../types';
-import {URL} from 'url';
-import got, {HTTPError} from 'got';
+import {HTTPError} from 'got';
 import {httpClient} from './http';
 
 interface GetTokenRequest {
@@ -14,14 +13,12 @@ interface GetTokenResponse {
 
 export class CFToolsAuthorizationProvider {
     private token: string | undefined;
-    private expired: Date;
+    private expired: Date | undefined;
 
     constructor(private credentials: LoginCredentials) {
         if (process.env.CFTOOLS_API_TOKEN) {
-            this.token = process.env.CFTOOLS_API_TOKEN;
+            this.setToken(process.env.CFTOOLS_API_TOKEN);
         }
-        this.expired = new Date();
-        this.expired.setDate(this.expired.getDate() + 1);
     }
 
     async provideToken(): Promise<string> {
