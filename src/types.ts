@@ -265,6 +265,10 @@ export interface OverrideServerApiId {
  * in the CFTools Cloud database.
  */
 export class ResourceNotFound extends Error {
+    constructor() {
+        super('ResourceNotFound');
+        Object.setPrototypeOf(this, ResourceNotFound.prototype);
+    }
 }
 
 /**
@@ -272,6 +276,10 @@ export class ResourceNotFound extends Error {
  * but failed with an error that indicates that the provided credentials are invalid or expired.
  */
 export class InvalidCredentials extends Error {
+    constructor() {
+        super('InvalidCredentials');
+        Object.setPrototypeOf(this, InvalidCredentials.prototype);
+    }
 }
 
 /**
@@ -280,6 +288,10 @@ export class InvalidCredentials extends Error {
  * @see CFToolsClientBuilder.withCredentials
  */
 export class AuthenticationRequired extends Error {
+    constructor() {
+        super('AuthenticationRequired');
+        Object.setPrototypeOf(this, AuthenticationRequired.prototype);
+    }
 }
 
 /**
@@ -288,6 +300,10 @@ export class AuthenticationRequired extends Error {
  * a client which has a default server API ID set or provide on in the request parameter of the method.
  */
 export class ServerApiIdRequired extends Error {
+    constructor() {
+        super('ServerApiIdRequired');
+        Object.setPrototypeOf(this, ServerApiIdRequired.prototype);
+    }
 }
 
 /**
@@ -295,6 +311,10 @@ export class ServerApiIdRequired extends Error {
  * requested resource and try the request again after the rate limit passed.
  */
 export class RequestLimitExceeded extends Error {
+    constructor() {
+        super('RequestLimitExceeded');
+        Object.setPrototypeOf(this, RequestLimitExceeded.prototype);
+    }
 }
 
 /**
@@ -305,6 +325,10 @@ export class RequestLimitExceeded extends Error {
  * resource could be created by the SDK.
  */
 export class DuplicateResourceCreation extends Error {
+    constructor() {
+        super('DuplicateResourceCreation');
+        Object.setPrototypeOf(this, DuplicateResourceCreation.prototype);
+    }
 }
 
 /**
@@ -315,6 +339,7 @@ export class DuplicateResourceCreation extends Error {
 export class UnknownError extends Error {
     constructor(public readonly requestId: string) {
         super(requestId);
+        Object.setPrototypeOf(this, UnknownError.prototype);
     }
 }
 
@@ -323,6 +348,10 @@ export class UnknownError extends Error {
  * temporary overload of the CFTools service.
  */
 export class TimeoutError extends Error {
+    constructor() {
+        super('TimeoutError');
+        Object.setPrototypeOf(this, TimeoutError.prototype);
+    }
 }
 
 /**
@@ -330,6 +359,10 @@ export class TimeoutError extends Error {
  * of the service to gather information about the problem. Contact the support if the problem persists.
  */
 export class CFToolsUnavailable extends Error {
+    constructor() {
+        super('CFToolsUnavailable');
+        Object.setPrototypeOf(this, CFToolsUnavailable.prototype);
+    }
 }
 
 /**
@@ -337,6 +370,10 @@ export class CFToolsUnavailable extends Error {
  * Make sure you grant access to the resource for the application (see the grant flow in the documentation).
  */
 export class GrantRequired extends Error {
+    constructor() {
+        super('GrantRequired');
+        Object.setPrototypeOf(this, GrantRequired.prototype);
+    }
 }
 
 /**
@@ -345,4 +382,8 @@ export class GrantRequired extends Error {
  * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
  */
 export class TokenExpired extends Error {
+    constructor() {
+        super('TokenExpired');
+        Object.setPrototypeOf(this, TokenExpired.prototype);
+    }
 }

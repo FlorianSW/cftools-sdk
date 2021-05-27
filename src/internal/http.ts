@@ -1,52 +1,73 @@
-import got, {Response} from 'got';
+import got, {CancelableRequest, Got, HTTPError, Response} from 'got';
 import {
     CFToolsUnavailable,
-    DuplicateResourceCreation, GrantRequired,
+    DuplicateResourceCreation,
+    GrantRequired,
     RequestLimitExceeded,
     ResourceNotFound,
-    TimeoutError, TokenExpired, UnknownError
+    TimeoutError,
+    TokenExpired,
+    UnknownError
 } from '../types';
-import {AfterResponseHook} from 'got/dist/source/as-promise/types';
+import {OptionsOfTextResponseBody} from 'got/dist/source/types';
 
 const baseUrl = 'https://data.cftools.cloud';
 
-function error(response: Response) {
+function errorMessage(response: Response) {
     const body = JSON.parse(response.body as string);
 
     return 'error' in body ? body.error : '';
 }
 
-const errorHandler: AfterResponseHook = (response: Response) => {
+export function fromHttpError(error: HTTPError): Error {
+    const response = error.response;
     if (response.statusCode === 404) {
-        throw new ResourceNotFound();
+        return new ResourceNotFound();
     }
     if (response.statusCode === 429) {
-        throw new RequestLimitExceeded();
+        return new RequestLimitExceeded();
     }
-    if (response.statusCode === 400 && error(response) === 'duplicate') {
-        throw new DuplicateResourceCreation();
+    if (response.statusCode === 400 && errorMessage(response) === 'duplicate') {
+        return new DuplicateResourceCreation();
     }
-    if (response.statusCode === 403 && error(response) === 'no-grant') {
-        throw new GrantRequired();
+    if (response.statusCode === 403 && errorMessage(response) === 'no-grant') {
+        return new GrantRequired();
     }
-    if (response.statusCode === 403 && error(response) === 'expired-token') {
-        throw new TokenExpired();
+    if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
+        return new TokenExpired();
     }
-    if (response.statusCode === 500 && error(response) === 'unexpected-error') {
-        throw new UnknownError(JSON.parse(response.body as string).request_id);
+    if (response.statusCode === 500 && errorMessage(response) === 'unexpected-error') {
+        return new UnknownError(JSON.parse(response.body as string).request_id);
     }
-    if (response.statusCode === 500 && error(response) === 'timeout') {
-        throw new TimeoutError();
+    if (response.statusCode === 500 && errorMessage(response) === 'timeout') {
+        return new TimeoutError();
     }
-    if (response.statusCode === 500 && error(response) === 'system-unavailable') {
-        throw new CFToolsUnavailable();
+    if (response.statusCode === 500 && errorMessage(response) === 'system-unavailable') {
+        return new CFToolsUnavailable();
     }
-    return response;
+    return error;
+}
+
+export async function get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+    return withErrorHandler(httpClient(url, options).json<T>());
+}
+
+export async function post<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+    return withErrorHandler(httpClient.post(url, options).json<T>());
+}
+
+export async function httpDelete<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+    return withErrorHandler(httpClient.delete(url, options).json<T>());
+}
+
+async function withErrorHandler<T>(request: Promise<T>): Promise<T> {
+    try {
+        return await request;
+    } catch (error) {
+        throw fromHttpError(error);
+    }
 }
 
 export const httpClient = got.extend({
     prefixUrl: baseUrl,
-    hooks: {
-        afterResponse: [errorHandler],
-    },
 });

@@ -39,19 +39,19 @@ describe('CFToolsClient', () => {
                 .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', 'INVALID')
                 .build();
 
-            await expect(client.getPlayerDetails(CFToolsId.of('UNKNOWN'))).rejects.toThrowError(new InvalidCredentials())
+            await expect(client.getPlayerDetails(CFToolsId.of('UNKNOWN'))).rejects.toThrowError(InvalidCredentials)
         });
 
         it('throws when executing functions which require auth without auth', async () => {
             client = new CFToolsClientBuilder().withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '').build();
 
-            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(new AuthenticationRequired());
+            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(AuthenticationRequired);
         });
     });
 
     describe('playerDetails', () => {
         it('returns not found for unknown CFTools ID', async () => {
-            await expect(client.getPlayerDetails(CFToolsId.of('5fc7f9a050ae5adf01df9bbb'))).rejects.toThrowError(new ResourceNotFound());
+            await expect(client.getPlayerDetails(CFToolsId.of('5fc7f9a050ae5adf01df9bbb'))).rejects.toThrowError(ResourceNotFound);
         });
 
         it('returns player for CFTools ID', async () => {
@@ -83,7 +83,7 @@ describe('CFToolsClient', () => {
                 .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
                 .build();
 
-            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(new ServerApiIdRequired());
+            await expect(client.getPlayerDetails(existingCfToolsId)).rejects.toThrowError(ServerApiIdRequired);
         });
 
         it('uses overridden server api ID', async () => {
@@ -119,6 +119,10 @@ describe('CFToolsClient', () => {
 
         it('returns null if not in priority queue', async () => {
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toBeNull();
+        });
+
+        it('throws ResourceNotFound on missing identifier', async () => {
+            await expect(client.getPriorityQueue(SteamId64.of('76561199999900000'))).rejects.toThrowError(ResourceNotFound);
         });
 
         it('persists priority queue item', async () => {
@@ -227,7 +231,7 @@ describe('CFToolsClient', () => {
                 game: Game.DayZ,
                 ip: '127.0.0.1',
                 port: 2302,
-            })).rejects.toThrowError(new ResourceNotFound());
+            })).rejects.toThrowError(ResourceNotFound);
         });
     });
 });
