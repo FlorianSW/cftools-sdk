@@ -85,6 +85,8 @@ interface GetLeaderboardResponse {
         playtime: number,
         rank: number,
         suicides: number,
+        kills?: number,
+        deaths?: number,
     }[]
 }
 
@@ -240,8 +242,10 @@ class GotCFToolsClient implements CFToolsClient {
             return {
                 name: raw.latest_name,
                 rank: raw.rank,
-                suicides: raw.suicides,
-                environmentDeaths: raw.environment_deaths,
+                suicides: raw.suicides || 0,
+                environmentDeaths: raw.environment_deaths || 0,
+                kills: raw.kills || 0,
+                deaths: raw.deaths || 0,
                 playtime: raw.playtime,
                 id: CFToolsId.of(raw.cftools_id),
             } as LeaderboardItem;

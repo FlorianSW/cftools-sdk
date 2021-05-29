@@ -149,8 +149,10 @@ export interface LeaderboardItem {
     id: CFToolsId,
     name: string,
     playtime: number,
-    rank: 1,
-    suicides?: 1,
+    rank: number,
+    suicides: number,
+    kills: number,
+    deaths: number,
     environmentDeaths?: number,
 }
 
