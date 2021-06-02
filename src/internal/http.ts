@@ -48,16 +48,16 @@ export function fromHttpError(error: HTTPError): Error {
     return error;
 }
 
-export async function get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-    return withErrorHandler(httpClient(url, options).json<T>());
+export async function get<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
+    return withErrorHandler(client(url, options).json<T>());
 }
 
-export async function post<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-    return withErrorHandler(httpClient.post(url, options).json<T>());
+export async function post<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
+    return withErrorHandler(client.post(url, options).json<T>());
 }
 
-export async function httpDelete<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-    return withErrorHandler(httpClient.delete(url, options).json<T>());
+export async function httpDelete<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
+    return withErrorHandler(client.delete(url, options).json<T>());
 }
 
 async function withErrorHandler<T>(request: Promise<T>): Promise<T> {

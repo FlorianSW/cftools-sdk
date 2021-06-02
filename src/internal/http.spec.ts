@@ -1,6 +1,6 @@
 import {createServer, Server} from 'http';
 import {Got} from 'got';
-import {httpClient} from './http';
+import {get, httpClient} from './http';
 import {
     CFToolsUnavailable,
     DuplicateResourceCreation, GrantRequired,
@@ -52,49 +52,49 @@ describe('http', () => {
     it('throws ResourceNotFound on 404', async () => {
         httpResponse = {code: 404, errorText: 'invalid-resource'};
 
-        await expect(client('not-found')).rejects.toThrowError(new ResourceNotFound());
+        await expect(get('not-found', undefined, client)).rejects.toThrowError(new ResourceNotFound());
     });
 
     it('throws RequestLimitExceeded on 429', async () => {
         httpResponse = {code: 429, errorText: 'rate-limited'};
 
-        await expect(client('rate-limited')).rejects.toThrowError(new RequestLimitExceeded());
+        await expect(get('rate-limited', undefined, client)).rejects.toThrowError(new RequestLimitExceeded());
     });
 
     it('throws DuplicateResourceCreation on 400 with duplicate', async () => {
-        httpResponse = {code: 429, errorText: 'duplicate'};
+        httpResponse = {code: 400, errorText: 'duplicate'};
 
-        await expect(client('duplicate')).rejects.toThrowError(new DuplicateResourceCreation());
+        await expect(get('duplicate', undefined, client)).rejects.toThrowError(new DuplicateResourceCreation());
     });
 
     it('throws UnknownError on 500 with unexpected-error', async () => {
         httpResponse = {code: 500, errorText: 'unexpected-error', request_id: 'SOME_ID'};
 
-        await expect(client('unexpected-error')).rejects.toThrowError(new UnknownError('SOME_ID'));
+        await expect(get('unexpected-error', undefined, client)).rejects.toThrowError(new UnknownError('SOME_ID'));
     });
 
     it('throws TimeoutError on 500 with timeout', async () => {
         httpResponse = {code: 500, errorText: 'timeout'};
 
-        await expect(client('timeout')).rejects.toThrowError(new TimeoutError());
+        await expect(get('timeout', undefined, client)).rejects.toThrowError(new TimeoutError());
     });
 
     it('throws CFToolsUnavailable on 500 with system-unavailable', async () => {
         httpResponse = {code: 500, errorText: 'system-unavailable'};
 
-        await expect(client('system-unavailable')).rejects.toThrowError(new CFToolsUnavailable());
+        await expect(get('system-unavailable', undefined, client)).rejects.toThrowError(new CFToolsUnavailable());
     });
 
     it('throws GrantRequired on 403 with no-grant', async () => {
         httpResponse = {code: 403, errorText: 'no-grant'};
 
-        await expect(client('no-grant')).rejects.toThrowError(new GrantRequired());
+        await expect(get('no-grant', undefined, client)).rejects.toThrowError(new GrantRequired());
     });
 
     it('throws TokenExpired on 403 with expired-token', async () => {
         httpResponse = {code: 403, errorText: 'expired-token'};
 
-        await expect(client('expired-token')).rejects.toThrowError(new TokenExpired());
+        await expect(get('expired-token', undefined, client)).rejects.toThrowError(new TokenExpired());
     });
 
     afterAll(() => {
