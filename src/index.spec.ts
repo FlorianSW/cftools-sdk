@@ -56,7 +56,16 @@ describe('CFToolsClient', () => {
 
         it('returns player for CFTools ID', async () => {
             await expect(client.getPlayerDetails(existingCfToolsId)).resolves.toStrictEqual({
-                names: ['FlorianSW']
+                names: ['FlorianSW'],
+                playtime: expect.any(Number),
+                sessions: expect.any(Number),
+                statistics: {
+                    infectedDeaths: expect.any(Number),
+                    deaths: expect.any(Number),
+                    kills: expect.any(Number),
+                    environmentDeaths: expect.any(Number),
+                    suicides: expect.any(Number),
+                }
             } as Player);
         });
 
@@ -163,7 +172,7 @@ describe('CFToolsClient', () => {
             });
 
             expect(server).toMatchObject({
-                name: 'go2tech.de Rostow [GT2][Expansion|Trader|Weapons Mod]',
+                name: 'Rostow by go2tech.de [GT2][BaseBuilding|Trader|Weapons Mod]',
                 host: {
                     address: ip,
                     gamePort: 2302,
@@ -186,7 +195,7 @@ describe('CFToolsClient', () => {
                     },
                     timeAcceleration: {
                         general: 12.0,
-                        night: 1.0,
+                        night: 2.0,
                     },
                 },
                 geolocation: {

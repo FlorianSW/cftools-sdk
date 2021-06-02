@@ -171,6 +171,20 @@ export interface PutPriorityQueueItemRequest extends OverrideServerApiId {
 
 export interface Player {
     names: string[],
+    statistics: PlayerStatistics,
+    /**
+     * Playtime in seconds
+     */
+    playtime: number,
+    sessions: number,
+}
+
+export interface PlayerStatistics {
+    environmentDeaths: number,
+    infectedDeaths: number,
+    suicides: number,
+    kills: number,
+    deaths: number,
 }
 
 export enum Game {

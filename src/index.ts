@@ -66,7 +66,10 @@ interface GetPlayerResponse {
         },
         game: {
             general: {
+                kills: number,
+                deaths: number,
                 environment_deaths: number,
+                infected_deaths: number,
                 suicides: number,
             }
         }
@@ -215,8 +218,18 @@ class GotCFToolsClient implements CFToolsClient {
                 }
             }
         );
+        const player = response[id.id];
         return {
-            names: response[id.id].omega.name_history,
+            names: player.omega.name_history,
+            statistics: {
+                kills: player.game.general.kills || 0,
+                deaths: player.game.general.deaths || 0,
+                suicides: player.game.general.suicides || 0,
+                environmentDeaths: player.game.general.environment_deaths || 0,
+                infectedDeaths: player.game.general.infected_deaths || 0,
+            },
+            playtime: player.omega.playtime,
+            sessions: player.omega.sessions,
         };
     }
 
