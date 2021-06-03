@@ -10,6 +10,7 @@ import {
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
     GetPriorityQueueRequest,
+    HitZones,
     LeaderboardItem,
     LoginCredentials,
     OverrideServerApiId,
@@ -18,7 +19,8 @@ import {
     PutPriorityQueueItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    SteamId64
+    SteamId64,
+    WeaponStatistic
 } from './types';
 import {CFToolsAuthorizationProvider} from './internal/auth';
 import {get, httpDelete, post} from './internal/http';
@@ -57,6 +59,30 @@ export class CFToolsClientBuilder {
     }
 }
 
+interface GetPlayerResponseHitZones {
+    brain?: number,
+    head?: number,
+    leftarm?: number,
+    leftfoot?: number,
+    leftleg?: number,
+    rightarm?: number,
+    righthand?: number,
+    rightleg?: number,
+    torso?: number,
+}
+
+interface GetPlayerResponseWeapons {
+    [className: string]: {
+        damage?: number,
+        deaths?: number,
+        hits?: number,
+        kills?: number,
+        longest_kill?: number,
+        longest_shot?: number,
+        zones?: GetPlayerResponseHitZones,
+    }
+}
+
 interface GetPlayerResponse {
     [key: string]: {
         omega: {
@@ -66,11 +92,17 @@ interface GetPlayerResponse {
         },
         game: {
             general: {
-                kills: number,
-                deaths: number,
-                environment_deaths: number,
-                infected_deaths: number,
-                suicides: number,
+                kills?: number,
+                deaths?: number,
+                environment_deaths?: number,
+                infected_deaths?: number,
+                suicides?: number,
+                hits?: number,
+                kdratio?: number,
+                longest_kill?: number,
+                longest_shot?: number,
+                weapons?: GetPlayerResponseWeapons,
+                zones?: GetPlayerResponseHitZones
             }
         }
     },
@@ -200,6 +232,38 @@ function asDate(dateAsString: string): Date {
     return new Date(dateAsString + 'Z')
 }
 
+function toHitZones(zones?: GetPlayerResponseHitZones): HitZones {
+    return {
+        torso: zones?.torso || 0,
+        rightLeg: zones?.rightleg || 0,
+        rightHand: zones?.righthand || 0,
+        rightArm: zones?.rightarm || 0,
+        leftLeg: zones?.leftleg || 0,
+        head: zones?.head || 0,
+        leftFoot: zones?.leftfoot || 0,
+        leftArm: zones?.leftarm || 0,
+        brain: zones?.brain || 0,
+    };
+}
+
+function toWeaponBreakdown(weapons?: GetPlayerResponseWeapons): { [className: string]: WeaponStatistic } {
+    const entries = weapons ? Object.entries(weapons): [];
+    const result: { [className: string]: WeaponStatistic } = {};
+    for (let w of entries) {
+        result[w[0]] = {
+            damage: w[1].damage || 0,
+            hits: w[1].hits || 0,
+            deaths: w[1].deaths || 0,
+            kills: w[1].kills || 0,
+            longestKill: w[1].longest_kill || 0,
+            longestShot: w[1].longest_shot || 0,
+            hitZones: toHitZones(w[1].zones),
+        } as WeaponStatistic
+    }
+
+    return result;
+}
+
 class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: CFToolsAuthorizationProvider;
 
@@ -232,6 +296,12 @@ class GotCFToolsClient implements CFToolsClient {
                 suicides: player.game.general.suicides || 0,
                 environmentDeaths: player.game.general.environment_deaths || 0,
                 infectedDeaths: player.game.general.infected_deaths || 0,
+                hits: player.game.general.hits || 0,
+                longestShot: player.game.general.longest_shot || 0,
+                longestKill: player.game.general.longest_kill || 0,
+                weaponsBreakdown: toWeaponBreakdown(player.game.general.weapons),
+                hitZones: toHitZones(player.game.general.zones),
+                killDeathRatio: player.game.general.kdratio || 0,
             },
             playtime: player.omega.playtime,
             sessions: player.omega.sessions,

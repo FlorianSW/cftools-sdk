@@ -65,6 +65,22 @@ describe('CFToolsClient', () => {
                     kills: expect.any(Number),
                     environmentDeaths: expect.any(Number),
                     suicides: expect.any(Number),
+                    hits: expect.any(Number),
+                    killDeathRatio: expect.any(Number),
+                    longestKill: expect.any(Number),
+                    longestShot: expect.any(Number),
+                    hitZones: {
+                        brain: expect.any(Number),
+                        head: expect.any(Number),
+                        leftArm: expect.any(Number),
+                        leftFoot: expect.any(Number),
+                        leftLeg: expect.any(Number),
+                        rightArm: expect.any(Number),
+                        rightHand: expect.any(Number),
+                        rightLeg: expect.any(Number),
+                        torso: expect.any(Number),
+                    },
+                    weaponsBreakdown: {},
                 }
             } as Player);
         });

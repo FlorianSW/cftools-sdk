@@ -189,6 +189,34 @@ export interface PlayerStatistics {
     suicides: number,
     kills: number,
     deaths: number,
+    hits: number,
+    killDeathRatio: number,
+    longestKill: number,
+    longestShot: number,
+    hitZones: HitZones,
+    weaponsBreakdown: { [className: string]: WeaponStatistic }
+}
+
+export interface HitZones {
+    brain: number,
+    head: number,
+    leftArm: number,
+    leftFoot: number,
+    leftLeg: number,
+    rightArm: number,
+    rightHand: number,
+    rightLeg: number,
+    torso: number,
+}
+
+export interface WeaponStatistic {
+    damage: number,
+    deaths: number,
+    hits: number
+    kills: number,
+    longestKill: number,
+    longestShot: number,
+    hitZones: HitZones
 }
 
 export enum Game {
