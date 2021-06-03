@@ -83,13 +83,18 @@ interface GetUserLookupResponse {
 interface GetLeaderboardResponse {
     leaderboard: {
         cftools_id: string,
+        deaths: number,
         environment_deaths: number,
+        hits: number,
+        infected_deaths: number,
+        kdratio: number,
+        kills: number,
         latest_name: string,
+        longest_kill: number,
+        longest_shot: number,
         playtime: number,
         rank: number,
         suicides: number,
-        kills?: number,
-        deaths?: number,
     }[]
 }
 
@@ -261,6 +266,10 @@ class GotCFToolsClient implements CFToolsClient {
                 deaths: raw.deaths || 0,
                 playtime: raw.playtime,
                 id: CFToolsId.of(raw.cftools_id),
+                hits: raw.hits,
+                killDeathRation: raw.kdratio,
+                longestKill: raw.longest_kill,
+                longestShot: raw.longest_shot,
             } as LeaderboardItem;
         });
     }

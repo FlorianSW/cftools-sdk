@@ -152,6 +152,10 @@ export interface LeaderboardItem {
     rank: number,
     suicides: number,
     kills: number,
+    hits: number,
+    killDeathRation: number,
+    longestKill: number,
+    longestShot: number,
     deaths: number,
     environmentDeaths?: number,
 }
