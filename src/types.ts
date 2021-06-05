@@ -123,6 +123,10 @@ export enum Statistic {
     PLAYTIME = 'playtime',
     LONGEST_KILL = 'longest_kill',
     LONGEST_SHOT = 'longest_shot',
+    KILL_DEATH_RATIO = 'kdratio',
+    /**
+     * @deprecated Use Statistic.KILL_DEATH_RATIO instead
+     */
     KILL_DEATH_RATION = 'kdratio',
 }
 
