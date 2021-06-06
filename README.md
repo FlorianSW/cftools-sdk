@@ -32,6 +32,30 @@ client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueIte
 });
 ```
 
+### Caching
+
+When using the SDK for a component that acts directly upon user interactions, consider that the CFTools Cloud API utilises a rate limit to protect for unusual load and abusive behaviour.
+This SDK provides a way to circumvent a user issuing more requests to your program then the CFTools Cloud API allows you to do against a specific endpoint.
+Enabling caching for the CFToolsClient will cache successful responses from the CFTools Cloud API with a provided Cache and will hold this information up to the configured expiration time.
+The SDK ships with one Cache, which holds responses in-memory.
+
+You can enable caching with the builder:
+
+```typescript
+import {CFToolsClientBuilder, SteamId64} from 'cftools-sdk';
+
+const client = new CFToolsClientBuilder()
+    .withCache()
+    .withServerApiId('your-server-api-id')
+    .withCredentials('your-application-id', 'your-secret');
+
+client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueItem) => {
+    // Do something
+});
+```
+
+Note, that mutable operations (like adding a priority queue entry) will never be cached.
+
 ## Contribution
 
 This library is not complete yet and needs your help: What methods and features are missing?

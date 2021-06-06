@@ -1,14 +1,10 @@
-export type GenericId = SteamId64 | BattlEyeGUID | BohemiaInteractiveId | CFToolsId;
-
 export interface CFToolsClient {
     /**
      * Returns metadata about an individual player.
      *
      * This request requires an authenticated client.
      */
-    getPlayerDetails(id: GenericId): Promise<Player>
-
-    getPlayerDetails(id: GetPlayerDetailsRequest): Promise<Player>
+    getPlayerDetails(id: GenericId | GetPlayerDetailsRequest): Promise<Player>
 
     /**
      * Creates a leaderboard based on the requested statistic in the requested order.
@@ -24,9 +20,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    getPriorityQueue(id: GenericId): Promise<PriorityQueueItem | null>
-
-    getPriorityQueue(id: GetPriorityQueueRequest): Promise<PriorityQueueItem | null>
+    getPriorityQueue(id: GenericId | GetPriorityQueueRequest): Promise<PriorityQueueItem | null>
 
     /**
      * Creates a priority queue entry for the given player. The entry will grant the player either permanent or
@@ -43,15 +37,45 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    deletePriorityQueue(id: GenericId): Promise<void>
-
-    deletePriorityQueue(id: DeletePriorityQueueRequest): Promise<void>
+    deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest): Promise<void>
 
     /**
      * Return information about a specific game server instance. These information are not related to a specific
      * CFTools Cloud server instance.
      */
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
+}
+
+export interface Cache {
+    /**
+     * Returns the cached/saved value for the specified cache key. If there was never a set for the same cache key,
+     * undefined is returned.
+     *
+     * If the value saved for the cache key is already expired, it is assumed to be not present, and undefined is
+     * returned.
+     */
+    get<T>(cacheKey: string): T | undefined;
+
+    /**
+     * Saves the value to the specified cache key. Optionally, an expiry in seconds can be specified. If the value
+     * is omitted, an implementation-details dependant default expiration is assumed.
+     *
+     * When implementing this interface, document what the default value for the expiry is.
+     */
+    set<T>(cacheKey: string, value: T, expiry?: number): void;
+}
+
+/**
+ * Configuration about how long and what should be cached when using a cached CFTools client.
+ *
+ * Each of the keys in this configuration applies to one method/action that the CFTools client
+ * can execute. The value specifies the time in seconds the result of the action should be cached.
+ */
+export interface CacheConfiguration {
+    gameServerDetails: number,
+    leaderboard: number,
+    playerDetails: number,
+    priorityQueue: number,
 }
 
 /**
@@ -80,8 +104,16 @@ export class LoginCredentials {
     }
 }
 
-export class BattlEyeGUID {
+export interface GenericId {
+    readonly id: string;
+}
+
+export class BattlEyeGUID implements GenericId {
     private constructor(public readonly guid: string) {
+    }
+
+    get id(): string {
+        return this.guid;
     }
 
     static of(guid: string): BattlEyeGUID {
@@ -89,7 +121,7 @@ export class BattlEyeGUID {
     }
 }
 
-export class SteamId64 {
+export class SteamId64 implements GenericId {
     private constructor(public readonly id: string) {
     }
 
@@ -98,7 +130,7 @@ export class SteamId64 {
     }
 }
 
-export class BohemiaInteractiveId {
+export class BohemiaInteractiveId implements GenericId {
     private constructor(public readonly id: string) {
     }
 
@@ -107,7 +139,7 @@ export class BohemiaInteractiveId {
     }
 }
 
-export class CFToolsId {
+export class CFToolsId implements GenericId {
     private constructor(public readonly id: string) {
     }
 

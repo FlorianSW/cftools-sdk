@@ -1,6 +1,7 @@
 import {
     AuthenticationRequired,
-    BohemiaInteractiveId,
+    Cache,
+    CacheConfiguration,
     CFToolsClient,
     CFToolsId,
     DeletePriorityQueueRequest,
@@ -19,17 +20,25 @@ import {
     PutPriorityQueueItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    SteamId64,
     WeaponStatistic
 } from './types';
 import {CFToolsAuthorizationProvider} from './internal/auth';
 import {get, httpDelete, post} from './internal/http';
 import {URLSearchParams} from 'url';
 import * as crypto from 'crypto';
+import {InMemoryCache} from './internal/in-memory-cache';
+import {CachingCFToolsClient} from './internal/caching-cftools-client';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
     private credentials: LoginCredentials | undefined;
+    private cache: Cache | undefined;
+    private cacheConfig: CacheConfiguration = {
+        leaderboard: 30,
+        gameServerDetails: 10,
+        playerDetails: 10,
+        priorityQueue: 20,
+    };
 
     /**
      * Set the default server api ID identifying the CFTools Cloud server instance.
@@ -54,8 +63,32 @@ export class CFToolsClientBuilder {
         return this;
     }
 
+    public withCache(cache?: Cache): CFToolsClientBuilder {
+        this.cache = cache || new InMemoryCache();
+        return this;
+    }
+
+    /**
+     * Specify the configuration of the cached CFTools client. Configuring this makes only sense when
+     * the client is configured to use a cache, otherwise this configuration is ignored.
+     *
+     * You do not need to configure all of the CacheConfiguration options. Omitted options will be auto-
+     * completed with the default settings.
+     */
+    public withCacheConfiguration(config: Partial<CacheConfiguration>): CFToolsClientBuilder {
+        this.cacheConfig = {
+            ...config,
+            ...this.cacheConfig,
+        };
+        return this;
+    }
+
     public build(): CFToolsClient {
-        return new GotCFToolsClient(this.serverApiId, this.credentials)
+        const client = new GotCFToolsClient(this.serverApiId, this.credentials);
+        if (this.cache !== undefined) {
+            return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
+        }
+        return client;
     }
 }
 
@@ -247,7 +280,7 @@ function toHitZones(zones?: GetPlayerResponseHitZones): HitZones {
 }
 
 function toWeaponBreakdown(weapons?: GetPlayerResponseWeapons): { [className: string]: WeaponStatistic } {
-    const entries = weapons ? Object.entries(weapons): [];
+    const entries = weapons ? Object.entries(weapons) : [];
     const result: { [className: string]: WeaponStatistic } = {};
     for (let w of entries) {
         result[w[0]] = {
@@ -490,16 +523,10 @@ class GotCFToolsClient implements CFToolsClient {
         if (playerId instanceof CFToolsId) {
             return playerId;
         }
-        let identifier: string;
-        if (playerId instanceof SteamId64 || playerId instanceof BohemiaInteractiveId) {
-            identifier = playerId.id;
-        } else {
-            identifier = playerId.guid;
-        }
 
         const response = await get<GetUserLookupResponse>('v1/users/lookup', {
             searchParams: {
-                identifier,
+                identifier: playerId.id,
             },
         });
         return CFToolsId.of(response.cftools_id);
