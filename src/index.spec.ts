@@ -167,14 +167,51 @@ describe('CFToolsClient', () => {
         });
 
         it('creates a permanent priority queue entry', async () => {
-            const expireDate = new Date();
-            expireDate.setDate(expireDate.getDate() + 1);
             await client.putPriorityQueue({
                 id: existingCfToolsId,
                 comment: 'A_COMMENT',
             });
 
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toHaveProperty('expiration', 'Permanent');
+        });
+    });
+
+    describe('whitelist', () => {
+        afterEach(async () => {
+            await client.deleteWhitelist(existingCfToolsId);
+        });
+
+        it('returns null for non-existent whitelist entry', async () => {
+            await expect(client.getWhitelist(existingCfToolsId)).resolves.toBeNull();
+        });
+
+        it('throws ResourceNotFound on missing identifier', async () => {
+            await expect(client.getWhitelist(SteamId64.of('76561199999900000'))).rejects.toThrowError(ResourceNotFound);
+        });
+
+        it('persists whitelist item', async () => {
+            const expireDate = new Date();
+            expireDate.setDate(expireDate.getDate() + 1);
+            await client.putWhitelist({
+                id: existingCfToolsId,
+                comment: 'A_COMMENT',
+                expires: expireDate
+            });
+
+            await expect(client.getWhitelist(existingCfToolsId)).resolves.toMatchObject({
+                createdBy: existingCfToolsId,
+                comment: 'A_COMMENT',
+                expiration: expireDate,
+            } as PriorityQueueItem);
+        });
+
+        it('creates a permanent whitelist entry', async () => {
+            await client.putWhitelist({
+                id: existingCfToolsId,
+                comment: 'A_COMMENT',
+            });
+
+            await expect(client.getWhitelist(existingCfToolsId)).resolves.toHaveProperty('expiration', 'Permanent');
         });
     });
 

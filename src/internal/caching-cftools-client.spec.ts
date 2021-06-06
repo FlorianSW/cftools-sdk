@@ -4,12 +4,12 @@ import {
     GameServerItem,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
-    GetPriorityQueueRequest,
+    GetPriorityQueueRequest, GetWhitelistRequest,
     LeaderboardItem,
     Player,
     PriorityQueueItem, ServerApiId,
     Statistic,
-    SteamId64
+    SteamId64, WhitelistItem
 } from '../types';
 import {CachingCFToolsClient} from './caching-cftools-client';
 import {InMemoryCache} from './in-memory-cache';
@@ -20,18 +20,22 @@ describe('CachingCFToolsClient', () => {
 
     beforeEach(() => {
         stubClient = {
-            deletePriorityQueue: jest.fn(),
             getGameServerDetails: jest.fn(),
             getLeaderboard: jest.fn(),
             getPlayerDetails: jest.fn(),
             getPriorityQueue: jest.fn(),
             putPriorityQueue: jest.fn(),
+            deletePriorityQueue: jest.fn(),
+            getWhitelist: jest.fn(),
+            putWhitelist: jest.fn(),
+            deleteWhitelist: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
             playerDetails: 30,
             gameServerDetails: 30,
             leaderboard: 30,
+            whitelist: 30,
         }, stubClient, ServerApiId.of('AN_ID'));
     });
 
@@ -80,6 +84,20 @@ describe('CachingCFToolsClient', () => {
             expect(firstResponse).toEqual(secondResponse);
         });
 
+        it('getWhitelist', async () => {
+            stubClient.getWhitelist = jest.fn(() => Promise.resolve({
+                comment: 'SOME_COMMENT'
+            } as WhitelistItem));
+            const request: GetWhitelistRequest = {
+                playerId: SteamId64.of('123456789'),
+            };
+            const firstResponse = await client.getWhitelist(request);
+            const secondResponse = await client.getWhitelist(SteamId64.of('123456789'));
+
+            expect(stubClient.getWhitelist).toHaveBeenCalledTimes(1);
+            expect(firstResponse).toEqual(secondResponse);
+        });
+
         it('getLeaderboard', async () => {
             stubClient.getLeaderboard = jest.fn(() => Promise.resolve([{
                 name: 'A_NAME'
@@ -113,6 +131,24 @@ describe('CachingCFToolsClient', () => {
             await client.putPriorityQueue(request);
 
             expect(stubClient.putPriorityQueue).toHaveBeenCalledTimes(2);
+        });
+
+        it('deleteWhitelist', async () => {
+            await client.deleteWhitelist(SteamId64.of('123456789'));
+            await client.deleteWhitelist(SteamId64.of('123456789'));
+
+            expect(stubClient.deleteWhitelist).toHaveBeenCalledTimes(2);
+        });
+
+        it('putWhitelist', async () => {
+            const request = {
+                id: SteamId64.of('123456789'),
+                comment: 'SOME_TEXT'
+            };
+            await client.putWhitelist(request);
+            await client.putWhitelist(request);
+
+            expect(stubClient.putWhitelist).toHaveBeenCalledTimes(2);
         });
     });
 });

@@ -2,18 +2,18 @@ import {
     Cache,
     CacheConfiguration,
     CFToolsClient,
-    DeletePriorityQueueRequest,
+    DeletePriorityQueueRequest, DeleteWhitelistRequest,
     GameServerItem,
     GenericId,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
-    GetPriorityQueueRequest,
+    GetPriorityQueueRequest, GetWhitelistRequest,
     LeaderboardItem,
     OverrideServerApiId,
     Player,
     PriorityQueueItem,
-    PutPriorityQueueItemRequest,
+    PutPriorityQueueItemRequest, PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired
 } from '../types';
@@ -35,10 +35,6 @@ export class CachingCFToolsClient implements CFToolsClient {
         private readonly client: CFToolsClient,
         private readonly defaultServerApiId?: ServerApiId
     ) {
-    }
-
-    deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest): Promise<void> {
-        return this.client.deletePriorityQueue(id);
     }
 
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem> {
@@ -63,6 +59,23 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
         return this.client.putPriorityQueue(request);
+    }
+
+    deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest): Promise<void> {
+        return this.client.deletePriorityQueue(id);
+    }
+
+    getWhitelist(id: GenericId | GetWhitelistRequest): Promise<PriorityQueueItem | null> {
+        const key = `${this.serverApiId(id)}:${playerId(id).id}`;
+        return this.cacheOrDefault('whitelist', key, () => this.client.getWhitelist(id));
+    }
+
+    putWhitelist(request: PutWhitelistItemRequest): Promise<void> {
+        return this.client.putWhitelist(request);
+    }
+
+    deleteWhitelist(id: GenericId | DeleteWhitelistRequest): Promise<void> {
+        return this.client.deleteWhitelist(id);
     }
 
     private serverApiId(r: OverrideServerApiId | GenericId): ServerApiId {

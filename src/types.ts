@@ -1,3 +1,5 @@
+import exp from 'constants';
+
 export interface CFToolsClient {
     /**
      * Returns metadata about an individual player.
@@ -40,6 +42,30 @@ export interface CFToolsClient {
     deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest): Promise<void>
 
     /**
+     * Returns the meta information of the whitelist entry of the player. If the player does
+     * not have a whitelist entry for this server, it will return null.
+     *
+     * This request requires an authenticated client.
+     */
+    getWhitelist(id: GenericId | GetWhitelistRequest): Promise<WhitelistItem | null>
+
+    /**
+     * Creates a whitelist entry for the given player. If the player already has a whitelist entry,
+     * this entry will be deleted before the new one is created.
+     *
+     * This request requires an authenticated client.
+     */
+    putWhitelist(request: PutWhitelistItemRequest): Promise<void>
+
+    /**
+     * Drops the whitelist entry of the player if the player has a whitelist entry for the server. Does not error
+     * when the player does not have a whitelist entry.
+     *
+     * This request requires an authenticated client.
+     */
+    deleteWhitelist(id: GenericId | DeleteWhitelistRequest): Promise<void>
+
+    /**
      * Return information about a specific game server instance. These information are not related to a specific
      * CFTools Cloud server instance.
      */
@@ -76,6 +102,7 @@ export interface CacheConfiguration {
     leaderboard: number,
     playerDetails: number,
     priorityQueue: number,
+    whitelist: number,
 }
 
 /**
@@ -172,7 +199,13 @@ export interface GetPlayerDetailsRequest extends IdRequest {
 export interface GetPriorityQueueRequest extends IdRequest {
 }
 
+export interface GetWhitelistRequest extends IdRequest {
+}
+
 export interface DeletePriorityQueueRequest extends IdRequest {
+}
+
+export interface DeleteWhitelistRequest extends IdRequest {
 }
 
 export interface GetLeaderboardRequest extends OverrideServerApiId {
@@ -203,7 +236,20 @@ export interface PriorityQueueItem {
     expiration: Date | 'Permanent',
 }
 
+export interface WhitelistItem {
+    created: Date,
+    createdBy: CFToolsId,
+    comment: string,
+    expiration: Date | 'Permanent',
+}
+
 export interface PutPriorityQueueItemRequest extends OverrideServerApiId {
+    expires?: Date | 'Permanent',
+    comment: string,
+    id: CFToolsId,
+}
+
+export interface PutWhitelistItemRequest extends OverrideServerApiId {
     expires?: Date | 'Permanent',
     comment: string,
     id: CFToolsId,

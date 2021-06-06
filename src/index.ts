@@ -4,23 +4,23 @@ import {
     CacheConfiguration,
     CFToolsClient,
     CFToolsId,
-    DeletePriorityQueueRequest,
+    DeletePriorityQueueRequest, DeleteWhitelistRequest,
     GameServerItem,
     GenericId,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
-    GetPriorityQueueRequest,
+    GetPriorityQueueRequest, GetWhitelistRequest,
     HitZones,
     LeaderboardItem,
     LoginCredentials,
     OverrideServerApiId,
     Player,
     PriorityQueueItem,
-    PutPriorityQueueItemRequest,
+    PutPriorityQueueItemRequest, PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    WeaponStatistic
+    WeaponStatistic, WhitelistItem
 } from './types';
 import {CFToolsAuthorizationProvider} from './internal/auth';
 import {get, httpDelete, post} from './internal/http';
@@ -38,6 +38,7 @@ export class CFToolsClientBuilder {
         gameServerDetails: 10,
         playerDetails: 10,
         priorityQueue: 20,
+        whitelist: 20,
     };
 
     /**
@@ -422,6 +423,60 @@ class GotCFToolsClient implements CFToolsClient {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
         await httpDelete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
+            searchParams: {
+                cftools_id: id.id
+            },
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+    }
+
+    async getWhitelist(playerId: GetWhitelistRequest | GenericId): Promise<WhitelistItem | null> {
+        this.assertAuthentication();
+        const id = await this.resolve(playerId);
+        const response = await get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
+            searchParams: {
+                cftools_id: id.id,
+            },
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            }
+        });
+        if (response.entries.length === 0) {
+            return null;
+        }
+        const entry = response.entries[0];
+        return {
+            createdBy: CFToolsId.of(entry.creator.cftools_id),
+            comment: entry.meta.comment,
+            expiration: entry.meta.expiration ? asDate(entry.meta.expiration) : 'Permanent',
+            created: new Date(entry.created_at)
+        } as WhitelistItem;
+    }
+
+    async putWhitelist(request: PutWhitelistItemRequest): Promise<void> {
+        this.assertAuthentication();
+        let expires = '';
+        if (request.expires && request.expires !== 'Permanent') {
+            expires = request.expires.toISOString();
+        }
+        await post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
+            body: JSON.stringify({
+                cftools_id: request.id.id,
+                comment: request.comment,
+                expires_at: expires
+            }),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+    }
+
+    async deleteWhitelist(playerId: DeleteWhitelistRequest | GenericId): Promise<void> {
+        this.assertAuthentication();
+        const id = await this.resolve(playerId);
+        await httpDelete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
             searchParams: {
                 cftools_id: id.id
             },
