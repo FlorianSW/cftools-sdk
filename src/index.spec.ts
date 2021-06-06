@@ -188,7 +188,7 @@ describe('CFToolsClient', () => {
             });
 
             expect(server).toMatchObject({
-                name: 'Rostow by go2tech.de [GT2][BaseBuilding|Trader|Weapons Mod]',
+                name: expect.stringContaining('Rostow by go2tech.de'),
                 host: {
                     address: ip,
                     gamePort: 2302,
