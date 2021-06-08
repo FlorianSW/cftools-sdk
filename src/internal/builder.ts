@@ -52,8 +52,8 @@ export class CFToolsClientBuilder {
      */
     public withCacheConfiguration(config: Partial<CacheConfiguration>): CFToolsClientBuilder {
         this.cacheConfig = {
-            ...config,
             ...this.cacheConfig,
+            ...config,
         };
         return this;
     }

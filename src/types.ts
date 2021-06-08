@@ -222,7 +222,11 @@ export interface LeaderboardItem {
     suicides: number,
     kills: number,
     hits: number,
+    /**
+     * @deprecated Use killDeathRatio instead
+     */
     killDeathRation: number,
+    killDeathRatio: number,
     longestKill: number,
     longestShot: number,
     deaths: number,
