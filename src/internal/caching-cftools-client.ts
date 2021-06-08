@@ -43,17 +43,17 @@ export class CachingCFToolsClient implements CFToolsClient {
     }
 
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
-        const key = `${this.serverApiId(request)}:${request.statistic}:${request.order}:${request.limit}`;
+        const key = `${this.serverApiId(request).id}:${request.statistic}:${request.order}:${request.limit}`;
         return this.cacheOrDefault('leaderboard', key, () => this.client.getLeaderboard(request));
     }
 
     getPlayerDetails(id: GenericId | GetPlayerDetailsRequest): Promise<Player> {
-        const key = `${this.serverApiId(id)}:${playerId(id).id}`;
+        const key = `${this.serverApiId(id).id}:${playerId(id).id}`;
         return this.cacheOrDefault('playerDetails', key, () => this.client.getPlayerDetails(id));
     }
 
     getPriorityQueue(id: GenericId | GetPriorityQueueRequest): Promise<PriorityQueueItem | null> {
-        const key = `${this.serverApiId(id)}:${playerId(id).id}`;
+        const key = `${this.serverApiId(id).id}:${playerId(id).id}`;
         return this.cacheOrDefault('priorityQueue', key, () => this.client.getPriorityQueue(id));
     }
 
@@ -66,7 +66,7 @@ export class CachingCFToolsClient implements CFToolsClient {
     }
 
     getWhitelist(id: GenericId | GetWhitelistRequest): Promise<PriorityQueueItem | null> {
-        const key = `${this.serverApiId(id)}:${playerId(id).id}`;
+        const key = `${this.serverApiId(id).id}:${playerId(id).id}`;
         return this.cacheOrDefault('whitelist', key, () => this.client.getWhitelist(id));
     }
 

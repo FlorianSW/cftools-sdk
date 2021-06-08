@@ -13,7 +13,7 @@ export class InMemoryCache implements Cache {
         if (entry === undefined) {
             return undefined;
         }
-        if (entry.notAfter <= new Date().getTime()) {
+        if (entry.notAfter <= new Date().getTime() / 1000) {
             this.entries.delete(cacheKey);
             return undefined;
         }
@@ -21,7 +21,7 @@ export class InMemoryCache implements Cache {
     }
 
     set<T>(cacheKey: string, value: T, expiry?: number): void {
-        const currentTime = new Date().getTime();
+        const currentTime = new Date().getTime() / 1000;
         const notAfter = currentTime + (expiry || 3600);
 
         this.entries.set(cacheKey, {
