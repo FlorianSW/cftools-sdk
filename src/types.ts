@@ -406,6 +406,18 @@ export class ResourceNotFound extends Error {
 }
 
 /**
+ * Indicates that the requested resource was found, however, the action on it could not be fulfilled as the required
+ * bucket (like queuepriority or whitelist) was not configured on this resource. You should only retry this request
+ * when you ensured that the respective bucket is now configured for the resource correctly.
+ */
+export class ResourceNotConfigured extends Error {
+    constructor(resource: string) {
+        super('ResourceNotConfigured: ' + resource);
+        Object.setPrototypeOf(this, ResourceNotConfigured.prototype);
+    }
+}
+
+/**
  * The client tried to receive an authentication token with the provided API credentials (application ID and secret)
  * but failed with an error that indicates that the provided credentials are invalid or expired.
  */
@@ -523,9 +535,8 @@ export class TokenExpired extends Error {
 }
 
 /**
- * The supplied authentication token in the request is valid but expired and needs to be re-generated.
- *
- * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
+ * CFTools received an error, while fetching information from the upstream server of the requested resource. CFTools
+ * needed these information in order to fulfill the request.
  */
 export class GameServerQueryError extends Error {
     constructor(type: string) {

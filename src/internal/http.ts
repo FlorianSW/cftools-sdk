@@ -3,7 +3,7 @@ import {
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
-    RequestLimitExceeded,
+    RequestLimitExceeded, ResourceNotConfigured,
     ResourceNotFound,
     TimeoutError,
     TokenExpired,
@@ -54,6 +54,10 @@ function errorMessage(response: Response) {
 
 export function fromHttpError(error: HTTPError): Error {
     const response = error.response;
+    if (response.statusCode === 404 && errorMessage(response) === 'invalid-bucket') {
+        const parts = error.request.requestUrl.split('/');
+        return new ResourceNotConfigured(parts[parts.length - 1]);
+    }
     if (response.statusCode === 404) {
         return new ResourceNotFound();
     }

@@ -5,7 +5,7 @@ import {
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
-    RequestLimitExceeded,
+    RequestLimitExceeded, ResourceNotConfigured,
     ResourceNotFound,
     TimeoutError,
     TokenExpired,
@@ -57,6 +57,12 @@ describe('http', () => {
         httpResponse = {code: 404, errorText: 'invalid-resource'};
 
         await expect(http.get('not-found')).rejects.toThrowError(new ResourceNotFound());
+    });
+
+    it('throws ResourceNotConfigured on 404 with invalid-bucket', async () => {
+        httpResponse = {code: 404, errorText: 'invalid-bucket'};
+
+        await expect(http.get('invalid-bucket/queuepriority')).rejects.toThrowError(new ResourceNotConfigured('queuepriority'));
     });
 
     it('throws RequestLimitExceeded on 429', async () => {
