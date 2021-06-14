@@ -1,4 +1,4 @@
-import got, {CancelableRequest, Got, HTTPError, Response} from 'got';
+import got, {Got, HTTPError, Response} from 'got';
 import {
     CFToolsUnavailable,
     DuplicateResourceCreation,
@@ -12,6 +12,39 @@ import {
 import {OptionsOfTextResponseBody} from 'got/dist/source/types';
 
 const baseUrl = 'https://data.cftools.cloud';
+
+export interface HttpClient {
+    get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
+
+    post<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
+
+    delete<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
+}
+
+export class GotHttpClient implements HttpClient {
+    constructor(private readonly client: Got = httpClient) {
+    }
+
+    get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+        return this.withErrorHandler(this.client(url, options).json<T>());
+    }
+
+    delete<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+        return this.withErrorHandler(this.client.delete(url, options).json<T>());
+    }
+
+    post<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
+        return this.withErrorHandler(this.client.post(url, options).json<T>());
+    }
+
+    async withErrorHandler<T>(request: Promise<T>): Promise<T> {
+        try {
+            return await request;
+        } catch (error) {
+            throw fromHttpError(error);
+        }
+    }
+}
 
 function errorMessage(response: Response) {
     const body = JSON.parse(response.body as string);
@@ -46,26 +79,6 @@ export function fromHttpError(error: HTTPError): Error {
         return new CFToolsUnavailable();
     }
     return error;
-}
-
-export async function get<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
-    return withErrorHandler(client(url, options).json<T>());
-}
-
-export async function post<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
-    return withErrorHandler(client.post(url, options).json<T>());
-}
-
-export async function httpDelete<T>(url: string, options?: OptionsOfTextResponseBody, client: Got = httpClient): Promise<T> {
-    return withErrorHandler(client.delete(url, options).json<T>());
-}
-
-async function withErrorHandler<T>(request: Promise<T>): Promise<T> {
-    try {
-        return await request;
-    } catch (error) {
-        throw fromHttpError(error);
-    }
 }
 
 export const httpClient = got.extend({

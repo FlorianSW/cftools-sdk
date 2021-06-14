@@ -124,6 +124,9 @@ export interface GetPriorityQueueEntry {
 
 export interface GetGameServerDetailsResponse {
     [key: string]: {
+        _object: {
+            error: string,
+        },
         attributes: {
             dlc: boolean,
             dlcs: {

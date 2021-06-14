@@ -1,15 +1,29 @@
 import {
     AuthenticationRequired,
-    CFToolsClient, CFToolsId, DeletePriorityQueueRequest, DeleteWhitelistRequest, GameServerItem,
-    GenericId, GetGameServerDetailsRequest,
+    CFToolsClient,
+    CFToolsId,
+    DeletePriorityQueueRequest,
+    DeleteWhitelistRequest,
+    GameServerItem, GameServerQueryError,
+    GenericId,
+    GetGameServerDetailsRequest,
     GetLeaderboardRequest,
-    GetPlayerDetailsRequest, GetPriorityQueueRequest, GetWhitelistRequest, LeaderboardItem,
-    LoginCredentials, OverrideServerApiId,
-    Player, PriorityQueueItem, PutPriorityQueueItemRequest, PutWhitelistItemRequest,
-    ServerApiId, ServerApiIdRequired, WhitelistItem
+    GetPlayerDetailsRequest,
+    GetPriorityQueueRequest,
+    GetWhitelistRequest,
+    LeaderboardItem,
+    LoginCredentials,
+    OverrideServerApiId,
+    Player,
+    PriorityQueueItem,
+    PutPriorityQueueItemRequest,
+    PutWhitelistItemRequest,
+    ServerApiId,
+    ServerApiIdRequired,
+    WhitelistItem
 } from '../../types';
 import {CFToolsAuthorizationProvider} from '../auth';
-import {get, httpDelete, post} from '../http';
+import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
 import crypto from 'crypto';
 import {
@@ -17,14 +31,16 @@ import {
     GetLeaderboardResponse,
     GetPlayerResponse,
     GetPriorityQueueEntry,
-    GetUserLookupResponse, toHitZones, toWeaponBreakdown
+    GetUserLookupResponse,
+    toHitZones,
+    toWeaponBreakdown
 } from './types';
 import {asDate} from './date-to-string';
 
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: CFToolsAuthorizationProvider;
 
-    constructor(private serverApiId?: ServerApiId, credentials?: LoginCredentials) {
+    constructor(private client: HttpClient, private serverApiId?: ServerApiId, credentials?: LoginCredentials) {
         if (credentials) {
             this.auth = new CFToolsAuthorizationProvider(credentials);
         }
@@ -33,7 +49,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async getPlayerDetails(playerId: GetPlayerDetailsRequest | GenericId): Promise<Player> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await get<GetPlayerResponse>(
+        const response = await this.client.get<GetPlayerResponse>(
             `v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`,
             {
                 searchParams: {
@@ -77,7 +93,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.limit && request.limit > 0 && request.limit <= 100) {
             params.append('limit', request.limit.toString());
         }
-        const response = await get<GetLeaderboardResponse>(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
+        const response = await this.client.get<GetLeaderboardResponse>(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
             searchParams: params,
             headers: {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
@@ -104,7 +120,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async getPriorityQueue(playerId: GetPriorityQueueRequest | GenericId): Promise<PriorityQueueItem | null> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
+        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id,
             },
@@ -130,7 +146,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.expires && request.expires !== 'Permanent') {
             expires = request.expires.toISOString();
         }
-        await post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
+        await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
             body: JSON.stringify({
                 cftools_id: request.id.id,
                 comment: request.comment,
@@ -145,7 +161,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async deletePriorityQueue(playerId: DeletePriorityQueueRequest | GenericId): Promise<void> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        await httpDelete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
+        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id
             },
@@ -158,7 +174,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async getWhitelist(playerId: GetWhitelistRequest | GenericId): Promise<WhitelistItem | null> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
+        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
             searchParams: {
                 cftools_id: id.id,
             },
@@ -184,7 +200,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.expires && request.expires !== 'Permanent') {
             expires = request.expires.toISOString();
         }
-        await post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
+        await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
             body: JSON.stringify({
                 cftools_id: request.id.id,
                 comment: request.comment,
@@ -199,7 +215,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async deleteWhitelist(playerId: DeleteWhitelistRequest | GenericId): Promise<void> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        await httpDelete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
+        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
             searchParams: {
                 cftools_id: id.id
             },
@@ -216,8 +232,11 @@ export class GotCFToolsClient implements CFToolsClient {
         hash.update(request.port.toString(10));
         const serverResource = hash.digest('hex');
 
-        const response = await get<GetGameServerDetailsResponse>(`v1/gameserver/${serverResource}`);
+        const response = await this.client.get<GetGameServerDetailsResponse>(`v1/gameserver/${serverResource}`);
         const server = response[serverResource];
+        if (server._object.error !== 'GameServerQueryError.NONE') {
+            throw new GameServerQueryError(server._object.error);
+        }
         return {
             name: server.name,
             version: server.version,
@@ -302,7 +321,7 @@ export class GotCFToolsClient implements CFToolsClient {
             return playerId;
         }
 
-        const response = await get<GetUserLookupResponse>('v1/users/lookup', {
+        const response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
             searchParams: {
                 identifier: playerId.id,
             },

@@ -2,6 +2,7 @@ import {Cache, CacheConfiguration, CFToolsClient, LoginCredentials, ServerApiId}
 import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
+import {GotHttpClient} from './http';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -59,7 +60,7 @@ export class CFToolsClientBuilder {
     }
 
     public build(): CFToolsClient {
-        const client = new GotCFToolsClient(this.serverApiId, this.credentials);
+        const client = new GotCFToolsClient(new GotHttpClient(), this.serverApiId, this.credentials);
         if (this.cache !== undefined) {
             return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
         }

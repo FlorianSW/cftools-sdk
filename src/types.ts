@@ -521,3 +521,15 @@ export class TokenExpired extends Error {
         Object.setPrototypeOf(this, TokenExpired.prototype);
     }
 }
+
+/**
+ * The supplied authentication token in the request is valid but expired and needs to be re-generated.
+ *
+ * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
+ */
+export class GameServerQueryError extends Error {
+    constructor(type: string) {
+        super(`GameServerQueryError: ${type}`);
+        Object.setPrototypeOf(this, GameServerQueryError.prototype);
+    }
+}

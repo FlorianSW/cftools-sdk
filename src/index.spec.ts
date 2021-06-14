@@ -6,7 +6,7 @@ import {
     CFToolsClient,
     CFToolsId,
     Game,
-    GameServerItem,
+    GameServerItem, GameServerQueryError,
     InvalidCredentials,
     Player,
     PriorityQueueItem,
@@ -18,6 +18,8 @@ import {
     SteamWorkshopMod
 } from './types';
 import {CFToolsClientBuilder} from './index';
+import {GotCFToolsClient} from './internal/got/client';
+import {HttpClient} from './internal/http';
 
 describe('CFToolsClient', () => {
     const existingCfToolsId = CFToolsId.of('5fc7f9a050ae5adf01df9bdd');
@@ -225,7 +227,7 @@ describe('CFToolsClient', () => {
             });
 
             expect(server).toMatchObject({
-                name: expect.stringContaining('Rostow by go2tech.de'),
+                name: expect.any(String),
                 host: {
                     address: ip,
                     gamePort: 2302,
@@ -265,10 +267,10 @@ describe('CFToolsClient', () => {
                     timezone: 'Europe/Paris',
                 },
                 mods: expect.arrayContaining([{
-                    fileId: 2344585107,
-                    name: 'Rostow',
+                    fileId: 1564026768,
+                    name: 'Community Online Tools',
                 }] as SteamWorkshopMod[]),
-                map: 'rostow',
+                map: expect.any(String),
                 online: true,
                 rating: expect.any(Number),
                 rank: expect.any(Number),
@@ -280,7 +282,7 @@ describe('CFToolsClient', () => {
                 status: {
                     players: {
                         online: expect.any(Number),
-                        slots: 40,
+                        slots: expect.any(Number),
                         queue: expect.any(Number),
                     },
                 },
@@ -294,6 +296,24 @@ describe('CFToolsClient', () => {
                 ip: '127.0.0.1',
                 port: 2302,
             })).rejects.toThrowError(ResourceNotFound);
+        });
+
+        it('throws with GameServerQueryError', async () => {
+            client = new GotCFToolsClient({
+                get: url => Promise.resolve({
+                    [url.replace('v1/gameserver/', '')]: {
+                        _object: {
+                            error: "GameServerQueryError.GENERIC",
+                        }
+                    }
+                })
+            } as HttpClient);
+
+            await expect(client.getGameServerDetails({
+                game: Game.DayZ,
+                ip: '127.0.0.1',
+                port: 2302,
+            })).rejects.toThrowError(GameServerQueryError);
         });
     });
 });
