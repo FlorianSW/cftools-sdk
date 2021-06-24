@@ -1,5 +1,6 @@
 import {
-    CFToolsClient,
+    Banlist,
+    CFToolsClient, CFToolsId,
     Game,
     GameServerItem,
     GetLeaderboardRequest,
@@ -29,6 +30,9 @@ describe('CachingCFToolsClient', () => {
             getWhitelist: jest.fn(),
             putWhitelist: jest.fn(),
             deleteWhitelist: jest.fn(),
+            getBan: jest.fn(),
+            putBan: jest.fn(),
+            deleteBan: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
@@ -36,6 +40,7 @@ describe('CachingCFToolsClient', () => {
             gameServerDetails: 30,
             leaderboard: 30,
             whitelist: 30,
+            banlist: 30,
         }, stubClient, ServerApiId.of('AN_ID'));
     });
 
@@ -98,6 +103,13 @@ describe('CachingCFToolsClient', () => {
             expect(firstResponse).toEqual(secondResponse);
         });
 
+        it('getBan', async () => {
+            await client.getBan({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
+            await client.getBan({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
+
+            expect(stubClient.getBan).toHaveBeenCalledTimes(2);
+        });
+
         it('getLeaderboard', async () => {
             stubClient.getLeaderboard = jest.fn(() => Promise.resolve([{
                 name: 'A_NAME'
@@ -149,6 +161,36 @@ describe('CachingCFToolsClient', () => {
             await client.putWhitelist(request);
 
             expect(stubClient.putWhitelist).toHaveBeenCalledTimes(2);
+        });
+
+        it('putBan', async () => {
+            await client.putBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: Banlist.of('A_BANLIST'),
+                expiration: 'Permanent',
+                reason: 'cftools-sdk test'
+            });
+            await client.putBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: Banlist.of('A_BANLIST'),
+                expiration: 'Permanent',
+                reason: 'cftools-sdk test'
+            });
+
+            expect(stubClient.putBan).toHaveBeenCalledTimes(2);
+        });
+
+        it('deleteBan', async () => {
+            await client.deleteBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: Banlist.of('A_BANLIST'),
+            });
+            await client.deleteBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: Banlist.of('A_BANLIST'),
+            });
+
+            expect(stubClient.deleteBan).toHaveBeenCalledTimes(2);
         });
     });
 });

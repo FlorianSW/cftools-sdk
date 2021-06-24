@@ -1,11 +1,11 @@
 import {
-    AuthenticationRequired,
+    AuthenticationRequired, Ban,
     CFToolsClient,
-    CFToolsId,
+    CFToolsId, DeleteBanRequest,
     DeletePriorityQueueRequest,
     DeleteWhitelistRequest,
     GameServerItem, GameServerQueryError,
-    GenericId,
+    GenericId, GetBanRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
@@ -15,7 +15,7 @@ import {
     LoginCredentials,
     OverrideServerApiId,
     Player,
-    PriorityQueueItem,
+    PriorityQueueItem, PutBanRequest,
     PutPriorityQueueItemRequest,
     PutWhitelistItemRequest,
     ServerApiId,
@@ -27,6 +27,7 @@ import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
 import crypto from 'crypto';
 import {
+    GetBanResponse,
     GetGameServerDetailsResponse,
     GetLeaderboardResponse,
     GetPlayerResponse,
@@ -292,6 +293,59 @@ export class GotCFToolsClient implements CFToolsClient {
                 queryPort: server.host.query_port,
             },
         } as GameServerItem
+    }
+
+    async getBan(request: GetBanRequest): Promise<Ban | null> {
+        const response = await this.client.get<GetBanResponse>(`v1/banlist/${request.list.id}/bans`, {
+            searchParams: {
+                filter: request.playerId.id
+            },
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+        if (response.entries.length === 0) {
+            return null;
+        }
+        const ban = response.entries[0];
+        return {
+            id: ban.id,
+            reason: ban.reason,
+            expiration: ban.expires_at ? asDate(ban.expires_at) : 'Permanent',
+            created: asDate(ban.created_at),
+        };
+    }
+
+    async putBan(request: PutBanRequest): Promise<void> {
+        let expires = null;
+        if (request.expiration && request.expiration !== 'Permanent') {
+            expires = request.expiration.toISOString();
+        }
+        await this.client.post(`v1/banlist/${request.list.id}/bans`, {
+            body: JSON.stringify({
+                identifier: (await this.resolve(request)).id,
+                reason: request.reason,
+                expires_at: expires,
+            }),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+    }
+
+    async deleteBan(request: DeleteBanRequest): Promise<void> {
+        const ban = await this.getBan(request);
+        if (!ban) {
+            return;
+        }
+        await this.client.delete(`v1/banlist/${ban.id}/bans`, {
+            body: JSON.stringify({
+                identifier: (await this.resolve(request)).id,
+            }),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
     }
 
     private assertAuthentication() {

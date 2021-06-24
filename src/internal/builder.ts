@@ -14,6 +14,7 @@ export class CFToolsClientBuilder {
         playerDetails: 10,
         priorityQueue: 20,
         whitelist: 20,
+        banlist: 10,
     };
 
     /**

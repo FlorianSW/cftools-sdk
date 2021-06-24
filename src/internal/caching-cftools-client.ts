@@ -1,10 +1,11 @@
 import {
+    Ban,
     Cache,
     CacheConfiguration,
-    CFToolsClient,
+    CFToolsClient, DeleteBanRequest,
     DeletePriorityQueueRequest, DeleteWhitelistRequest,
     GameServerItem,
-    GenericId,
+    GenericId, GetBanRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
@@ -12,7 +13,7 @@ import {
     LeaderboardItem,
     OverrideServerApiId,
     Player,
-    PriorityQueueItem,
+    PriorityQueueItem, PutBanRequest,
     PutPriorityQueueItemRequest, PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired
@@ -76,6 +77,19 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     deleteWhitelist(id: GenericId | DeleteWhitelistRequest): Promise<void> {
         return this.client.deleteWhitelist(id);
+    }
+
+    getBan(request: GetBanRequest): Promise<Ban | null> {
+        const key = `${request.list.id}:${request.playerId?.id}`;
+        return this.cacheOrDefault('banlist', key, () => this.client.getBan(request));
+    }
+
+    putBan(request: PutBanRequest): Promise<void> {
+        return this.client.putBan(request);
+    }
+
+    deleteBan(request: DeleteBanRequest): Promise<void> {
+        return this.client.deleteBan(request);
     }
 
     private serverApiId(r: OverrideServerApiId | GenericId): ServerApiId {

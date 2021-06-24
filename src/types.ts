@@ -70,6 +70,21 @@ export interface CFToolsClient {
      * CFTools Cloud server instance.
      */
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
+
+    /**
+     *
+     */
+    getBan(request: GetBanRequest): Promise<Ban | null>
+
+    /**
+     *
+     */
+    putBan(request: PutBanRequest): Promise<void>
+
+    /**
+     *
+     */
+    deleteBan(request: DeleteBanRequest): Promise<void>
 }
 
 export interface Cache {
@@ -103,6 +118,7 @@ export interface CacheConfiguration {
     playerDetails: number,
     priorityQueue: number,
     whitelist: number,
+    banlist: number,
 }
 
 /**
@@ -388,6 +404,39 @@ export interface GameServerItem {
         official: boolean,
         whitelist: boolean,
     },
+}
+
+export class Banlist {
+    private constructor(public readonly id: string) {
+    }
+
+    static of(guid: string): Banlist {
+        return new Banlist(guid);
+    }
+}
+
+export interface Ban {
+    id: string,
+    created: Date,
+    reason: string,
+    expiration: Date | 'Permanent',
+}
+
+export interface GetBanRequest {
+    playerId: GenericId,
+    list: Banlist,
+}
+
+export interface DeleteBanRequest {
+    playerId: GenericId,
+    list: Banlist,
+}
+
+export interface PutBanRequest {
+    playerId: GenericId,
+    list: Banlist,
+    expiration?: Date | 'Permanent',
+    reason: string,
 }
 
 export interface OverrideServerApiId {

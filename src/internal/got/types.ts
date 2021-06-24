@@ -200,3 +200,14 @@ export interface GetGameServerDetailsResponse {
         version: string
     },
 }
+
+export interface GetBanResponse {
+    entries: {
+        created_at: string,
+        expires_at: string | null,
+        id: string,
+        identifier: string,
+        reason: string,
+        updated_at: string,
+    }[],
+}
