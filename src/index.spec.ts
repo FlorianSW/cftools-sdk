@@ -320,8 +320,7 @@ describe('CFToolsClient', () => {
         });
     });
 
-    // TODO: Creating a ban currently does not work :(
-    describe.skip('ban management', () => {
+    describe('ban management', () => {
         afterEach(async () => {
             await client.deleteBan({
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
@@ -347,10 +346,10 @@ describe('CFToolsClient', () => {
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
                 list: banlist
             })).resolves.toMatchObject({
-                id: '608f0e4dc7ad71f73dd02940',
-                created: new Date('2021-05-02T20:40:44.987000Z'),
+                id: expect.any(String),
+                created: expect.any(Date),
                 expiration: 'Permanent',
-                reason: 'Hacker'
+                reason: 'cftools-sdk test'
             } as Ban);
         });
     });

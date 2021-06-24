@@ -1,11 +1,15 @@
 import {
-    AuthenticationRequired, Ban,
+    AuthenticationRequired,
+    Ban,
     CFToolsClient,
-    CFToolsId, DeleteBanRequest,
+    CFToolsId,
+    DeleteBanRequest,
     DeletePriorityQueueRequest,
     DeleteWhitelistRequest,
-    GameServerItem, GameServerQueryError,
-    GenericId, GetBanRequest,
+    GameServerItem,
+    GameServerQueryError,
+    GenericId,
+    GetBanRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
@@ -15,7 +19,8 @@ import {
     LoginCredentials,
     OverrideServerApiId,
     Player,
-    PriorityQueueItem, PutBanRequest,
+    PriorityQueueItem,
+    PutBanRequest,
     PutPriorityQueueItemRequest,
     PutWhitelistItemRequest,
     ServerApiId,
@@ -143,16 +148,15 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
         this.assertAuthentication();
-        let expires = '';
+        const requestBody: any = {
+            cftools_id: request.id.id,
+            comment: request.comment,
+        };
         if (request.expires && request.expires !== 'Permanent') {
-            expires = request.expires.toISOString();
+            requestBody.expires_at = request.expires.toISOString();
         }
         await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
-            body: JSON.stringify({
-                cftools_id: request.id.id,
-                comment: request.comment,
-                expires_at: expires
-            }),
+            body: JSON.stringify(requestBody),
             headers: {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
@@ -197,16 +201,15 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async putWhitelist(request: PutWhitelistItemRequest): Promise<void> {
         this.assertAuthentication();
-        let expires = '';
+        const requestBody: any = {
+            cftools_id: request.id.id,
+            comment: request.comment,
+        };
         if (request.expires && request.expires !== 'Permanent') {
-            expires = request.expires.toISOString();
+            requestBody.expires_at = request.expires.toISOString();
         }
         await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
-            body: JSON.stringify({
-                cftools_id: request.id.id,
-                comment: request.comment,
-                expires_at: expires
-            }),
+            body: JSON.stringify(requestBody),
             headers: {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
@@ -317,16 +320,16 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async putBan(request: PutBanRequest): Promise<void> {
-        let expires = null;
+        const requestBody: any = {
+            format: 'cftools_id',
+            identifier: (await this.resolve(request)).id,
+            reason: request.reason,
+        };
         if (request.expiration && request.expiration !== 'Permanent') {
-            expires = request.expiration.toISOString();
+            requestBody.expires_at = request.expiration.toISOString();
         }
         await this.client.post(`v1/banlist/${request.list.id}/bans`, {
-            body: JSON.stringify({
-                identifier: (await this.resolve(request)).id,
-                reason: request.reason,
-                expires_at: expires,
-            }),
+            body: JSON.stringify(requestBody),
             headers: {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
@@ -338,10 +341,10 @@ export class GotCFToolsClient implements CFToolsClient {
         if (!ban) {
             return;
         }
-        await this.client.delete(`v1/banlist/${ban.id}/bans`, {
-            body: JSON.stringify({
-                identifier: (await this.resolve(request)).id,
-            }),
+        await this.client.delete(`v1/banlist/${request.list.id}/bans`, {
+            searchParams: {
+                ban_id: ban.id,
+            },
             headers: {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
