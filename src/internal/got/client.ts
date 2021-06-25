@@ -9,7 +9,7 @@ import {
     GameServerItem,
     GameServerQueryError,
     GenericId,
-    GetBanRequest,
+    ListBansRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
@@ -25,7 +25,7 @@ import {
     PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    WhitelistItem
+    WhitelistItem, AmbiguousDeleteBanRequest, DeleteBansRequest
 } from '../../types';
 import {CFToolsAuthorizationProvider} from '../auth';
 import {HttpClient} from '../http';
@@ -298,7 +298,7 @@ export class GotCFToolsClient implements CFToolsClient {
         } as GameServerItem
     }
 
-    async getBan(request: GetBanRequest): Promise<Ban | null> {
+    async listBans(request: ListBansRequest): Promise<Ban[]> {
         const response = await this.client.get<GetBanResponse>(`v1/banlist/${request.list.id}/bans`, {
             searchParams: {
                 filter: request.playerId.id
@@ -308,15 +308,16 @@ export class GotCFToolsClient implements CFToolsClient {
             },
         });
         if (response.entries.length === 0) {
-            return null;
+            return [];
         }
-        const ban = response.entries[0];
-        return {
-            id: ban.id,
-            reason: ban.reason,
-            expiration: ban.expires_at ? asDate(ban.expires_at) : 'Permanent',
-            created: asDate(ban.created_at),
-        };
+        return response.entries.map((ban) => {
+            return {
+                id: ban.id,
+                reason: ban.reason,
+                expiration: ban.expires_at ? asDate(ban.expires_at) : 'Permanent',
+                created: asDate(ban.created_at),
+            }
+        });
     }
 
     async putBan(request: PutBanRequest): Promise<void> {
@@ -341,10 +342,14 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.ban) {
             ban = request.ban;
         } else if (request.playerId) {
-            ban = await this.getBan({
+            const bans = await this.listBans({
                 list: request.list,
                 playerId: request.playerId
             });
+            if (bans.length > 1) {
+                throw new AmbiguousDeleteBanRequest();
+            }
+            ban = bans[0];
         } else {
             throw Error('At least one identifier is needed, none received.');
         }
@@ -359,6 +364,16 @@ export class GotCFToolsClient implements CFToolsClient {
                 Authorization: 'Bearer ' + await this.auth!.provideToken()
             },
         });
+    }
+
+    async deleteBans(request: DeleteBansRequest): Promise<void> {
+        const bans = await this.listBans(request);
+        for (let ban of bans) {
+            await this.deleteBan({
+                list: request.list,
+                ban: ban,
+            });
+        }
     }
 
     private assertAuthentication() {

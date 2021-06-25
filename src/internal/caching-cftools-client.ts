@@ -5,7 +5,7 @@ import {
     CFToolsClient, DeleteBanRequest,
     DeletePriorityQueueRequest, DeleteWhitelistRequest,
     GameServerItem,
-    GenericId, GetBanRequest,
+    GenericId, ListBansRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
@@ -16,7 +16,7 @@ import {
     PriorityQueueItem, PutBanRequest,
     PutPriorityQueueItemRequest, PutWhitelistItemRequest,
     ServerApiId,
-    ServerApiIdRequired
+    ServerApiIdRequired, DeleteBansRequest
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -79,9 +79,9 @@ export class CachingCFToolsClient implements CFToolsClient {
         return this.client.deleteWhitelist(id);
     }
 
-    getBan(request: GetBanRequest): Promise<Ban | null> {
+    listBans(request: ListBansRequest): Promise<Ban[]> {
         const key = `${request.list.id}:${request.playerId?.id}`;
-        return this.cacheOrDefault('banlist', key, () => this.client.getBan(request));
+        return this.cacheOrDefault('banlist', key, () => this.client.listBans(request));
     }
 
     putBan(request: PutBanRequest): Promise<void> {
@@ -90,6 +90,10 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     deleteBan(request: DeleteBanRequest): Promise<void> {
         return this.client.deleteBan(request);
+    }
+
+    deleteBans(request: DeleteBansRequest): Promise<void> {
+        return this.client.deleteBans(request);
     }
 
     private serverApiId(r: OverrideServerApiId | GenericId): ServerApiId {

@@ -1,15 +1,20 @@
 import {config} from 'dotenv';
 import {
-    AuthenticationRequired, Ban, Banlist,
+    AmbiguousDeleteBanRequest,
+    AuthenticationRequired,
+    Ban,
+    Banlist,
     BattlEyeGUID,
     BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
     Game,
-    GameServerItem, GameServerQueryError,
+    GameServerItem,
+    GameServerQueryError,
     InvalidCredentials,
     Player,
     PriorityQueueItem,
+    PutBanRequest,
     ResourceNotFound,
     ServerApiId,
     ServerApiIdRequired,
@@ -306,7 +311,7 @@ describe('CFToolsClient', () => {
                 get: url => Promise.resolve({
                     [url.replace('v1/gameserver/', '')]: {
                         _object: {
-                            error: "GameServerQueryError.GENERIC",
+                            error: 'GameServerQueryError.GENERIC',
                         }
                     }
                 })
@@ -322,17 +327,17 @@ describe('CFToolsClient', () => {
 
     describe('ban management', () => {
         afterEach(async () => {
-            await client.deleteBan({
+            await client.deleteBans({
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
                 list: banlist
             });
         });
 
         it('returns null on missing ban', async () => {
-            await expect(client.getBan({
+            await expect(client.listBans({
                 playerId: existingCfToolsId,
                 list: banlist
-            })).resolves.toBeNull();
+            })).resolves.toEqual([]);
         });
 
         it('persists ban', async () => {
@@ -342,38 +347,58 @@ describe('CFToolsClient', () => {
                 expiration: 'Permanent',
                 reason: 'cftools-sdk test'
             });
-            await expect(client.getBan({
+            await expect(client.listBans({
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
                 list: banlist
-            })).resolves.toMatchObject({
-                id: expect.any(String),
-                created: expect.any(Date),
-                expiration: 'Permanent',
-                reason: 'cftools-sdk test'
-            } as Ban);
+            })).resolves.toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(String),
+                    created: expect.any(Date),
+                    expiration: 'Permanent',
+                    reason: 'cftools-sdk test'
+                } as Ban)
+            ]));
         });
 
         it('deletes ban by ban ID', async () => {
+            const playerId = CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || '');
             await client.putBan({
-                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                playerId: playerId,
                 list: banlist,
                 expiration: 'Permanent',
                 reason: 'cftools-sdk test'
             });
-            const ban = await client.getBan({
-                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+            const ban = await client.listBans({
+                playerId: playerId,
                 list: banlist
             });
 
             await client.deleteBan({
                 list: banlist,
-                ban: ban!!,
+                ban: ban[0],
             });
 
-            await expect(client.getBan({
-                playerId: existingCfToolsId,
+            await expect(client.listBans({
+                playerId: playerId,
                 list: banlist
-            })).resolves.toBeNull();
+            })).resolves.toEqual([]);
+        });
+
+        it('throws error when player has more than one ban', async () => {
+            const playerId = CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || '');
+            const details: PutBanRequest = {
+                playerId: playerId,
+                list: banlist,
+                expiration: 'Permanent',
+                reason: 'cftools-sdk test'
+            };
+            await client.putBan(details);
+            await client.putBan(details);
+
+            await expect(client.deleteBan({
+                playerId: playerId,
+                list: banlist
+            })).rejects.toThrowError(AmbiguousDeleteBanRequest);
         });
     });
 });

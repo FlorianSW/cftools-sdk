@@ -30,9 +30,10 @@ describe('CachingCFToolsClient', () => {
             getWhitelist: jest.fn(),
             putWhitelist: jest.fn(),
             deleteWhitelist: jest.fn(),
-            getBan: jest.fn(),
+            listBans: jest.fn(),
             putBan: jest.fn(),
             deleteBan: jest.fn(),
+            deleteBans: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
@@ -104,10 +105,10 @@ describe('CachingCFToolsClient', () => {
         });
 
         it('getBan', async () => {
-            await client.getBan({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
-            await client.getBan({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
+            await client.listBans({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
+            await client.listBans({list: Banlist.of('A_BANLIST_ID'), playerId: SteamId64.of('123456789')});
 
-            expect(stubClient.getBan).toHaveBeenCalledTimes(2);
+            expect(stubClient.listBans).toHaveBeenCalledTimes(2);
         });
 
         it('getLeaderboard', async () => {
@@ -181,16 +182,27 @@ describe('CachingCFToolsClient', () => {
         });
 
         it('deleteBan', async () => {
-            await client.deleteBan({
+            const request = {
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
                 list: Banlist.of('A_BANLIST'),
-            });
-            await client.deleteBan({
-                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
-                list: Banlist.of('A_BANLIST'),
-            });
+            };
+
+            await client.deleteBan(request);
+            await client.deleteBan(request);
 
             expect(stubClient.deleteBan).toHaveBeenCalledTimes(2);
+        });
+
+        it('deleteBan', async () => {
+            const request = {
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: Banlist.of('A_BANLIST'),
+            };
+
+            await client.deleteBans(request);
+            await client.deleteBans(request);
+
+            expect(stubClient.deleteBans).toHaveBeenCalledTimes(2);
         });
     });
 });

@@ -72,19 +72,41 @@ export interface CFToolsClient {
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
 
     /**
+     * Return the list of bans registered for the requested player. Both, expired and currently enforced bans, are
+     * returned as a result of this method.
      *
+     * If the requested user is not and was never banned so far, an empty list is returned.
      */
-    getBan(request: GetBanRequest): Promise<Ban | null>
+    listBans(request: ListBansRequest): Promise<Ban[]>
 
     /**
-     *
+     * Creates a new entry in the banlist for the provided player. A reason is required to ban a player. It is either
+     * a temporary or permanent ban, based on the provided expiration.
      */
     putBan(request: PutBanRequest): Promise<void>
 
     /**
+     * Deletes an entry on the ban list for the provided player or ban. Given the player is not banned, this method
+     * does nothing. If the player has multiple bans in the ban list, an error will be thrown. Delete the ban by
+     * providing the ban you want to delete (as requested with the listBans method).
      *
+     * This method will delete the ban, instead of just revoking it. The ban details will not be available in the
+     * banlist afterwards anymore.
      */
     deleteBan(request: DeleteBanRequest): Promise<void>
+
+    /**
+     * Same as deleteBan(request: DeleteBanRequest) with the only difference, that this method will delete all bans
+     * of the player in that banlist. This includes expired and revoked bans!
+     *
+     * WARNING: This method will attempt to permanently delete all bans in the banlist for that player without any further
+     * confirmation.
+     *
+     * The performance of that operation depends on the underlying implementation. However, the time the operation takes
+     * may scale linear to the amount of entries for that player on the ban list. Consult the documentation of the
+     * implementation, if any, to find out more about this implementation detail.
+     */
+    deleteBans(request: DeleteBansRequest): Promise<void>
 }
 
 export interface Cache {
@@ -422,7 +444,7 @@ export interface Ban {
     expiration: Date | 'Permanent',
 }
 
-export interface GetBanRequest {
+export interface ListBansRequest {
     playerId: GenericId,
     list: Banlist,
 }
@@ -430,6 +452,11 @@ export interface GetBanRequest {
 export interface DeleteBanRequest {
     playerId?: GenericId,
     ban?: Ban,
+    list: Banlist,
+}
+
+export interface DeleteBansRequest {
+    playerId: GenericId,
     list: Banlist,
 }
 
@@ -592,5 +619,12 @@ export class GameServerQueryError extends Error {
     constructor(type: string) {
         super(`GameServerQueryError: ${type}`);
         Object.setPrototypeOf(this, GameServerQueryError.prototype);
+    }
+}
+
+export class AmbiguousDeleteBanRequest extends Error {
+    constructor() {
+        super('AmbiguousDeleteBanRequest');
+        Object.setPrototypeOf(this, AmbiguousDeleteBanRequest.prototype);
     }
 }
