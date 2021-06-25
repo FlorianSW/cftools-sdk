@@ -352,5 +352,28 @@ describe('CFToolsClient', () => {
                 reason: 'cftools-sdk test'
             } as Ban);
         });
+
+        it('deletes ban by ban ID', async () => {
+            await client.putBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: banlist,
+                expiration: 'Permanent',
+                reason: 'cftools-sdk test'
+            });
+            const ban = await client.getBan({
+                playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: banlist
+            });
+
+            await client.deleteBan({
+                list: banlist,
+                ban: ban!!,
+            });
+
+            await expect(client.getBan({
+                playerId: existingCfToolsId,
+                list: banlist
+            })).resolves.toBeNull();
+        });
     });
 });

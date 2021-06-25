@@ -337,7 +337,17 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async deleteBan(request: DeleteBanRequest): Promise<void> {
-        const ban = await this.getBan(request);
+        let ban: Ban | null;
+        if (request.ban) {
+            ban = request.ban;
+        } else if (request.playerId) {
+            ban = await this.getBan({
+                list: request.list,
+                playerId: request.playerId
+            });
+        } else {
+            throw Error('At least one identifier is needed, none received.');
+        }
         if (!ban) {
             return;
         }

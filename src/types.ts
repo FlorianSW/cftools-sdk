@@ -428,7 +428,8 @@ export interface GetBanRequest {
 }
 
 export interface DeleteBanRequest {
-    playerId: GenericId,
+    playerId?: GenericId,
+    ban?: Ban,
     list: Banlist,
 }
 
