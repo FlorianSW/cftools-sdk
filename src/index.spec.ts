@@ -169,6 +169,7 @@ describe('CFToolsClient', () => {
                 expires: expireDate
             });
 
+            console.log('done');
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toMatchObject({
                 createdBy: existingCfToolsId,
                 comment: 'A_COMMENT',

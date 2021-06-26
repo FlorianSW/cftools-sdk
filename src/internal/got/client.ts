@@ -148,8 +148,9 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
         this.assertAuthentication();
+        const id = await this.resolve(request.id);
         const requestBody: any = {
-            cftools_id: request.id.id,
+            cftools_id: id.id,
             comment: request.comment,
         };
         if (request.expires && request.expires !== 'Permanent') {
@@ -201,8 +202,9 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async putWhitelist(request: PutWhitelistItemRequest): Promise<void> {
         this.assertAuthentication();
+        const id = await this.resolve(request.id);
         const requestBody: any = {
-            cftools_id: request.id.id,
+            cftools_id: id.id,
             comment: request.comment,
         };
         if (request.expires && request.expires !== 'Permanent') {
