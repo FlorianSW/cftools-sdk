@@ -18,6 +18,7 @@ import {
     ResourceNotFound,
     ServerApiId,
     ServerApiIdRequired,
+    ServerInfo,
     Statistic,
     SteamId64,
     SteamWorkshopMod
@@ -322,6 +323,20 @@ describe('CFToolsClient', () => {
                 ip: '127.0.0.1',
                 port: 2302,
             })).rejects.toThrowError(GameServerQueryError);
+        });
+    });
+
+    describe('getServerInfo', () => {
+        it('returns server info', async () => {
+            expect(await client.getServerInfo({})).toMatchObject({
+                nickname: 'Chernarus',
+                connection: {
+                    peerVersion: '1.219',
+                    usedProtocol: 'UDP_RCON_BATTLEYE_DZ',
+                },
+                game: Game.DayZ,
+                owner: expect.any(CFToolsId),
+            } as Partial<ServerInfo>);
         });
     });
 

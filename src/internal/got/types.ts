@@ -201,6 +201,42 @@ export interface GetGameServerDetailsResponse {
     },
 }
 
+export interface GetServerInfoResponse {
+    server: {
+        _object: {
+            created_at: string,
+            nickname: string,
+            resource_owner: string,
+            updated_at: string,
+        },
+        connection: {
+            peer_version: string,
+            prefilled_commands: boolean,
+            protcol_used: string,
+            restricted: boolean
+        },
+        gameserver: {
+            LINK: string,
+            game: number,
+            game_integration: {
+                capabilities: string[],
+                status: boolean,
+                updated_at: string,
+                version: number
+            },
+            gameserver_id: string,
+        },
+        worker: {
+            OMEGACLUSTERINFO: {
+                'CLIENT-ID': string,
+                STATUS: string,
+                VERSION: string
+            },
+            state: string
+        }
+    },
+}
+
 export interface GetBanResponse {
     entries: {
         created_at: string,

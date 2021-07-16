@@ -1,5 +1,3 @@
-import exp from 'constants';
-
 export interface CFToolsClient {
     /**
      * Returns metadata about an individual player.
@@ -71,6 +69,8 @@ export interface CFToolsClient {
      */
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
 
+    getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo>
+
     /**
      * Return the list of bans registered for the requested player. Both, expired and currently enforced bans, are
      * returned as a result of this method.
@@ -136,6 +136,7 @@ export interface Cache {
  */
 export interface CacheConfiguration {
     gameServerDetails: number,
+    serverInfo: number,
     leaderboard: number,
     playerDetails: number,
     priorityQueue: number,
@@ -437,6 +438,16 @@ export class Banlist {
     }
 }
 
+export interface ServerInfo {
+    nickname: string;
+    owner: CFToolsId;
+    connection: {
+        peerVersion: string;
+        usedProtocol: 'UDP_RCON_BATTLEYE_DZ';
+    };
+    game: Game;
+}
+
 export interface Ban {
     id: string,
     created: Date,
@@ -465,6 +476,9 @@ export interface PutBanRequest {
     list: Banlist,
     expiration?: Date | 'Permanent',
     reason: string,
+}
+
+export interface GetServerInfoRequest extends OverrideServerApiId {
 }
 
 export interface OverrideServerApiId {

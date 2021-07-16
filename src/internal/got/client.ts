@@ -1,21 +1,25 @@
 import {
+    AmbiguousDeleteBanRequest,
     AuthenticationRequired,
     Ban,
     CFToolsClient,
     CFToolsId,
     DeleteBanRequest,
+    DeleteBansRequest,
     DeletePriorityQueueRequest,
     DeleteWhitelistRequest,
+    Game,
     GameServerItem,
     GameServerQueryError,
     GenericId,
-    ListBansRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
     GetPriorityQueueRequest,
+    GetServerInfoRequest,
     GetWhitelistRequest,
     LeaderboardItem,
+    ListBansRequest,
     LoginCredentials,
     OverrideServerApiId,
     Player,
@@ -25,7 +29,8 @@ import {
     PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    WhitelistItem, AmbiguousDeleteBanRequest, DeleteBansRequest
+    ServerInfo,
+    WhitelistItem
 } from '../../types';
 import {CFToolsAuthorizationProvider} from '../auth';
 import {HttpClient} from '../http';
@@ -37,6 +42,7 @@ import {
     GetLeaderboardResponse,
     GetPlayerResponse,
     GetPriorityQueueEntry,
+    GetServerInfoResponse,
     GetUserLookupResponse,
     toHitZones,
     toWeaponBreakdown
@@ -298,6 +304,30 @@ export class GotCFToolsClient implements CFToolsClient {
                 queryPort: server.host.query_port,
             },
         } as GameServerItem
+    }
+
+    async getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo> {
+        const response = await this.client.get<GetServerInfoResponse>(`v1/server/${this.resolveServerApiId(request).id}/info`, {
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+
+        let game: Game;
+        if (response.server.gameserver.game === 1) {
+            game = Game.DayZ;
+        } else {
+            throw new Error('Unsupported game: ' + response.server.gameserver.game);
+        }
+        return {
+            nickname: response.server._object.nickname,
+            game: game,
+            connection: {
+                usedProtocol: response.server.connection.protcol_used as 'UDP_RCON_BATTLEYE_DZ',
+                peerVersion: response.server.connection.peer_version,
+            },
+            owner: CFToolsId.of(response.server._object.resource_owner),
+        };
     }
 
     async listBans(request: ListBansRequest): Promise<Ban[]> {

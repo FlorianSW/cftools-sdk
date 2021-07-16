@@ -10,6 +10,7 @@ export class CFToolsClientBuilder {
     private cache: Cache | undefined;
     private cacheConfig: CacheConfiguration = {
         leaderboard: 30,
+        serverInfo: 30,
         gameServerDetails: 10,
         playerDetails: 10,
         priorityQueue: 20,
