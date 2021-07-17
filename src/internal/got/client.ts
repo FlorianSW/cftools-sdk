@@ -10,7 +10,7 @@ import {
     DeleteWhitelistRequest,
     Game,
     GameServerItem,
-    GameServerQueryError,
+    GameServerQueryError, GameSession,
     GenericId,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
@@ -19,7 +19,7 @@ import {
     GetServerInfoRequest,
     GetWhitelistRequest,
     LeaderboardItem,
-    ListBansRequest,
+    ListBansRequest, ListGameSessionsRequest,
     LoginCredentials,
     OverrideServerApiId,
     Player,
@@ -29,7 +29,7 @@ import {
     PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    ServerInfo,
+    ServerInfo, SteamId64,
     WhitelistItem
 } from '../../types';
 import {CFToolsAuthorizationProvider} from '../auth';
@@ -43,7 +43,7 @@ import {
     GetPlayerResponse,
     GetPriorityQueueEntry,
     GetServerInfoResponse,
-    GetUserLookupResponse,
+    GetUserLookupResponse, ListGameSessionsResponse,
     toHitZones,
     toWeaponBreakdown
 } from './types';
@@ -328,6 +328,35 @@ export class GotCFToolsClient implements CFToolsClient {
             },
             owner: CFToolsId.of(response.server._object.resource_owner),
         };
+    }
+
+    async listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]> {
+        const response = await this.client.get<ListGameSessionsResponse>(`v1/server/${this.resolveServerApiId(request).id}/GSM/list`, {
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+
+        return response.sessions.map((s) => {
+            return {
+                id: s.id,
+                bans: {
+                    count: s.info.ban_count,
+                    gameBanned: !!s.persona.bans.game,
+                    communityBanned: s.persona.bans.community,
+                    economyBanned: !!s.persona.bans.economy,
+                    vacBanned: !!s.persona.bans.vac,
+                },
+                profile: {
+                    name: s.persona.profile.name,
+                    private: s.persona.profile.private,
+                    avatar: new URL(s.persona.profile.avatar),
+                },
+                cftoolsId: CFToolsId.of(s.cftools_id),
+                playerName: s.gamedata.player_name,
+                steamId: SteamId64.of(s.gamedata.steam64),
+            } as GameSession
+        });
     }
 
     async listBans(request: ListBansRequest): Promise<Ban[]> {

@@ -237,6 +237,54 @@ export interface GetServerInfoResponse {
     },
 }
 
+export interface ListGameSessionsResponse {
+    sessions: {
+        cftools_id: string;
+        connection: {
+            country_code: string;
+            country_names: {
+                de: string;
+                en: string;
+                es: string;
+                fr: string;
+                ja: string;
+                'pt-BR': string;
+                ru: string;
+                'zh-CN': string;
+            };
+            ipv4: string;
+            malicious: boolean;
+            provider: string;
+        };
+        created_at: string;
+        gamedata: {
+            player_name: string,
+            steam64: string;
+        };
+        id: string;
+        info: {
+            ban_count: number;
+            labels: string[];
+        };
+        live: {};
+        persona: {
+            bans: {
+                community: boolean;
+                economy: string;
+                game: number;
+                last_ban: any;
+                vac: number;
+            };
+            profile: {
+                avatar: string;
+                name: string;
+                private: boolean;
+            };
+        };
+        stats: {};
+    }[]
+}
+
 export interface GetBanResponse {
     entries: {
         created_at: string,

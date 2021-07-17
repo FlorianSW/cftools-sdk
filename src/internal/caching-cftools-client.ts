@@ -16,7 +16,7 @@ import {
     PriorityQueueItem, PutBanRequest,
     PutPriorityQueueItemRequest, PutWhitelistItemRequest,
     ServerApiId,
-    ServerApiIdRequired, DeleteBansRequest, ServerInfo, GetServerInfoRequest
+    ServerApiIdRequired, DeleteBansRequest, ServerInfo, GetServerInfoRequest, ListGameSessionsRequest, GameSession
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -46,6 +46,11 @@ export class CachingCFToolsClient implements CFToolsClient {
     getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo> {
         const key = `${this.serverApiId(request).id}`;
         return this.cacheOrDefault('serverInfo', key, () => this.client.getServerInfo(request));
+    }
+
+    listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]> {
+        const key = `${this.serverApiId(request).id}`;
+        return this.cacheOrDefault('gameSessions', key, () => this.client.listGameSessions(request));
     }
 
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {

@@ -11,6 +11,7 @@ export class CFToolsClientBuilder {
     private cacheConfig: CacheConfiguration = {
         leaderboard: 30,
         serverInfo: 30,
+        gameSessions: 10,
         gameServerDetails: 10,
         playerDetails: 10,
         priorityQueue: 20,

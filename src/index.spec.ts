@@ -340,6 +340,12 @@ describe('CFToolsClient', () => {
         });
     });
 
+    describe('listGameSessions', () => {
+        it('returns game sessions', async () => {
+            expect(await client.listGameSessions({})).toStrictEqual(expect.any(Array));
+        });
+    });
+
     describe('ban management', () => {
         afterEach(async () => {
             await client.deleteBans({

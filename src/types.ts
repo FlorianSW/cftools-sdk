@@ -71,6 +71,8 @@ export interface CFToolsClient {
 
     getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo>
 
+    listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]>
+
     /**
      * Return the list of bans registered for the requested player. Both, expired and currently enforced bans, are
      * returned as a result of this method.
@@ -137,6 +139,7 @@ export interface Cache {
 export interface CacheConfiguration {
     gameServerDetails: number,
     serverInfo: number,
+    gameSessions: number,
     leaderboard: number,
     playerDetails: number,
     priorityQueue: number,
@@ -448,6 +451,25 @@ export interface ServerInfo {
     game: Game;
 }
 
+export interface GameSession {
+    id: string;
+    cftoolsId: CFToolsId;
+    playerName: string;
+    steamId: SteamId64;
+    bans: {
+        count: number;
+        communityBanned: boolean;
+        economyBanned: boolean;
+        gameBanned: boolean;
+        vacBanned: boolean;
+    };
+    profile: {
+        avatar: URL;
+        name: string;
+        private: boolean;
+    }
+}
+
 export interface Ban {
     id: string,
     created: Date,
@@ -479,6 +501,9 @@ export interface PutBanRequest {
 }
 
 export interface GetServerInfoRequest extends OverrideServerApiId {
+}
+
+export interface ListGameSessionsRequest extends OverrideServerApiId {
 }
 
 export interface OverrideServerApiId {
