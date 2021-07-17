@@ -2,15 +2,15 @@ import {
     Banlist,
     CFToolsClient, CFToolsId,
     Game,
-    GameServerItem,
+    GameServerItem, GameSession,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
     GetPriorityQueueRequest, GetWhitelistRequest,
     LeaderboardItem,
     Player,
-    PriorityQueueItem, ServerApiId,
+    PriorityQueueItem, ServerApiId, ServerInfo, SpawnItemRequest,
     Statistic,
-    SteamId64, WhitelistItem
+    SteamId64, TeleportPlayerRequest, WhitelistItem
 } from '../types';
 import {CachingCFToolsClient} from './caching-cftools-client';
 import {InMemoryCache} from './in-memory-cache';
@@ -30,6 +30,10 @@ describe('CachingCFToolsClient', () => {
             getWhitelist: jest.fn(),
             putWhitelist: jest.fn(),
             deleteWhitelist: jest.fn(),
+            teleport: jest.fn(),
+            spawnItem: jest.fn(),
+            listGameSessions: jest.fn(),
+            getServerInfo: jest.fn(),
             listBans: jest.fn(),
             putBan: jest.fn(),
             deleteBan: jest.fn(),
@@ -37,6 +41,8 @@ describe('CachingCFToolsClient', () => {
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
+            gameSessions: 10,
+            serverInfo: 30,
             playerDetails: 30,
             gameServerDetails: 30,
             leaderboard: 30,
@@ -125,6 +131,28 @@ describe('CachingCFToolsClient', () => {
             expect(stubClient.getLeaderboard).toHaveBeenCalledTimes(1);
             expect(firstResponse).toEqual(secondResponse);
         });
+
+        it('getServerInfo', async () => {
+            stubClient.getServerInfo = jest.fn(() => Promise.resolve({
+                nickname: 'A_NAME'
+            } as ServerInfo));
+            const firstResponse = await client.getServerInfo({});
+            const secondResponse = await client.getServerInfo({});
+
+            expect(stubClient.getServerInfo).toHaveBeenCalledTimes(1);
+            expect(firstResponse).toEqual(secondResponse);
+        });
+
+        it('listGameSessions', async () => {
+            stubClient.listGameSessions = jest.fn(() => Promise.resolve([{
+                id: 'A_GAME_SESSION',
+            }] as GameSession[]));
+            const firstResponse = await client.listGameSessions({});
+            const secondResponse = await client.listGameSessions({});
+
+            expect(stubClient.listGameSessions).toHaveBeenCalledTimes(1);
+            expect(firstResponse).toEqual(secondResponse);
+        });
     });
 
     describe('does not cache', () => {
@@ -203,6 +231,31 @@ describe('CachingCFToolsClient', () => {
             await client.deleteBans(request);
 
             expect(stubClient.deleteBans).toHaveBeenCalledTimes(2);
+        });
+
+        it('spawnItem', async () => {
+            const spawnItemRequest: SpawnItemRequest = {
+                itemClass: 'SOME_CLASS',
+                session: {id: 'SOME_SESSION'} as GameSession
+            }
+            await client.spawnItem(spawnItemRequest);
+            await client.spawnItem(spawnItemRequest);
+
+            expect(stubClient.spawnItem).toHaveBeenCalledTimes(2);
+        });
+
+        it('teleport', async () => {
+            const teleportRequest: TeleportPlayerRequest = {
+                session: {id: 'SOME_SESSION'} as GameSession,
+                coordinates: {
+                    x: 100,
+                    y: 100,
+                }
+            }
+            await client.teleport(teleportRequest);
+            await client.teleport(teleportRequest);
+
+            expect(stubClient.teleport).toHaveBeenCalledTimes(2);
         });
     });
 });
