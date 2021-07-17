@@ -69,9 +69,45 @@ export interface CFToolsClient {
      */
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem>
 
+    /**
+     * Returns basic information of the CFTools server. This is information of the server entry in the
+     * CFTools Cloud platform. It does not contain the game server information, use getGameServerDetails() for such
+     * information.
+     */
     getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo>
 
+    /**
+     * Requests a list of currently active game sessions on the server. It will contain some meta data to the session
+     * itself and you'll need an entry of the returned list when you want to interact with the corresponding player/session.
+     */
     listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]>
+
+    /**
+     * BETA: This feature uses an API that is marked as Beta in the CFTools API.
+     *
+     * Spawns the requested item class, if it exists, to the player associated with the requested GameSession ID. You
+     * an request a specific quantity; if you omit the parameter, the default value (1) will be used.
+     *
+     * This API may throw UnknownErrors, as some edge cases might not be handled already.
+     *
+     * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
+     * request)
+     *
+     * @beta
+     */
+    spawnItem(request: SpawnItemRequest): Promise<void>
+
+    /**
+     * BETA: This feature uses an API that is marked as Beta in the CFTools API.
+     *
+     * Teleports the player associated with the requested GameSession to the coordinates requested.
+     *
+     * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
+     * request)
+     *
+     * @beta
+     */
+    teleport(request: TeleportPlayerRequest): Promise<void>
 
     /**
      * Return the list of bans registered for the requested player. Both, expired and currently enforced bans, are
@@ -504,6 +540,25 @@ export interface GetServerInfoRequest extends OverrideServerApiId {
 }
 
 export interface ListGameSessionsRequest extends OverrideServerApiId {
+}
+
+export interface SpawnItemRequest extends OverrideServerApiId {
+    session: GameSession;
+    itemClass: string;
+    /**
+     * If omitted, the default value (1) will be assumed.
+     */
+    quantity?: number;
+}
+
+export interface Coordinates {
+    x: number;
+    y: number;
+}
+
+export interface TeleportPlayerRequest extends OverrideServerApiId {
+    session: GameSession;
+    coordinates: Coordinates;
 }
 
 export interface OverrideServerApiId {

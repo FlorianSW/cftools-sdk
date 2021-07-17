@@ -2,21 +2,33 @@ import {
     Ban,
     Cache,
     CacheConfiguration,
-    CFToolsClient, DeleteBanRequest,
-    DeletePriorityQueueRequest, DeleteWhitelistRequest,
+    CFToolsClient,
+    DeleteBanRequest,
+    DeletePriorityQueueRequest,
+    DeleteWhitelistRequest,
     GameServerItem,
-    GenericId, ListBansRequest,
+    GenericId,
+    ListBansRequest,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
-    GetPriorityQueueRequest, GetWhitelistRequest,
+    GetPriorityQueueRequest,
+    GetWhitelistRequest,
     LeaderboardItem,
     OverrideServerApiId,
     Player,
-    PriorityQueueItem, PutBanRequest,
-    PutPriorityQueueItemRequest, PutWhitelistItemRequest,
+    PriorityQueueItem,
+    PutBanRequest,
+    PutPriorityQueueItemRequest,
+    PutWhitelistItemRequest,
     ServerApiId,
-    ServerApiIdRequired, DeleteBansRequest, ServerInfo, GetServerInfoRequest, ListGameSessionsRequest, GameSession
+    ServerApiIdRequired,
+    DeleteBansRequest,
+    ServerInfo,
+    GetServerInfoRequest,
+    ListGameSessionsRequest,
+    GameSession,
+    SpawnItemRequest, TeleportPlayerRequest
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -51,6 +63,14 @@ export class CachingCFToolsClient implements CFToolsClient {
     listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]> {
         const key = `${this.serverApiId(request).id}`;
         return this.cacheOrDefault('gameSessions', key, () => this.client.listGameSessions(request));
+    }
+
+    spawnItem(request: SpawnItemRequest): Promise<void> {
+        return this.client.spawnItem(request);
+    }
+
+    teleport(request: TeleportPlayerRequest): Promise<void> {
+        return this.client.teleport(request);
     }
 
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {

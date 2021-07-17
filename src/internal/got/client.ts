@@ -29,7 +29,7 @@ import {
     PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    ServerInfo, SteamId64,
+    ServerInfo, SpawnItemRequest, SteamId64, TeleportPlayerRequest,
     WhitelistItem
 } from '../../types';
 import {CFToolsAuthorizationProvider} from '../auth';
@@ -356,6 +356,33 @@ export class GotCFToolsClient implements CFToolsClient {
                 playerName: s.gamedata.player_name,
                 steamId: SteamId64.of(s.gamedata.steam64),
             } as GameSession
+        });
+    }
+
+    async spawnItem(request: SpawnItemRequest): Promise<void> {
+        const body = {
+            gamesession_id: request.session.id,
+            object: request.itemClass,
+            quantity: request.quantity || 1,
+        };
+        await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/spawn`, {
+            body: JSON.stringify(body),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
+        });
+    }
+
+    async teleport(request: TeleportPlayerRequest): Promise<void> {
+        const body = {
+            gamesession_id: request.session.id,
+            coords: [request.coordinates.x, request.coordinates.y]
+        };
+        await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/teleport`, {
+            body: JSON.stringify(body),
+            headers: {
+                Authorization: 'Bearer ' + await this.auth!.provideToken()
+            },
         });
     }
 
