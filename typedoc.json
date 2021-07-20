@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "toc": ["CFToolsClientBuilder", "CFToolsClient"],
+  "excludePrivate": true,
+  "out": "docs"
+}
