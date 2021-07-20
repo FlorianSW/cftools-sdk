@@ -151,9 +151,15 @@ describe('CFToolsClient', () => {
     describe('priority queue', () => {
         afterEach(async () => {
             await client.deletePriorityQueue(existingCfToolsId);
+            await client.deletePriorityQueue(CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''));
         });
 
         it('returns null if not in priority queue', async () => {
+            await client.putPriorityQueue({
+                id: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                expires: 'Permanent',
+                comment: 'Test',
+            });
             await expect(client.getPriorityQueue(existingCfToolsId)).resolves.toBeNull();
         });
 
