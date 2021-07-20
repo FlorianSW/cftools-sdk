@@ -32,6 +32,10 @@ client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueIte
 });
 ```
 
+### API Reference
+
+You can find the API reference for the SDK in [the documentation page](https://floriansw.github.io/cftools-sdk/).
+
 ### Caching
 
 When using the SDK for a component that acts directly upon user interactions, consider that the CFTools Cloud API utilises a rate limit to protect for unusual load and abusive behaviour.
