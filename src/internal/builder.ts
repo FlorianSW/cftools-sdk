@@ -1,8 +1,9 @@
-import {Cache, CacheConfiguration, CFToolsClient, LoginCredentials, ServerApiId} from '../types';
+import {AuthorizationProvider, Cache, CacheConfiguration, CFToolsClient, LoginCredentials, ServerApiId} from '../types';
 import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
 import {GotHttpClient} from './http';
+import {CFToolsAuthorizationProvider} from './auth';
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -63,7 +64,11 @@ export class CFToolsClientBuilder {
     }
 
     public build(): CFToolsClient {
-        const client = new GotCFToolsClient(new GotHttpClient(), this.serverApiId, this.credentials);
+        let auth: AuthorizationProvider | undefined = undefined;
+        if (this.credentials) {
+            auth = new CFToolsAuthorizationProvider(this.credentials);
+        }
+        const client = new GotCFToolsClient(new GotHttpClient(auth), this.serverApiId, auth);
         if (this.cache !== undefined) {
             return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
         }

@@ -1,5 +1,6 @@
 import got, {Got, HTTPError, Response} from 'got';
 import {
+    Authorization, AuthorizationProvider,
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
@@ -22,26 +23,35 @@ export interface HttpClient {
 }
 
 export class GotHttpClient implements HttpClient {
-    constructor(private readonly client: Got = httpClient) {
+    constructor(private readonly auth?: AuthorizationProvider, private readonly client: Got = httpClient) {
     }
 
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-        return this.withErrorHandler(this.client(url, options).json<T>());
+        return this.withErrorHandler(() => this.client(url, options).json<T>());
     }
 
     delete<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-        return this.withErrorHandler(this.client.delete(url, options).json<T>());
+        return this.withErrorHandler(() => this.client.delete(url, options).json<T>());
     }
 
     post<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
-        return this.withErrorHandler(this.client.post(url, options).json<T>());
+        return this.withErrorHandler(() => this.client.post(url, options).json<T>());
     }
 
-    async withErrorHandler<T>(request: Promise<T>): Promise<T> {
+    async withErrorHandler<T>(requestFn: () => Promise<T>): Promise<T> {
         try {
-            return await request;
+            return await requestFn();
         } catch (error) {
-            throw fromHttpError(error);
+            const err = fromHttpError(error);
+            if (err instanceof TokenExpired) {
+                try {
+                    this.auth?.reportExpired();
+                    return await requestFn();
+                } catch (e) {
+                    throw fromHttpError(e);
+                }
+            }
+            throw err;
         }
     }
 }
@@ -59,28 +69,28 @@ export function fromHttpError(error: HTTPError): Error {
         return new ResourceNotConfigured(parts[parts.length - 1]);
     }
     if (response.statusCode === 404) {
-        return new ResourceNotFound();
+        return new ResourceNotFound(error.request.requestUrl);
     }
     if (response.statusCode === 429) {
-        return new RequestLimitExceeded();
+        return new RequestLimitExceeded(error.request.requestUrl);
     }
     if (response.statusCode === 400 && errorMessage(response) === 'duplicate') {
-        return new DuplicateResourceCreation();
+        return new DuplicateResourceCreation(error.request.requestUrl);
     }
     if (response.statusCode === 403 && errorMessage(response) === 'no-grant') {
-        return new GrantRequired();
+        return new GrantRequired(error.request.requestUrl);
     }
     if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
-        return new TokenExpired();
+        return new TokenExpired(error.request.requestUrl);
     }
     if (response.statusCode === 500 && errorMessage(response) === 'unexpected-error') {
-        return new UnknownError(JSON.parse(response.body as string).request_id);
+        return new UnknownError(error.request.requestUrl, JSON.parse(response.body as string).request_id);
     }
     if (response.statusCode === 500 && errorMessage(response) === 'timeout') {
-        return new TimeoutError();
+        return new TimeoutError(error.request.requestUrl);
     }
     if (response.statusCode === 500 && errorMessage(response) === 'system-unavailable') {
-        return new CFToolsUnavailable();
+        return new CFToolsUnavailable(error.request.requestUrl);
     }
     return error;
 }

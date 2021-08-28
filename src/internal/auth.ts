@@ -1,4 +1,4 @@
-import {InvalidCredentials, LoginCredentials} from '../types';
+import {Authorization, AuthorizationProvider, AuthorizationType, InvalidCredentials, LoginCredentials} from '../types';
 import {HTTPError} from 'got';
 import {httpClient} from './http';
 
@@ -11,7 +11,7 @@ interface GetTokenResponse {
     token: string,
 }
 
-export class CFToolsAuthorizationProvider {
+export class CFToolsAuthorizationProvider implements AuthorizationProvider {
     private token: string | undefined;
     private expired: Date | undefined;
 
@@ -21,12 +21,17 @@ export class CFToolsAuthorizationProvider {
         }
     }
 
-    async provideToken(): Promise<string> {
+    async provide(): Promise<Authorization> {
         if (this.hasToken()) {
-            return this.token as string;
+            return new Authorization(AuthorizationType.BEARER, this.token as string);
         } else {
-            return await this.fetchToken();
+            return new Authorization(AuthorizationType.BEARER, await this.fetchToken());
         }
+    }
+
+    reportExpired() {
+        this.token = undefined;
+        this.expired = undefined;
     }
 
     private setToken(token: string) {

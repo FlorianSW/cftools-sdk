@@ -166,6 +166,50 @@ export interface Cache {
     set<T>(cacheKey: string, value: T, expiry?: number): void;
 }
 
+export interface AuthorizationProvider {
+    /**
+     * Returns an authorization that can be used together with the CFTools Data API. The token provided by this
+     * function is guaranteed to be valid for enough time to make at least one request.
+     *
+     * The implementation decides if and how an authorization is cached between two subsequent calls to this method.
+     * However, implementations should consider caching the authorization for as long as the authorization is valid (if
+     * this information is available by the provider where the authorization was gathered from).
+     */
+    provide(): Promise<Authorization>;
+
+    /**
+     * A back-channel for users of the provided authorization from provide(). Should be used, when the authorization is,
+     * different than expected, reported to be expired from CFTools. This should only be used while a request was made in
+     * a reasonable amount of time after the authorization was gathered from the provider.
+     *
+     * It's up to the provider if this information is processed and used and how it is used. The provider might evict any
+     * potential cache that might be used or refresh the authorization pre-maturely. It may also just ignore this report
+     * as well.
+     *
+     * Implementations should respect this information from clients, as it gives reasonable doubt that the currently provided
+     * authorization is invalid or expired for some reason.
+     */
+    reportExpired(): void;
+}
+
+export enum AuthorizationType {
+    BEARER = 'Bearer'
+}
+
+export class Authorization {
+    /**
+     * An authorization for use with the CFTools Data API. The authorization consists of a type (currently, only Bearer
+     * is supported by CFTools) as well as the value (token) needed to use within the authorization. The token is an
+     * opaque string, users of this information are not expected to interpret this token.
+     */
+    constructor(private type: AuthorizationType, private token: string) {
+    }
+
+    asHeader(): string {
+        return this.type + ' ' + this.token;
+    }
+}
+
 /**
  * Configuration about how long and what should be cached when using a cached CFTools client.
  *
@@ -570,8 +614,8 @@ export interface OverrideServerApiId {
  * in the CFTools Cloud database.
  */
 export class ResourceNotFound extends Error {
-    constructor() {
-        super('ResourceNotFound');
+    constructor(url: string) {
+        super('ResourceNotFound: ' + url);
         Object.setPrototypeOf(this, ResourceNotFound.prototype);
     }
 }
@@ -628,8 +672,8 @@ export class ServerApiIdRequired extends Error {
  * requested resource and try the request again after the rate limit passed.
  */
 export class RequestLimitExceeded extends Error {
-    constructor() {
-        super('RequestLimitExceeded');
+    constructor(url: string) {
+        super('RequestLimitExceeded: ' + url);
         Object.setPrototypeOf(this, RequestLimitExceeded.prototype);
     }
 }
@@ -642,8 +686,8 @@ export class RequestLimitExceeded extends Error {
  * resource could be created by the SDK.
  */
 export class DuplicateResourceCreation extends Error {
-    constructor() {
-        super('DuplicateResourceCreation');
+    constructor(url: string) {
+        super('DuplicateResourceCreation: ' + url);
         Object.setPrototypeOf(this, DuplicateResourceCreation.prototype);
     }
 }
@@ -654,8 +698,8 @@ export class DuplicateResourceCreation extends Error {
  * this could happen or contact the support.
  */
 export class UnknownError extends Error {
-    constructor(public readonly requestId: string) {
-        super(requestId);
+    constructor(url: string, public readonly requestId: string) {
+        super('UnknownError: ' + url + ' (' + requestId + ')');
         Object.setPrototypeOf(this, UnknownError.prototype);
     }
 }
@@ -665,8 +709,8 @@ export class UnknownError extends Error {
  * temporary overload of the CFTools service.
  */
 export class TimeoutError extends Error {
-    constructor() {
-        super('TimeoutError');
+    constructor(url: string) {
+        super('TimeoutError: ' + url);
         Object.setPrototypeOf(this, TimeoutError.prototype);
     }
 }
@@ -676,8 +720,8 @@ export class TimeoutError extends Error {
  * of the service to gather information about the problem. Contact the support if the problem persists.
  */
 export class CFToolsUnavailable extends Error {
-    constructor() {
-        super('CFToolsUnavailable');
+    constructor(url: string) {
+        super('CFToolsUnavailable: ' + url);
         Object.setPrototypeOf(this, CFToolsUnavailable.prototype);
     }
 }
@@ -687,8 +731,8 @@ export class CFToolsUnavailable extends Error {
  * Make sure you grant access to the resource for the application (see the grant flow in the documentation).
  */
 export class GrantRequired extends Error {
-    constructor() {
-        super('GrantRequired');
+    constructor(url: string) {
+        super('GrantRequired: ' + url);
         Object.setPrototypeOf(this, GrantRequired.prototype);
     }
 }
@@ -699,8 +743,8 @@ export class GrantRequired extends Error {
  * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
  */
 export class TokenExpired extends Error {
-    constructor() {
-        super('TokenExpired');
+    constructor(url: string) {
+        super('TokenExpired: ' + url);
         Object.setPrototypeOf(this, TokenExpired.prototype);
     }
 }
