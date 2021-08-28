@@ -133,7 +133,6 @@ export class GotCFToolsClient implements CFToolsClient {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
         const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
-            // TODO: Remove when this really does not exist
             searchParams: {
                 cftools_id: id.id,
             },
