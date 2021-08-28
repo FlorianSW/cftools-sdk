@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>GetWhitelistRequest | cftools-sdk</title>
+	<title>Authorization | cftools-sdk</title>
 	<meta name="description" content="Documentation for cftools-sdk">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">cftools-sdk</a>
 				</li>
 				<li>
-					<a href="GetWhitelistRequest.html">GetWhitelistRequest</a>
+					<a href="Authorization.html">Authorization</a>
 				</li>
 			</ul>
-			<h1>Interface GetWhitelistRequest</h1>
+			<h1>Class Authorization</h1>
 		</div>
 	</div>
 </header>
@@ -69,12 +69,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="tsd-signature-type">IdRequest</span>
-						<ul class="tsd-hierarchy">
-							<li>
-								<span class="target">GetWhitelistRequest</span>
-							</li>
-						</ul>
+						<span class="target">Authorization</span>
 					</li>
 				</ul>
 			</section>
@@ -82,39 +77,75 @@
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
-						<section class="tsd-index-section tsd-is-inherited">
-							<h3>Properties</h3>
+						<section class="tsd-index-section ">
+							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="GetWhitelistRequest.html#playerId" class="tsd-kind-icon">player<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="GetWhitelistRequest.html#serverApiId" class="tsd-kind-icon">server<wbr>Api<wbr>Id</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="Authorization.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Authorization.html#asHeader" class="tsd-kind-icon">as<wbr>Header</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group tsd-is-inherited">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="playerId" class="tsd-anchor"></a>
-					<h3>player<wbr>Id</h3>
-					<div class="tsd-signature tsd-kind-icon">player<wbr>Id<span class="tsd-signature-symbol">:</span> <a href="GenericId.html" class="tsd-signature-type" data-tsd-kind="Interface">GenericId</a></div>
-					<aside class="tsd-sources">
-						<p>Inherited from IdRequest.playerId</p>
-						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L315">src/types.ts:315</a></li>
-						</ul>
-					</aside>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Constructors</h2>
+				<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class">
+					<a name="constructor" class="tsd-anchor"></a>
+					<h3>constructor</h3>
+					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Authorization<span class="tsd-signature-symbol">(</span>type<span class="tsd-signature-symbol">: </span><a href="../enums/AuthorizationType.html#BEARER" class="tsd-signature-type" data-tsd-kind="Enumeration member">BEARER</a>, token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L205">src/types.ts:205</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>An authorization for use with the CFTools Data API. The authorization consists of a type (currently, only Bearer
+										is supported by CFTools) as well as the value (token) needed to use within the authorization. The token is an
+									opaque string, users of this information are not expected to interpret this token.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>type: <a href="../enums/AuthorizationType.html#BEARER" class="tsd-signature-type" data-tsd-kind="Enumeration member">BEARER</a></h5>
+								</li>
+								<li>
+									<h5>token: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a></h4>
+						</li>
+					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="serverApiId" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> server<wbr>Api<wbr>Id</h3>
-					<div class="tsd-signature tsd-kind-icon">server<wbr>Api<wbr>Id<span class="tsd-signature-symbol">:</span> <a href="../classes/ServerApiId.html" class="tsd-signature-type" data-tsd-kind="Class">ServerApiId</a></div>
-					<aside class="tsd-sources">
-						<p>Inherited from IdRequest.serverApiId</p>
-						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L609">src/types.ts:609</a></li>
-						</ul>
-					</aside>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="asHeader" class="tsd-anchor"></a>
+					<h3>as<wbr>Header</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">as<wbr>Header<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L208">src/types.ts:208</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
 				</section>
 			</section>
 		</div>
@@ -130,14 +161,14 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-interface">
-						<a href="GetWhitelistRequest.html" class="tsd-kind-icon">Get<wbr>Whitelist<wbr>Request</a>
+					<li class="current tsd-kind-class">
+						<a href="Authorization.html" class="tsd-kind-icon">Authorization</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="GetWhitelistRequest.html#playerId" class="tsd-kind-icon">player<wbr>Id</a>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="Authorization.html#constructor" class="tsd-kind-icon">constructor</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="GetWhitelistRequest.html#serverApiId" class="tsd-kind-icon">server<wbr>Api<wbr>Id</a>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="Authorization.html#asHeader" class="tsd-kind-icon">as<wbr>Header</a>
 							</li>
 						</ul>
 					</li>

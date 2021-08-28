@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>BohemiaInteractiveId | cftools-sdk</title>
+	<title>AuthorizationProvider | cftools-sdk</title>
 	<meta name="description" content="Documentation for cftools-sdk">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,10 +55,10 @@
 					<a href="../modules.html">cftools-sdk</a>
 				</li>
 				<li>
-					<a href="BohemiaInteractiveId.html">BohemiaInteractiveId</a>
+					<a href="AuthorizationProvider.html">AuthorizationProvider</a>
 				</li>
 			</ul>
-			<h1>Class BohemiaInteractiveId</h1>
+			<h1>Interface AuthorizationProvider</h1>
 		</div>
 	</div>
 </header>
@@ -69,14 +69,8 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">BohemiaInteractiveId</span>
+						<span class="target">AuthorizationProvider</span>
 					</li>
-				</ul>
-			</section>
-			<section class="tsd-panel">
-				<h3>Implements</h3>
-				<ul class="tsd-hierarchy">
-					<li><a href="../interfaces/GenericId.html" class="tsd-signature-type" data-tsd-kind="Interface">GenericId</a></li>
 				</ul>
 			</section>
 			<section class="tsd-panel-group tsd-index-group">
@@ -84,53 +78,69 @@
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="BohemiaInteractiveId.html#id" class="tsd-kind-icon">id</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="BohemiaInteractiveId.html#of" class="tsd-kind-icon">of</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="AuthorizationProvider.html#provide" class="tsd-kind-icon">provide</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-interface"><a href="AuthorizationProvider.html#reportExpired" class="tsd-kind-icon">report<wbr>Expired</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
-					<a name="id" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> id</h3>
-					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<p>Implementation of <a href="../interfaces/GenericId.html">GenericId</a>.<a href="../interfaces/GenericId.html#id">id</a></p>
-					</aside>
-				</section>
-			</section>
-			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
-					<a name="of" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagStatic">Static</span> of</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
-						<li class="tsd-signature tsd-kind-icon">of<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="BohemiaInteractiveId.html" class="tsd-signature-type" data-tsd-kind="Class">BohemiaInteractiveId</a></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="provide" class="tsd-anchor"></a>
+					<h3>provide</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">provide<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../classes/Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L286">src/types.ts:286</a></li>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L178">src/types.ts:178</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>id: <span class="tsd-signature-type">string</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="BohemiaInteractiveId.html" class="tsd-signature-type" data-tsd-kind="Class">BohemiaInteractiveId</a></h4>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an authorization that can be used together with the CFTools Data API. The token provided by this
+									function is guaranteed to be valid for enough time to make at least one request.</p>
+								</div>
+								<p>The implementation decides if and how an authorization is cached between two subsequent calls to this method.
+									However, implementations should consider caching the authorization for as long as the authorization is valid (if
+								this information is available by the provider where the authorization was gathered from).</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../classes/Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface">
+					<a name="reportExpired" class="tsd-anchor"></a>
+					<h3>report<wbr>Expired</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
+						<li class="tsd-signature tsd-kind-icon">report<wbr>Expired<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/b4b7a73/src/types.ts#L192">src/types.ts:192</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>A back-channel for users of the provided authorization from provide(). Should be used, when the authorization is,
+										different than expected, reported to be expired from CFTools. This should only be used while a request was made in
+									a reasonable amount of time after the authorization was gathered from the provider.</p>
+								</div>
+								<p>It&#39;s up to the provider if this information is processed and used and how it is used. The provider might evict any
+									potential cache that might be used or refresh the authorization pre-maturely. It may also just ignore this report
+								as well.</p>
+								<p>Implementations should respect this information from clients, as it gives reasonable doubt that the currently provided
+								authorization is invalid or expired for some reason.</p>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -148,14 +158,14 @@
 				<ul class="before-current">
 				</ul>
 				<ul class="current">
-					<li class="current tsd-kind-class">
-						<a href="BohemiaInteractiveId.html" class="tsd-kind-icon">Bohemia<wbr>Interactive<wbr>Id</a>
+					<li class="current tsd-kind-interface">
+						<a href="AuthorizationProvider.html" class="tsd-kind-icon">Authorization<wbr>Provider</a>
 						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
-								<a href="BohemiaInteractiveId.html#id" class="tsd-kind-icon">id</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="AuthorizationProvider.html#provide" class="tsd-kind-icon">provide</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
-								<a href="BohemiaInteractiveId.html#of" class="tsd-kind-icon">of</a>
+							<li class=" tsd-kind-method tsd-parent-kind-interface">
+								<a href="AuthorizationProvider.html#reportExpired" class="tsd-kind-icon">report<wbr>Expired</a>
 							</li>
 						</ul>
 					</li>
