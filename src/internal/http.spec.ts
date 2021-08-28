@@ -111,7 +111,6 @@ describe('http', () => {
                     return new Authorization(AuthorizationType.BEARER, '');
                 },
                 reportExpired() {
-                    console.log('done :)');
                     httpResponse = {code: 200, errorText: ''};
                 }
             }, client)
