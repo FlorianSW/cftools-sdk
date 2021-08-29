@@ -84,6 +84,15 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="Authorization.html#created" class="tsd-kind-icon">created</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="Authorization.html#expiresAt" class="tsd-kind-icon">expires<wbr>At</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="Authorization.html#token" class="tsd-kind-icon">token</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="Authorization.html#type" class="tsd-kind-icon">type</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Authorization.html#asHeader" class="tsd-kind-icon">as<wbr>Header</a></li>
@@ -98,13 +107,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Authorization<span class="tsd-signature-symbol">(</span>type<span class="tsd-signature-symbol">: </span><a href="../enums/AuthorizationType.html#BEARER" class="tsd-signature-type" data-tsd-kind="Enumeration member">BEARER</a>, token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Authorization<span class="tsd-signature-symbol">(</span>type<span class="tsd-signature-symbol">: </span><a href="../enums/AuthorizationType.html#BEARER" class="tsd-signature-type" data-tsd-kind="Enumeration member">BEARER</a>, token<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, created<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Date</span>, expiresAt<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/66234b9/src/types.ts#L205">src/types.ts:205</a></li>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/724af10/src/types.ts#L205">src/types.ts:205</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -122,10 +131,47 @@
 								<li>
 									<h5>token: <span class="tsd-signature-type">string</span></h5>
 								</li>
+								<li>
+									<h5>created: <span class="tsd-signature-type">Date</span></h5>
+								</li>
+								<li>
+									<h5>expiresAt: <span class="tsd-signature-type">Date</span></h5>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="Authorization.html" class="tsd-signature-type" data-tsd-kind="Class">Authorization</a></h4>
 						</li>
 					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="created" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> created</h3>
+					<div class="tsd-signature tsd-kind-icon">created<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="expiresAt" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> expires<wbr>At</h3>
+					<div class="tsd-signature tsd-kind-icon">expires<wbr>At<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="token" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> token</h3>
+					<div class="tsd-signature tsd-kind-icon">token<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<aside class="tsd-sources">
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="type" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagReadonly">Readonly</span> type</h3>
+					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <a href="../enums/AuthorizationType.html#BEARER" class="tsd-signature-type" data-tsd-kind="Enumeration member">BEARER</a></div>
+					<aside class="tsd-sources">
+					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -140,7 +186,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/66234b9/src/types.ts#L208">src/types.ts:208</a></li>
+									<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/724af10/src/types.ts#L208">src/types.ts:208</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
@@ -166,6 +212,18 @@
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
 								<a href="Authorization.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="Authorization.html#created" class="tsd-kind-icon">created</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="Authorization.html#expiresAt" class="tsd-kind-icon">expires<wbr>At</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="Authorization.html#token" class="tsd-kind-icon">token</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="Authorization.html#type" class="tsd-kind-icon">type</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="Authorization.html#asHeader" class="tsd-kind-icon">as<wbr>Header</a>
