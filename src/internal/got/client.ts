@@ -1,6 +1,7 @@
 import {
     AmbiguousDeleteBanRequest,
-    AuthenticationRequired, AuthorizationProvider,
+    AuthenticationRequired,
+    AuthorizationProvider,
     Ban,
     CFToolsClient,
     CFToolsId,
@@ -10,7 +11,8 @@ import {
     DeleteWhitelistRequest,
     Game,
     GameServerItem,
-    GameServerQueryError, GameSession,
+    GameServerQueryError,
+    GameSession,
     GenericId,
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
@@ -19,8 +21,8 @@ import {
     GetServerInfoRequest,
     GetWhitelistRequest,
     LeaderboardItem,
-    ListBansRequest, ListGameSessionsRequest,
-    LoginCredentials,
+    ListBansRequest,
+    ListGameSessionsRequest,
     OverrideServerApiId,
     Player,
     PriorityQueueItem,
@@ -29,10 +31,12 @@ import {
     PutWhitelistItemRequest,
     ServerApiId,
     ServerApiIdRequired,
-    ServerInfo, SpawnItemRequest, SteamId64, TeleportPlayerRequest,
+    ServerInfo,
+    SpawnItemRequest,
+    SteamId64,
+    TeleportPlayerRequest,
     WhitelistItem
 } from '../../types';
-import {CFToolsAuthorizationProvider} from '../auth';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
 import crypto from 'crypto';
@@ -43,7 +47,8 @@ import {
     GetPlayerResponse,
     GetPriorityQueueEntry,
     GetServerInfoResponse,
-    GetUserLookupResponse, ListGameSessionsResponse,
+    GetUserLookupResponse,
+    ListGameSessionsResponse,
     toHitZones,
     toWeaponBreakdown
 } from './types';
@@ -67,8 +72,8 @@ export class GotCFToolsClient implements CFToolsClient {
                 searchParams: {
                     cftools_id: id.id,
                 },
-                headers: {
-                    Authorization: (await this.auth!.provide()).asHeader()
+                context: {
+                    authorization: await this.auth!.provide(),
                 }
             }
         );
@@ -107,8 +112,8 @@ export class GotCFToolsClient implements CFToolsClient {
         }
         const response = await this.client.get<GetLeaderboardResponse>(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
             searchParams: params,
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             }
         });
         return response.leaderboard.map((raw) => {
@@ -136,8 +141,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 cftools_id: id.id,
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             }
         });
         const entry = response.entries.find((e) => e.user.cftools_id === id.id);
@@ -164,8 +169,8 @@ export class GotCFToolsClient implements CFToolsClient {
         }
         await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
             body: JSON.stringify(requestBody),
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -177,8 +182,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 cftools_id: id.id
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -190,8 +195,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 cftools_id: id.id,
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             }
         });
         if (response.entries.length === 0) {
@@ -218,8 +223,8 @@ export class GotCFToolsClient implements CFToolsClient {
         }
         await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
             body: JSON.stringify(requestBody),
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -231,8 +236,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 cftools_id: id.id
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -308,8 +313,8 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo> {
         const response = await this.client.get<GetServerInfoResponse>(`v1/server/${this.resolveServerApiId(request).id}/info`, {
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
 
@@ -332,8 +337,8 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]> {
         const response = await this.client.get<ListGameSessionsResponse>(`v1/server/${this.resolveServerApiId(request).id}/GSM/list`, {
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
 
@@ -367,8 +372,8 @@ export class GotCFToolsClient implements CFToolsClient {
         };
         await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/spawn`, {
             body: JSON.stringify(body),
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -380,8 +385,8 @@ export class GotCFToolsClient implements CFToolsClient {
         };
         await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/teleport`, {
             body: JSON.stringify(body),
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -391,8 +396,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 filter: request.playerId.id
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
         if (response.entries.length === 0) {
@@ -419,8 +424,8 @@ export class GotCFToolsClient implements CFToolsClient {
         }
         await this.client.post(`v1/banlist/${request.list.id}/bans`, {
             body: JSON.stringify(requestBody),
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }
@@ -448,8 +453,8 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 ban_id: ban.id,
             },
-            headers: {
-                Authorization: (await this.auth!.provide()).asHeader()
+            context: {
+                authorization: await this.auth!.provide(),
             },
         });
     }

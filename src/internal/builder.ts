@@ -2,8 +2,10 @@ import {AuthorizationProvider, Cache, CacheConfiguration, CFToolsClient, LoginCr
 import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
-import {GotHttpClient} from './http';
+import {GotHttpClient, HttpClient} from './http';
 import {CFToolsAuthorizationProvider} from './auth';
+
+export type HttpClientBuilder = (auth?: AuthorizationProvider) => HttpClient;
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
@@ -19,6 +21,7 @@ export class CFToolsClientBuilder {
         whitelist: 20,
         banlist: 10,
     };
+    private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(auth);
 
     /**
      * Set the default server api ID identifying the CFTools Cloud server instance.
@@ -48,6 +51,11 @@ export class CFToolsClientBuilder {
         return this;
     }
 
+    public withHttpClient(clientBuilder: HttpClientBuilder): CFToolsClientBuilder {
+        this.clientBuilder = clientBuilder;
+        return this;
+    }
+
     /**
      * Specify the configuration of the cached CFTools client. Configuring this makes only sense when
      * the client is configured to use a cache, otherwise this configuration is ignored.
@@ -68,7 +76,7 @@ export class CFToolsClientBuilder {
         if (this.credentials) {
             auth = new CFToolsAuthorizationProvider(this.credentials);
         }
-        const client = new GotCFToolsClient(new GotHttpClient(auth), this.serverApiId, auth);
+        const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, auth);
         if (this.cache !== undefined) {
             return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
         }

@@ -11,7 +11,7 @@ import {
     ResourceNotConfigured,
     ResourceNotFound,
     TimeoutError,
-    TokenExpired,
+    TokenExpired, TokenExpiredInfo,
     UnknownError
 } from '../types';
 
@@ -106,30 +106,40 @@ describe('http', () => {
 
     describe('TokenExpired', () => {
         it('does retry the request when token-expired error occurs', async () => {
-            http = new GotHttpClient({
+            const auth = {
                 async provide(): Promise<Authorization> {
-                    return new Authorization(AuthorizationType.BEARER, '');
+                    return new Authorization(AuthorizationType.BEARER, '', new Date(), new Date());
                 },
                 reportExpired() {
                     httpResponse = {code: 200, errorText: ''};
                 }
-            }, client)
+            };
+            http = new GotHttpClient(auth, client)
             httpResponse = {code: 403, errorText: 'expired-token'};
 
-            await expect(http.get('expired-token')).resolves.toEqual({error: '', status: true});
+            await expect(http.get('expired-token', {
+                context: {
+                    authorization: await auth.provide(),
+                }
+            })).resolves.toEqual({error: '', status: true});
         });
 
         it('throws TokenExpired on 403 with expired-token after authorization reported as expired', async () => {
-            http = new GotHttpClient({
+            const auth = {
                 async provide(): Promise<Authorization> {
-                    return new Authorization(AuthorizationType.BEARER, '');
+                    return new Authorization(AuthorizationType.BEARER, '', new Date(), new Date());
                 },
                 reportExpired() {
                 }
-            }, client)
+            };
+            http = new GotHttpClient(auth, client)
             httpResponse = {code: 403, errorText: 'expired-token'};
 
-            await expect(http.get('expired-token')).rejects.toThrowError(new TokenExpired('http://127.0.0.1:8081/expired-token'));
+            await expect(http.get('expired-token', {
+                context: {
+                    authorization: await auth.provide(),
+                }
+            })).rejects.toThrowError(new TokenExpired('http://127.0.0.1:8081/expired-token', {} as TokenExpiredInfo));
         });
     });
 

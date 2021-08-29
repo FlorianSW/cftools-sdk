@@ -202,7 +202,7 @@ export class Authorization {
      * is supported by CFTools) as well as the value (token) needed to use within the authorization. The token is an
      * opaque string, users of this information are not expected to interpret this token.
      */
-    constructor(private type: AuthorizationType, private token: string) {
+    constructor(readonly type: AuthorizationType, readonly token: string, readonly created: Date, readonly expiresAt: Date) {
     }
 
     asHeader(): string {
@@ -737,13 +737,29 @@ export class GrantRequired extends Error {
     }
 }
 
+export interface TokenExpiredInfo {
+    readonly type: AuthorizationType,
+    /**
+     * The authorization token that was reported as expired.
+     */
+    readonly token: string,
+    /**
+     * The date and time when this token was last created or refreshed.
+     */
+    readonly created: Date,
+    /**
+     * When this authorization token is expected to expire.
+     */
+    readonly expiresAt: Date,
+}
+
 /**
  * The supplied authentication token in the request is valid but expired and needs to be re-generated.
  *
  * With regard to the SDK, this error should not happen as the token is refreshed before it expires.
  */
 export class TokenExpired extends Error {
-    constructor(url: string) {
+    constructor(url: string, public readonly info: TokenExpiredInfo) {
         super('TokenExpired: ' + url);
         Object.setPrototypeOf(this, TokenExpired.prototype);
     }

@@ -13,6 +13,7 @@ interface GetTokenResponse {
 
 export class CFToolsAuthorizationProvider implements AuthorizationProvider {
     private token: string | undefined;
+    private created: Date | undefined;
     private expired: Date | undefined;
 
     constructor(private credentials: LoginCredentials) {
@@ -23,9 +24,9 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
 
     async provide(): Promise<Authorization> {
         if (this.hasToken()) {
-            return new Authorization(AuthorizationType.BEARER, this.token as string);
+            return new Authorization(AuthorizationType.BEARER, this.token as string, this.created!!, this.expired!!);
         } else {
-            return new Authorization(AuthorizationType.BEARER, await this.fetchToken());
+            return new Authorization(AuthorizationType.BEARER, await this.fetchToken(), this.created!!, this.expired!!);
         }
     }
 
@@ -36,6 +37,7 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
 
     private setToken(token: string) {
         this.token = token;
+        this.created = new Date();
         this.expired = new Date();
         this.expired.setDate(this.expired.getHours() + 23);
     }
