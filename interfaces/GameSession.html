@@ -65,6 +65,15 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Represents a session of a CFTools player in the specific game.
+							Optional information, like profile and ban information, are only available if Steam or any other third-party system
+						is available and integrated into the game.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -96,29 +105,29 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="bans" class="tsd-anchor"></a>
 					<h3>bans</h3>
-					<div class="tsd-signature tsd-kind-icon">bans<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>communityBanned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>count<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>economyBanned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>gameBanned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>vacBanned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">bans<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>communityBanned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>count<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>economyBanned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>gameBanned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>vacBanned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L539">src/types.ts:539</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L544">src/types.ts:544</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter">
-								<h5>community<wbr>Banned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> community<wbr>Banned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 							</li>
 							<li class="tsd-parameter">
 								<h5>count<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
 							</li>
 							<li class="tsd-parameter">
-								<h5>economy<wbr>Banned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> economy<wbr>Banned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 							</li>
 							<li class="tsd-parameter">
-								<h5>game<wbr>Banned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> game<wbr>Banned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 							</li>
 							<li class="tsd-parameter">
-								<h5>vac<wbr>Banned<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> vac<wbr>Banned<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 							</li>
 						</ul>
 					</div>
@@ -129,7 +138,7 @@
 					<div class="tsd-signature tsd-kind-icon">cftools<wbr>Id<span class="tsd-signature-symbol">:</span> <a href="../classes/CFToolsId.html" class="tsd-signature-type" data-tsd-kind="Class">CFToolsId</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L536">src/types.ts:536</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L541">src/types.ts:541</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -139,7 +148,7 @@
 					<div class="tsd-signature tsd-kind-icon">id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L535">src/types.ts:535</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L540">src/types.ts:540</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -149,17 +158,17 @@
 					<div class="tsd-signature tsd-kind-icon">player<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L537">src/types.ts:537</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L542">src/types.ts:542</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="profile" class="tsd-anchor"></a>
-					<h3>profile</h3>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> profile</h3>
 					<div class="tsd-signature tsd-kind-icon">profile<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>avatar<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">URL</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>private<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L546">src/types.ts:546</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L551">src/types.ts:551</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -183,7 +192,7 @@
 					<div class="tsd-signature tsd-kind-icon">steam<wbr>Id<span class="tsd-signature-symbol">:</span> <a href="../classes/SteamId64.html" class="tsd-signature-type" data-tsd-kind="Class">SteamId64</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/a7e4a75/src/types.ts#L538">src/types.ts:538</a></li>
+							<li>Defined in <a href="https://github.com/FlorianSW/cftools-sdk/blob/da1309b/src/types.ts#L543">src/types.ts:543</a></li>
 						</ul>
 					</aside>
 				</section>
