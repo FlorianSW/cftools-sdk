@@ -531,6 +531,11 @@ export interface ServerInfo {
     game: Game;
 }
 
+/**
+ * Represents a session of a CFTools player in the specific game.
+ * Optional information, like profile and ban information, are only available if Steam or any other third-party system
+ * is available and integrated into the game.
+ */
 export interface GameSession {
     id: string;
     cftoolsId: CFToolsId;
@@ -538,12 +543,12 @@ export interface GameSession {
     steamId: SteamId64;
     bans: {
         count: number;
-        communityBanned: boolean;
-        economyBanned: boolean;
-        gameBanned: boolean;
-        vacBanned: boolean;
+        communityBanned?: boolean;
+        economyBanned?: boolean;
+        gameBanned?: boolean;
+        vacBanned?: boolean;
     };
-    profile: {
+    profile?: {
         avatar: URL;
         name: string;
         private: boolean;

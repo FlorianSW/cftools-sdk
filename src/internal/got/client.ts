@@ -343,20 +343,28 @@ export class GotCFToolsClient implements CFToolsClient {
         });
 
         return response.sessions.map((s) => {
-            return {
-                id: s.id,
-                bans: {
-                    count: s.info.ban_count,
+            let bans: GameSession['bans'] = {
+                count: s.info.ban_count,
+            };
+            let profile = undefined;
+            if (s.persona) {
+                profile = {
+                    name: s.persona.profile.name,
+                    private: s.persona.profile.private,
+                    avatar: new URL(s.persona.profile.avatar),
+                };
+                bans = {
+                    ...bans,
                     gameBanned: !!s.persona.bans.game,
                     communityBanned: s.persona.bans.community,
                     economyBanned: !!s.persona.bans.economy,
                     vacBanned: !!s.persona.bans.vac,
-                },
-                profile: {
-                    name: s.persona.profile.name,
-                    private: s.persona.profile.private,
-                    avatar: new URL(s.persona.profile.avatar),
-                },
+                }
+            }
+            return {
+                id: s.id,
+                bans: bans,
+                profile: profile,
                 cftoolsId: CFToolsId.of(s.cftools_id),
                 playerName: s.gamedata.player_name,
                 steamId: SteamId64.of(s.gamedata.steam64),
