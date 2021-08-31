@@ -1,6 +1,6 @@
 {
   "name": "cftools-sdk",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "An easy to use JavaScript implementation to talk with the CFTools Cloud API from your JavaScript project.",
   "repository": "github:FlorianSW/cftools-sdk",
   "main": "lib/index.js",
