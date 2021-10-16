@@ -417,6 +417,7 @@ export class GotCFToolsClient implements CFToolsClient {
                 reason: ban.reason,
                 expiration: ban.expires_at ? asDate(ban.expires_at) : 'Permanent',
                 created: asDate(ban.created_at),
+                status: ban.status,
             }
         });
     }

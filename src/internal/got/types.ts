@@ -1,4 +1,4 @@
-import {HitZones, WeaponStatistic} from '../../types';
+import {BanStatus, HitZones, WeaponStatistic} from '../../types';
 
 export function toHitZones(zones?: GetPlayerResponseHitZones): HitZones {
     return {
@@ -293,5 +293,6 @@ export interface GetBanResponse {
         identifier: string,
         reason: string,
         updated_at: string,
+        status: BanStatus,
     }[],
 }

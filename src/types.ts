@@ -560,7 +560,10 @@ export interface Ban {
     created: Date,
     reason: string,
     expiration: Date | 'Permanent',
+    status: BanStatus,
 }
+
+export type BanStatus = 'Ban.ACTIVE' | 'Ban.INACTIVE';
 
 export interface ListBansRequest {
     playerId: GenericId,

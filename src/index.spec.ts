@@ -382,7 +382,8 @@ describe('CFToolsClient', () => {
                     id: expect.any(String),
                     created: expect.any(Date),
                     expiration: 'Permanent',
-                    reason: 'cftools-sdk test'
+                    reason: 'cftools-sdk test',
+                    status: 'Ban.ACTIVE',
                 } as Ban)
             ]));
         });
