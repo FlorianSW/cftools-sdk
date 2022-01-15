@@ -28,7 +28,7 @@ import {
     GetServerInfoRequest,
     ListGameSessionsRequest,
     GameSession,
-    SpawnItemRequest, TeleportPlayerRequest
+    SpawnItemRequest, TeleportPlayerRequest, CFToolsId
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -124,6 +124,16 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     deleteBans(request: DeleteBansRequest): Promise<void> {
         return this.client.deleteBans(request);
+    }
+
+    resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
+        let playerId: GenericId;
+        if ('playerId' in id) {
+            playerId = id.playerId;
+        } else {
+            playerId = id;
+        }
+        return this.cacheOrDefault('resolve', playerId.id, () => this.client.resolve(id));
     }
 
     private serverApiId(r: OverrideServerApiId | GenericId): ServerApiId {

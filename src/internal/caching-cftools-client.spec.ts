@@ -38,6 +38,7 @@ describe('CachingCFToolsClient', () => {
             putBan: jest.fn(),
             deleteBan: jest.fn(),
             deleteBans: jest.fn(),
+            resolve: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
@@ -48,6 +49,7 @@ describe('CachingCFToolsClient', () => {
             leaderboard: 30,
             whitelist: 30,
             banlist: 30,
+            resolve: 500,
         }, stubClient, ServerApiId.of('AN_ID'));
     });
 
@@ -151,6 +153,15 @@ describe('CachingCFToolsClient', () => {
             const secondResponse = await client.listGameSessions({});
 
             expect(stubClient.listGameSessions).toHaveBeenCalledTimes(1);
+            expect(firstResponse).toEqual(secondResponse);
+        });
+
+        it('resolve', async () => {
+            stubClient.resolve = jest.fn(() => Promise.resolve({id: 'SOME_CFTOOLS_ID'} as CFToolsId));
+            const firstResponse = await client.resolve({id: 'SOME_STEAM_ID'});
+            const secondResponse = await client.resolve({id: 'SOME_STEAM_ID'});
+
+            expect(stubClient.resolve).toHaveBeenCalledTimes(1);
             expect(firstResponse).toEqual(secondResponse);
         });
     });

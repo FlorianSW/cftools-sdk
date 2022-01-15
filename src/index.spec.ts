@@ -264,8 +264,8 @@ describe('CFToolsClient', () => {
                         thirdPersonPerspective: true,
                     },
                     timeAcceleration: {
-                        general: 12.0,
-                        night: 2.0,
+                        general: 6,
+                        night: 4,
                     },
                 },
                 geolocation: {

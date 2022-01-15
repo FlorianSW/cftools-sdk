@@ -64,7 +64,7 @@ export interface GetPlayerResponse {
             sessions: number,
         },
         game: {
-            general: {
+            general?: {
                 kills?: number,
                 deaths?: number,
                 environment_deaths?: number,

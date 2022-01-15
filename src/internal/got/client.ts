@@ -81,17 +81,17 @@ export class GotCFToolsClient implements CFToolsClient {
         return {
             names: player.omega.name_history,
             statistics: {
-                kills: player.game.general.kills || 0,
-                deaths: player.game.general.deaths || 0,
-                suicides: player.game.general.suicides || 0,
-                environmentDeaths: player.game.general.environment_deaths || 0,
-                infectedDeaths: player.game.general.infected_deaths || 0,
-                hits: player.game.general.hits || 0,
-                longestShot: player.game.general.longest_shot || 0,
-                longestKill: player.game.general.longest_kill || 0,
-                weaponsBreakdown: toWeaponBreakdown(player.game.general.weapons),
-                hitZones: toHitZones(player.game.general.zones),
-                killDeathRatio: player.game.general.kdratio || 0,
+                kills: player.game.general?.kills || 0,
+                deaths: player.game.general?.deaths || 0,
+                suicides: player.game.general?.suicides || 0,
+                environmentDeaths: player.game.general?.environment_deaths || 0,
+                infectedDeaths: player.game.general?.infected_deaths || 0,
+                hits: player.game.general?.hits || 0,
+                longestShot: player.game.general?.longest_shot || 0,
+                longestKill: player.game.general?.longest_kill || 0,
+                weaponsBreakdown: toWeaponBreakdown(player.game.general?.weapons),
+                hitZones: toHitZones(player.game.general?.zones),
+                killDeathRatio: player.game.general?.kdratio || 0,
             },
             playtime: player.omega.playtime,
             sessions: player.omega.sessions,
@@ -494,7 +494,7 @@ export class GotCFToolsClient implements CFToolsClient {
         throw new ServerApiIdRequired();
     }
 
-    private async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
+    async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
         let playerId: GenericId;
         if ('playerId' in id) {
             playerId = id.playerId;

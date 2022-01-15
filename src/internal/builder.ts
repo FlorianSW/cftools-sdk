@@ -20,6 +20,7 @@ export class CFToolsClientBuilder {
         priorityQueue: 20,
         whitelist: 20,
         banlist: 10,
+        resolve: Number.MAX_SAFE_INTEGER,
     };
     private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(auth);
 

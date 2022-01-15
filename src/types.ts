@@ -145,6 +145,12 @@ export interface CFToolsClient {
      * implementation, if any, to find out more about this implementation detail.
      */
     deleteBans(request: DeleteBansRequest): Promise<void>
+
+    /**
+     * Resolves the CFToolsId of the passed in players generic ID (e.g. a Steam ID, BE GUID or alike). The CFToolsId
+     * returned identifies the same player as the passed in generic ID.
+     */
+    resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId>
 }
 
 export interface Cache {
@@ -225,6 +231,7 @@ export interface CacheConfiguration {
     priorityQueue: number,
     whitelist: number,
     banlist: number,
+    resolve: number,
 }
 
 /**
