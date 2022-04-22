@@ -25,7 +25,8 @@ import {CFToolsClientBuilder, SteamId64} from 'cftools-sdk';
 
 const client = new CFToolsClientBuilder()
     .withServerApiId('your-server-api-id')
-    .withCredentials('your-application-id', 'your-secret');
+    .withCredentials('your-application-id', 'your-secret')
+    .build();
 
 client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueItem) => {
     // Do something
@@ -51,7 +52,8 @@ import {CFToolsClientBuilder, SteamId64} from 'cftools-sdk';
 const client = new CFToolsClientBuilder()
     .withCache()
     .withServerApiId('your-server-api-id')
-    .withCredentials('your-application-id', 'your-secret');
+    .withCredentials('your-application-id', 'your-secret')
+    .build();
 
 client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueItem) => {
     // Do something
