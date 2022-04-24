@@ -401,7 +401,8 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async listBans(request: ListBansRequest): Promise<Ban[]> {
         const response = await this.client.get<GetBanResponse>(`v1/banlist/${request.list.id}/bans`, {
-            searchParams: {
+            allowGetBody: true,
+            json: {
                 filter: request.playerId.id
             },
             context: {
