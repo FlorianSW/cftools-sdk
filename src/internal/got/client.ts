@@ -20,6 +20,8 @@ import {
     GetPriorityQueueRequest,
     GetServerInfoRequest,
     GetWhitelistRequest,
+    IPAddressType,
+    isIpAddress,
     LeaderboardItem,
     ListBansRequest,
     ListGameSessionsRequest,
@@ -400,9 +402,13 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async listBans(request: ListBansRequest): Promise<Ban[]> {
+        let playerId: GenericId = request.playerId;
+        if (!isIpAddress(request.playerId)) {
+            playerId = (await this.resolve(request))
+        }
         const response = await this.client.get<GetBanResponse>(`v1/banlist/${request.list.id}/bans`, {
             searchParams: {
-                filter: (await this.resolve(request)).id,
+                filter: playerId.id,
             },
             context: {
                 authorization: await this.auth!.provide(),
@@ -424,10 +430,16 @@ export class GotCFToolsClient implements CFToolsClient {
 
     async putBan(request: PutBanRequest): Promise<void> {
         const requestBody: any = {
-            format: 'cftools_id',
-            identifier: (await this.resolve(request)).id,
             reason: request.reason,
         };
+        const id = request.playerId;
+        if (isIpAddress(id) && id.type === IPAddressType.v4) {
+            requestBody.identifier = id.id;
+            requestBody.format = 'ipv4';
+        } else {
+            requestBody.identifier = (await this.resolve({playerId: request.playerId})).id;
+            requestBody.format = 'cftools_id';
+        }
         if (request.expiration && request.expiration !== 'Permanent') {
             requestBody.expires_at = request.expiration.toISOString();
         }

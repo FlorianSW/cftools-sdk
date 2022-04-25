@@ -11,7 +11,7 @@ import {
     Game,
     GameServerItem,
     GameServerQueryError,
-    InvalidCredentials,
+    InvalidCredentials, IPAddress,
     Player,
     PriorityQueueItem,
     PutBanRequest,
@@ -376,6 +376,27 @@ describe('CFToolsClient', () => {
             });
             await expect(client.listBans({
                 playerId: CFToolsId.of(process.env.CFTOOLS_BANABLE_CFTOOLS_ID || ''),
+                list: banlist
+            })).resolves.toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(String),
+                    created: expect.any(Date),
+                    expiration: 'Permanent',
+                    reason: 'cftools-sdk test',
+                    status: 'Ban.ACTIVE',
+                } as Ban)
+            ]));
+        });
+
+        it('persists IP ban', async () => {
+            await client.putBan({
+                playerId: IPAddress.ofIpv4('127.0.0.1'),
+                list: banlist,
+                expiration: 'Permanent',
+                reason: 'cftools-sdk test'
+            });
+            await expect(client.listBans({
+                playerId: IPAddress.ofIpv4('127.0.0.1'),
                 list: banlist
             })).resolves.toEqual(expect.arrayContaining([
                 expect.objectContaining({

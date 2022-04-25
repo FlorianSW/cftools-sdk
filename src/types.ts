@@ -304,6 +304,23 @@ export class CFToolsId implements GenericId {
     }
 }
 
+export enum IPAddressType {
+    v4 = 'v4', v6 = 'v6',
+}
+
+export class IPAddress implements GenericId {
+    private constructor(public readonly id: string, public readonly type: IPAddressType) {
+    }
+
+    static ofIpv4(address: string): IPAddress {
+        return new IPAddress(address, IPAddressType.v4);
+    }
+}
+
+export function isIpAddress(o: any): o is IPAddress {
+    return 'type' in o;
+}
+
 export enum Statistic {
     KILLS = 'kills',
     DEATHS = 'deaths',
