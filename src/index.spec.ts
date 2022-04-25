@@ -407,6 +407,10 @@ describe('CFToolsClient', () => {
                     status: 'Ban.ACTIVE',
                 } as Ban)
             ]));
+            await client.deleteBan({
+                playerId: IPAddress.ofIpv4('127.0.0.1'),
+                list: banlist
+            });
         });
 
         it('deletes ban by ban ID', async () => {
