@@ -129,6 +129,7 @@ export class GotCFToolsClient implements CFToolsClient {
                 playtime: raw.playtime,
                 id: CFToolsId.of(raw.cftools_id),
                 hits: raw.hits,
+                killDeathRatio: raw.kdratio,
                 killDeathRation: raw.kdratio,
                 longestKill: raw.longest_kill,
                 longestShot: raw.longest_shot,
