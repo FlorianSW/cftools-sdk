@@ -69,7 +69,7 @@ export class GotCFToolsClient implements CFToolsClient {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
         const response = await this.client.get<GetPlayerResponse>(
-            `v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`,
+            `v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined)}/player`,
             {
                 searchParams: {
                     cftools_id: id.id,
@@ -112,7 +112,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.limit && request.limit > 0 && request.limit <= 100) {
             params.append('limit', request.limit.toString());
         }
-        const response = await this.client.get<GetLeaderboardResponse>(`v1/server/${this.resolveServerApiId(request).id}/leaderboard`, {
+        const response = await this.client.get<GetLeaderboardResponse>(`v1/server/${this.resolveServerApiId(request)}/leaderboard`, {
             searchParams: params,
             context: {
                 authorization: await this.auth!.provide(),
@@ -140,7 +140,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async getPriorityQueue(playerId: GetPriorityQueueRequest | GenericId): Promise<PriorityQueueItem | null> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
+        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined)}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id,
             },
@@ -170,7 +170,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.expires && request.expires !== 'Permanent') {
             requestBody.expires_at = request.expires.toISOString();
         }
-        await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/queuepriority`, {
+        await this.client.post(`v1/server/${this.resolveServerApiId(request)}/queuepriority`, {
             body: JSON.stringify(requestBody),
             context: {
                 authorization: await this.auth!.provide(),
@@ -181,7 +181,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async deletePriorityQueue(playerId: DeletePriorityQueueRequest | GenericId): Promise<void> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
+        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined)}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id
             },
@@ -194,7 +194,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async getWhitelist(playerId: GetWhitelistRequest | GenericId): Promise<WhitelistItem | null> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
+        const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined)}/whitelist`, {
             searchParams: {
                 cftools_id: id.id,
             },
@@ -224,7 +224,7 @@ export class GotCFToolsClient implements CFToolsClient {
         if (request.expires && request.expires !== 'Permanent') {
             requestBody.expires_at = request.expires.toISOString();
         }
-        await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/whitelist`, {
+        await this.client.post(`v1/server/${this.resolveServerApiId(request)}/whitelist`, {
             body: JSON.stringify(requestBody),
             context: {
                 authorization: await this.auth!.provide(),
@@ -235,7 +235,7 @@ export class GotCFToolsClient implements CFToolsClient {
     async deleteWhitelist(playerId: DeleteWhitelistRequest | GenericId): Promise<void> {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
-        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
+        await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined)}/whitelist`, {
             searchParams: {
                 cftools_id: id.id
             },
@@ -315,7 +315,7 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async getServerInfo(request: GetServerInfoRequest): Promise<ServerInfo> {
-        const response = await this.client.get<GetServerInfoResponse>(`v1/server/${this.resolveServerApiId(request).id}/info`, {
+        const response = await this.client.get<GetServerInfoResponse>(`v1/server/${this.resolveServerApiId(request)}/info`, {
             context: {
                 authorization: await this.auth!.provide(),
             },
@@ -339,7 +339,7 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]> {
-        const response = await this.client.get<ListGameSessionsResponse>(`v1/server/${this.resolveServerApiId(request).id}/GSM/list`, {
+        const response = await this.client.get<ListGameSessionsResponse>(`v1/server/${this.resolveServerApiId(request)}/GSM/list`, {
             context: {
                 authorization: await this.auth!.provide(),
             },
@@ -394,7 +394,7 @@ export class GotCFToolsClient implements CFToolsClient {
             gamesession_id: request.session.id,
             coords: [request.coordinates.x, request.coordinates.y]
         };
-        await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/teleport`, {
+        await this.client.post(`v0/server/${this.resolveServerApiId(request)}/gameLabs/teleport`, {
             body: JSON.stringify(body),
             context: {
                 authorization: await this.auth!.provide(),
