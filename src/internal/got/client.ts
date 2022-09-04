@@ -522,6 +522,9 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: {
                 identifier: playerId.id,
             },
+            context: {
+                authorization: await this.auth!.provide(),
+            },
         });
         return CFToolsId.of(response.cftools_id);
     }
