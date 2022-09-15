@@ -73,7 +73,7 @@ export class GotHttpClient implements HttpClient {
         const r = requestFn(undefined);
         try {
             return await r.request;
-        } catch (error) {
+        } catch (error: any) {
             const err = fromHttpError(error, r.context?.authorization as Authorization);
             if (err instanceof TokenExpired) {
                 this.auth?.reportExpired();
@@ -83,7 +83,7 @@ export class GotHttpClient implements HttpClient {
                         ...r.context,
                         authorization: authorization,
                     }).request;
-                } catch (e) {
+                } catch (e: any) {
                     throw fromHttpError(e, authorization);
                 }
             }

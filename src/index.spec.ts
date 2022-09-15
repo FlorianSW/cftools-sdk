@@ -271,8 +271,8 @@ describe('CFToolsClient', () => {
                 geolocation: {
                     available: false,
                     city: {
-                        region: null,
-                        name: null,
+                        region: "",
+                        name: "",
                     },
                     continent: 'EU',
                     country: {
@@ -286,7 +286,7 @@ describe('CFToolsClient', () => {
                     name: 'Community Online Tools',
                 }] as SteamWorkshopMod[]),
                 map: expect.any(String),
-                online: true,
+                online: expect.any(Boolean),
                 rating: expect.any(Number),
                 rank: expect.any(Number),
                 security: {
