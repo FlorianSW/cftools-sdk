@@ -28,7 +28,7 @@ import {
     GetServerInfoRequest,
     ListGameSessionsRequest,
     GameSession,
-    SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest
+    SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest, HealPlayerRequest, KillPlayerRequest
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -75,6 +75,14 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     teleport(request: TeleportPlayerRequest): Promise<void> {
         return this.client.teleport(request);
+    }
+
+    healPlayer(request: HealPlayerRequest): Promise<void> {
+        return this.client.healPlayer(request);
+    }
+
+    killPlayer(request: KillPlayerRequest): Promise<void> {
+        return this.client.killPlayer(request);
     }
 
     getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {

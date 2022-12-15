@@ -20,9 +20,9 @@ import {
     GetPlayerDetailsRequest,
     GetPriorityQueueRequest,
     GetServerInfoRequest,
-    GetWhitelistRequest,
+    GetWhitelistRequest, HealPlayerRequest,
     IPAddressType,
-    isIpAddress,
+    isIpAddress, KillPlayerRequest,
     LeaderboardItem,
     ListBansRequest,
     ListGameSessionsRequest,
@@ -392,6 +392,28 @@ export class GotCFToolsClient implements CFToolsClient {
                     valueInt: request.quantity || 1,
                 },
             },
+        };
+        await this.gameLabsAction(body);
+    }
+
+    async healPlayer(request: HealPlayerRequest): Promise<void> {
+        const body: GameLabsActionRequest = {
+            serverApiId: request.serverApiId,
+            actionCode: 'CFCloud_HealPlayer',
+            actionContext: 'player',
+            referenceKey: request.session.steamId.id,
+            parameters: {},
+        };
+        await this.gameLabsAction(body);
+    }
+
+    async killPlayer(request: KillPlayerRequest): Promise<void> {
+        const body: GameLabsActionRequest = {
+            serverApiId: request.serverApiId,
+            actionCode: 'CFCloud_KillPlayer',
+            actionContext: 'player',
+            referenceKey: request.session.steamId.id,
+            parameters: {},
         };
         await this.gameLabsAction(body);
     }

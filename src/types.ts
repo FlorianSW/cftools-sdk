@@ -100,6 +100,22 @@ export interface CFToolsClient {
     spawnItem(request: SpawnItemRequest): Promise<void>
 
     /**
+     * Heals the player associated with the GameSession. Does nothing if the player is already healed.
+     *
+     * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
+     * request)
+     */
+    healPlayer(request: HealPlayerRequest): Promise<void>
+
+    /**
+     * Kills the player associated with the GameSession.
+     *
+     * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
+     * request)
+     */
+    killPlayer(request: HealPlayerRequest): Promise<void>
+
+    /**
      * Teleports the player associated with the requested GameSession to the coordinates requested.
      *
      * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
@@ -623,6 +639,14 @@ export interface SpawnItemRequest extends OverrideServerApiId {
      * If omitted, the default value (1) will be assumed.
      */
     quantity?: number;
+}
+
+export interface HealPlayerRequest extends OverrideServerApiId {
+    session: GameSession;
+}
+
+export interface KillPlayerRequest extends OverrideServerApiId {
+    session: GameSession;
 }
 
 export type DayZGameLabsActions =

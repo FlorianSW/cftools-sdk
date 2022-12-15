@@ -247,12 +247,11 @@ describe('CFToolsClient', () => {
     });
 
     // does only work when there is a player online, hence not running automatically
-    it('spawns item', async () => {
+    xit('teleports player', async () => {
         let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
         const sessions = await client.listGameSessions({
             serverApiId: serverApiId,
         });
-        // 8807.14 / 8550.51
         await client.teleport({
             session: sessions.find((s) => s.steamId.id === '76561198012102485')!!,
             serverApiId: serverApiId,
@@ -261,6 +260,42 @@ describe('CFToolsClient', () => {
                 y: 12152.5,
                 z: 230,
             },
+        });
+    });
+
+    // does only work when there is a player online, hence not running automatically
+    xit('heals player', async () => {
+        let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
+        const sessions = await client.listGameSessions({
+            serverApiId: serverApiId,
+        });
+        await client.healPlayer({
+            session: sessions.find((s) => s.steamId.id === '76561198012102485')!!,
+            serverApiId: serverApiId,
+        });
+    });
+
+    // does only work when there is a player online, hence not running automatically
+    xit('kills player', async () => {
+        let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
+        const sessions = await client.listGameSessions({
+            serverApiId: serverApiId,
+        });
+        await client.killPlayer({
+            session: sessions.find((s) => s.steamId.id === '76561198012102485')!!,
+            serverApiId: serverApiId,
+        });
+    });
+
+    // does only work when there is a player online, hence not running automatically
+    xit('raw gamelabs action', async () => {
+        let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
+        await client.gameLabsAction({
+            referenceKey: '76561198012102485',
+            actionContext: 'player',
+            actionCode: 'CFCloud_ExplodePlayer',
+            serverApiId: serverApiId,
+            parameters: {},
         });
     });
 
