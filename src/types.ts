@@ -83,29 +83,27 @@ export interface CFToolsClient {
     listGameSessions(request: ListGameSessionsRequest): Promise<GameSession[]>
 
     /**
-     * BETA: This feature uses an API that is marked as Beta in the CFTools API.
-     *
+     * Executes a raw GameLabs action. Use this method only when you want to have more control over the parameters
+     * passed to GameLabs, which is not possible with the higher-level methods (like #spawnItem() o #teleport()), or
+     * when you want to execute an action that is not defined by GameLabs itself but by another extension integrating
+     * with GameLabs.
+     */
+    gameLabsAction(request: GameLabsActionRequest): Promise<void>
+
+    /**
      * Spawns the requested item class, if it exists, to the player associated with the requested GameSession ID. You
-     * an request a specific quantity; if you omit the parameter, the default value (1) will be used.
-     *
-     * This API may throw UnknownErrors, as some edge cases might not be handled already.
+     * can request a specific quantity; if you omit the parameter, the default value (1) will be used.
      *
      * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
      * request)
-     *
-     * @beta
      */
     spawnItem(request: SpawnItemRequest): Promise<void>
 
     /**
-     * BETA: This feature uses an API that is marked as Beta in the CFTools API.
-     *
      * Teleports the player associated with the requested GameSession to the coordinates requested.
      *
      * Requires the GameLabs integration to be installed on the server (the default serverApiId or the one provided in the
      * request)
-     *
-     * @beta
      */
     teleport(request: TeleportPlayerRequest): Promise<void>
 
@@ -627,9 +625,77 @@ export interface SpawnItemRequest extends OverrideServerApiId {
     quantity?: number;
 }
 
+export type DayZGameLabsActions =
+    'CFCloud_SpawnPlayerItem'
+    | 'CFCloud_TeleportPlayer'
+    | 'CFCloud_HealPlayer'
+    | 'CFCloud_KillPlayer'
+    | 'CFCloud_ExplodePlayer'
+    | 'CFCloud_StripPlayer'
+    | 'CFCloud_DeleteVehicle'
+    | 'CFCloud_WorldTime'
+    | 'CFCloud_WorldWeather'
+    | 'CFCloud_WorldWeatherSunny'
+    | 'CFCloud_WorldWipeAI'
+    | 'CFCloud_WorldWipeVehicles'
+    | 'CFCloud_SpawnItemWorld'
+    | 'CFCloud_ObjectDelete'
+    | 'CFCloud_TerritoryFlagClear';
+
+export interface GameLabsActionRequest extends OverrideServerApiId {
+    actionCode: DayZGameLabsActions | string;
+    actionContext: 'world' | 'player' | 'vehicle' | 'object';
+    referenceKey: string;
+    parameters: { [name: string]: GameLabsActionParameter };
+}
+
+export type GameLabsActionParameter =
+    GameLabsActionIntParameter
+    | GameLabsActionFloatParameter
+    | GameLabsActionStringParameter
+    | GameLabsActionBooleanParameter
+    | GameLabsActionVectorParameter
+    | GameLabsActionCfItemListParameter;
+
+export interface GameLabsActionIntParameter {
+    dataType: 'int';
+    valueInt: number;
+}
+
+export interface GameLabsActionFloatParameter {
+    dataType: 'float';
+    valueFloat: number;
+}
+
+export interface GameLabsActionStringParameter {
+    dataType: 'string';
+    valueString: string;
+}
+
+export interface GameLabsActionBooleanParameter {
+    dataType: 'boolean';
+    valueBoolean: boolean;
+}
+
+export interface GameLabsActionVectorParameter {
+    dataType: 'vector';
+    valueVectorX: number;
+    valueVectorY: number;
+    valueVectorZ: number;
+}
+
+export interface GameLabsActionCfItemListParameter {
+    dataType: 'cf_itemlist';
+}
+
+/**
+ * These are NOT the DayZ standard vector coordinates as seen in, e.g., COT.
+ * Use the COT X value as x, the COT Y value as z and the COT Z value as y.
+ */
 export interface Coordinates {
     x: number;
     y: number;
+    z: number;
 }
 
 export interface TeleportPlayerRequest extends OverrideServerApiId {

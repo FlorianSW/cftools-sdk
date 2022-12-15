@@ -10,6 +10,7 @@ import {
     DeletePriorityQueueRequest,
     DeleteWhitelistRequest,
     Game,
+    GameLabsActionRequest,
     GameServerItem,
     GameServerQueryError,
     GameSession,
@@ -376,12 +377,33 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async spawnItem(request: SpawnItemRequest): Promise<void> {
-        const body = {
-            gamesession_id: request.session.id,
-            object: request.itemClass,
-            quantity: request.quantity || 1,
+        const body: GameLabsActionRequest = {
+            serverApiId: request.serverApiId,
+            actionCode: 'CFCloud_SpawnPlayerItem',
+            actionContext: 'player',
+            referenceKey: request.session.steamId.id,
+            parameters: {
+                item: {
+                    dataType: 'string',
+                    valueString: request.itemClass,
+                },
+                quantity: {
+                    dataType: 'int',
+                    valueInt: request.quantity || 1,
+                },
+            },
         };
-        await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/spawn`, {
+        await this.gameLabsAction(body);
+    }
+
+    async gameLabsAction(request: GameLabsActionRequest): Promise<void> {
+        const body = {
+            actionCode: request.actionCode,
+            actionContext: request.actionContext,
+            referenceKey: request.referenceKey,
+            parameters: {...request.parameters},
+        };
+        await this.client.post(`v1/server/${this.resolveServerApiId(request).id}/GameLabs/action`, {
             body: JSON.stringify(body),
             context: {
                 authorization: await this.auth!.provide(),
@@ -390,16 +412,21 @@ export class GotCFToolsClient implements CFToolsClient {
     }
 
     async teleport(request: TeleportPlayerRequest): Promise<void> {
-        const body = {
-            gamesession_id: request.session.id,
-            coords: [request.coordinates.x, request.coordinates.y]
-        };
-        await this.client.post(`v0/server/${this.resolveServerApiId(request).id}/gameLabs/teleport`, {
-            body: JSON.stringify(body),
-            context: {
-                authorization: await this.auth!.provide(),
+        const body: GameLabsActionRequest = {
+            serverApiId: request.serverApiId,
+            actionCode: 'CFCloud_TeleportPlayer',
+            actionContext: 'player',
+            referenceKey: request.session.steamId.id,
+            parameters: {
+                vector: {
+                    dataType: 'vector',
+                    valueVectorX: request.coordinates.x,
+                    valueVectorY: request.coordinates.y,
+                    valueVectorZ: request.coordinates.z,
+                },
             },
-        });
+        };
+        await this.gameLabsAction(body);
     }
 
     async listBans(request: ListBansRequest): Promise<Ban[]> {
@@ -491,22 +518,6 @@ export class GotCFToolsClient implements CFToolsClient {
         }
     }
 
-    private assertAuthentication() {
-        if (!this.auth) {
-            throw new AuthenticationRequired();
-        }
-    }
-
-    private resolveServerApiId(request?: OverrideServerApiId): ServerApiId {
-        if (request?.serverApiId) {
-            return request.serverApiId;
-        }
-        if (this.serverApiId) {
-            return this.serverApiId;
-        }
-        throw new ServerApiIdRequired();
-    }
-
     async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
         let playerId: GenericId;
         if ('playerId' in id) {
@@ -527,5 +538,21 @@ export class GotCFToolsClient implements CFToolsClient {
             },
         });
         return CFToolsId.of(response.cftools_id);
+    }
+
+    private assertAuthentication() {
+        if (!this.auth) {
+            throw new AuthenticationRequired();
+        }
+    }
+
+    private resolveServerApiId(request?: OverrideServerApiId): ServerApiId {
+        if (request?.serverApiId) {
+            return request.serverApiId;
+        }
+        if (this.serverApiId) {
+            return this.serverApiId;
+        }
+        throw new ServerApiIdRequired();
     }
 }

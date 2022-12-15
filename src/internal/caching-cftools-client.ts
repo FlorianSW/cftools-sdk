@@ -28,7 +28,7 @@ import {
     GetServerInfoRequest,
     ListGameSessionsRequest,
     GameSession,
-    SpawnItemRequest, TeleportPlayerRequest, CFToolsId
+    SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -67,6 +67,10 @@ export class CachingCFToolsClient implements CFToolsClient {
 
     spawnItem(request: SpawnItemRequest): Promise<void> {
         return this.client.spawnItem(request);
+    }
+
+    gameLabsAction(request: GameLabsActionRequest): Promise<void> {
+        return this.client.gameLabsAction(request);
     }
 
     teleport(request: TeleportPlayerRequest): Promise<void> {

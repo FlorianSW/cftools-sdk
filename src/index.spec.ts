@@ -11,7 +11,8 @@ import {
     Game,
     GameServerItem,
     GameServerQueryError,
-    InvalidCredentials, IPAddress,
+    InvalidCredentials,
+    IPAddress,
     Player,
     PriorityQueueItem,
     PutBanRequest,
@@ -232,6 +233,37 @@ describe('CFToolsClient', () => {
         });
     });
 
+    // does only work when there is a player online, hence not running automatically
+    xit('spawns item', async () => {
+        let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
+        const sessions = await client.listGameSessions({
+            serverApiId: serverApiId,
+        });
+        await client.spawnItem({
+            session: sessions.find((s) => s.steamId.id === '76561198012102485')!!,
+            serverApiId: serverApiId,
+            itemClass: 'AKM',
+        });
+    });
+
+    // does only work when there is a player online, hence not running automatically
+    it('spawns item', async () => {
+        let serverApiId = ServerApiId.of(process.env.CFTOOLS_SERVER_API_ID || '');
+        const sessions = await client.listGameSessions({
+            serverApiId: serverApiId,
+        });
+        // 8807.14 / 8550.51
+        await client.teleport({
+            session: sessions.find((s) => s.steamId.id === '76561198012102485')!!,
+            serverApiId: serverApiId,
+            coordinates: {
+                x: 2962.07,
+                y: 12152.5,
+                z: 230,
+            },
+        });
+    });
+
     describe('getGameServerDetails', () => {
         it('returns game server details for existing server', async () => {
             const ip = '37.59.34.178';
@@ -271,8 +303,8 @@ describe('CFToolsClient', () => {
                 geolocation: {
                     available: false,
                     city: {
-                        region: "",
-                        name: "",
+                        region: '',
+                        name: '',
                     },
                     continent: 'EU',
                     country: {
