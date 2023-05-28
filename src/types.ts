@@ -586,11 +586,24 @@ export interface GameSession {
         gameBanned?: boolean;
         vacBanned?: boolean;
     };
+    live: {
+        loadTime: number;
+        loaded: boolean;
+        ping: {
+            actual: number;
+            trend: number;
+        };
+        position: {
+            join: Coordinates;
+            latest: Coordinates;
+            leave?: Coordinates | undefined;
+        }
+    };
     profile?: {
         avatar: URL;
         name: string;
         private: boolean;
-    }
+    };
 }
 
 export interface Ban {

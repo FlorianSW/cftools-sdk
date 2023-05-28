@@ -266,7 +266,19 @@ export interface ListGameSessionsResponse {
             ban_count: number;
             labels: string[];
         };
-        live: {};
+        live: {
+            load_time: number;
+            loaded: boolean;
+            ping: {
+                actual: number;
+                trend: number;
+            },
+            position: {
+                join: number[];
+                latest: number[];
+                leave?: number[] | null;
+            };
+        };
         persona: {
             bans: {
                 community: boolean;

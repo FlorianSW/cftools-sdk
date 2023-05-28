@@ -372,6 +372,31 @@ export class GotCFToolsClient implements CFToolsClient {
                 cftoolsId: CFToolsId.of(s.cftools_id),
                 playerName: s.gamedata.player_name,
                 steamId: SteamId64.of(s.gamedata.steam64),
+                live: {
+                    loadTime: s.live.load_time,
+                    ping: {
+                        actual: s.live.ping.actual,
+                        trend: s.live.ping.trend,
+                    },
+                    position: {
+                        join: {
+                            x: s.live.position.join[0],
+                            y: s.live.position.join[1],
+                            z: s.live.position.join[2],
+                        },
+                        latest: {
+                            x: s.live.position.latest[0],
+                            y: s.live.position.latest[1],
+                            z: s.live.position.latest[2],
+                        },
+                        leave: s.live.position.leave ? {
+                            x: s.live.position.leave[0],
+                            y: s.live.position.leave[1],
+                            z: s.live.position.leave[2],
+                        } : undefined,
+                    },
+                    loaded: s.live.loaded,
+                },
             } as GameSession
         });
     }
