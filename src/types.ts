@@ -589,10 +589,10 @@ export interface GameSession {
     live: {
         loadTime: number;
         loaded: boolean;
-        ping: {
+        ping?: {
             actual: number;
             trend: number;
-        };
+        } | undefined;
         position: {
             join: Coordinates;
             latest: Coordinates;

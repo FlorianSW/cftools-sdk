@@ -269,10 +269,10 @@ export interface ListGameSessionsResponse {
         live: {
             load_time: number;
             loaded: boolean;
-            ping: {
+            ping?: {
                 actual: number;
                 trend: number;
-            },
+            } | undefined,
             position: {
                 join: number[];
                 latest: number[];

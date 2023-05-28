@@ -374,10 +374,10 @@ export class GotCFToolsClient implements CFToolsClient {
                 steamId: SteamId64.of(s.gamedata.steam64),
                 live: {
                     loadTime: s.live.load_time,
-                    ping: {
+                    ping: s.live.ping ? {
                         actual: s.live.ping.actual,
                         trend: s.live.ping.trend,
-                    },
+                    } : undefined,
                     position: {
                         join: {
                             x: s.live.position.join[0],
