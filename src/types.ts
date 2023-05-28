@@ -587,15 +587,15 @@ export interface GameSession {
         vacBanned?: boolean;
     };
     live: {
-        loadTime: number;
+        loadTime?: number | undefined;
         loaded: boolean;
         ping?: {
             actual: number;
             trend: number;
         } | undefined;
         position: {
-            join: Coordinates;
-            latest: Coordinates;
+            join?: Coordinates | undefined;
+            latest?: Coordinates | undefined;
             leave?: Coordinates | undefined;
         }
     };

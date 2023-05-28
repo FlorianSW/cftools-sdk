@@ -274,8 +274,8 @@ export interface ListGameSessionsResponse {
                 trend: number;
             } | undefined,
             position: {
-                join: number[];
-                latest: number[];
+                join?: number[] | null;
+                latest?: number[] | null;
                 leave?: number[] | null;
             };
         };

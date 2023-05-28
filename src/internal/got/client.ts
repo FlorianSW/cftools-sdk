@@ -379,16 +379,16 @@ export class GotCFToolsClient implements CFToolsClient {
                         trend: s.live.ping.trend,
                     } : undefined,
                     position: {
-                        join: {
+                        join: s.live.position.join ? {
                             x: s.live.position.join[0],
                             y: s.live.position.join[1],
                             z: s.live.position.join[2],
-                        },
-                        latest: {
+                        } : undefined,
+                        latest: s.live.position.latest ? {
                             x: s.live.position.latest[0],
                             y: s.live.position.latest[1],
                             z: s.live.position.latest[2],
-                        },
+                        } : undefined,
                         leave: s.live.position.leave ? {
                             x: s.live.position.leave[0],
                             y: s.live.position.leave[1],
