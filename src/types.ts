@@ -600,7 +600,7 @@ export interface GameSession {
         }
     };
     profile?: {
-        avatar: URL;
+        avatar?: URL | undefined;
         name: string;
         private: boolean;
     };

@@ -350,12 +350,21 @@ export class GotCFToolsClient implements CFToolsClient {
             let bans: GameSession['bans'] = {
                 count: s.info.ban_count,
             };
-            let profile = undefined;
+            let profile: GameSession['profile'] | undefined = undefined;
             if (s.persona) {
+                let avatar: URL | undefined;
+                if (s.persona.profile.avatar) {
+                    try {
+                        avatar = new URL(s.persona.profile.avatar);
+                    } catch (e) {
+                        console.warn('Could not parse Avatar URL of profile: ' +
+                            s.persona.profile.avatar + '; CFToolsId: ' + s.cftools_id + '; SteamId: ' + s.gamedata.steam64);
+                    }
+                }
                 profile = {
                     name: s.persona.profile.name,
                     private: s.persona.profile.private,
-                    avatar: new URL(s.persona.profile.avatar),
+                    avatar: avatar,
                 };
                 bans = {
                     ...bans,
