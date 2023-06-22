@@ -351,7 +351,7 @@ export class GotCFToolsClient implements CFToolsClient {
                 count: s.info.ban_count,
             };
             let profile: GameSession['profile'] | undefined = undefined;
-            if (s.persona) {
+            if (s.persona && s.persona.profile) {
                 let avatar: URL | undefined;
                 if (s.persona.profile.avatar) {
                     try {

@@ -279,7 +279,7 @@ export interface ListGameSessionsResponse {
                 leave?: number[] | null;
             };
         };
-        persona: {
+        persona?: {
             bans: {
                 community: boolean;
                 economy: string;
@@ -287,7 +287,7 @@ export interface ListGameSessionsResponse {
                 last_ban: any;
                 vac: number;
             };
-            profile: {
+            profile?: {
                 avatar: string;
                 name: string;
                 private: boolean;
