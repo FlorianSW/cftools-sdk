@@ -647,11 +647,28 @@ export interface ListGameSessionsRequest extends OverrideServerApiId {
 
 export interface SpawnItemRequest extends OverrideServerApiId {
     session: GameSession;
+    /**
+     * "Class name of item to be spawned
+     */
     itemClass: string;
     /**
-     * If omitted, the default value (1) will be assumed.
+     * Amount if items to be spawned
+     *
+     * If omitted, the default value (1) will be used.
      */
     quantity?: number;
+    /**
+     * Use debug spawn method to automatically populate specific items
+     *
+     * If omitted, the default (false) will be used.
+     */
+    debug?: boolean;
+    /**
+     * Spawn items as a stack (only works if item supports to be stacked)
+     *
+     * If omitted, the default (false) will be used.
+     */
+    stacked?: boolean;
 }
 
 export interface HealPlayerRequest extends OverrideServerApiId {

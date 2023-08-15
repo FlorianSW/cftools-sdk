@@ -425,6 +425,14 @@ export class GotCFToolsClient implements CFToolsClient {
                     dataType: 'int',
                     valueInt: request.quantity || 1,
                 },
+                debug: {
+                    dataType: 'boolean',
+                    valueBoolean: request.debug ?? false,
+                },
+                stacked: {
+                    dataType: 'boolean',
+                    valueBoolean: request.stacked ?? false,
+                },
             },
         };
         await this.gameLabsAction(body);
