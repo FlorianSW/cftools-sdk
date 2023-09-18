@@ -63,21 +63,21 @@ export interface GetPlayerResponse {
             playtime: number,
             sessions: number,
         },
-        game: {
-            general?: {
-                kills?: number,
-                deaths?: number,
-                environment_deaths?: number,
-                infected_deaths?: number,
-                suicides?: number,
-                hits?: number,
-                kdratio?: number,
-                longest_kill?: number,
-                longest_shot?: number,
-                weapons?: GetPlayerResponseWeapons,
-                zones?: GetPlayerResponseHitZones
-            }
-        }
+        dayz?: {
+            distance_traveled: number,
+            shots: {
+                fired: number,
+                hit: number,
+                hit_players: number,
+                hit_infected: number,
+                hit_animals: number,
+                hit_vehicles: number,
+            },
+            kills: {
+                infected: number,
+                animals: number,
+            },
+        },
     },
 }
 
@@ -293,7 +293,6 @@ export interface ListGameSessionsResponse {
                 private: boolean;
             };
         };
-        stats: {};
     }[]
 }
 

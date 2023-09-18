@@ -421,7 +421,9 @@ export interface PutWhitelistItemRequest extends OverrideServerApiId {
 
 export interface Player {
     names: string[],
-    statistics: PlayerStatistics,
+    statistics: {
+        dayz: DayZStatistics,
+    },
     /**
      * Playtime in seconds
      */
@@ -429,18 +431,20 @@ export interface Player {
     sessions: number,
 }
 
-export interface PlayerStatistics {
-    environmentDeaths: number,
-    infectedDeaths: number,
-    suicides: number,
-    kills: number,
-    deaths: number,
-    hits: number,
-    killDeathRatio: number,
-    longestKill: number,
-    longestShot: number,
-    hitZones: HitZones,
-    weaponsBreakdown: { [className: string]: WeaponStatistic }
+export interface DayZStatistics {
+    distanceTraveled: number,
+    shots: {
+        fired: number,
+        hit: number,
+        hitPlayers: number,
+        hitInfected: number,
+        hitAnimals: number,
+        hitVehicles: number,
+    },
+    kills: {
+        infected: number,
+        animals: number,
+    },
 }
 
 export interface HitZones {

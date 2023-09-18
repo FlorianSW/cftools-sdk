@@ -20,9 +20,11 @@ import {
     GetPlayerDetailsRequest,
     GetPriorityQueueRequest,
     GetServerInfoRequest,
-    GetWhitelistRequest, HealPlayerRequest,
+    GetWhitelistRequest,
+    HealPlayerRequest,
     IPAddressType,
-    isIpAddress, KillPlayerRequest,
+    isIpAddress,
+    KillPlayerRequest,
     LeaderboardItem,
     ListBansRequest,
     ListGameSessionsRequest,
@@ -51,9 +53,7 @@ import {
     GetPriorityQueueEntry,
     GetServerInfoResponse,
     GetUserLookupResponse,
-    ListGameSessionsResponse,
-    toHitZones,
-    toWeaponBreakdown
+    ListGameSessionsResponse
 } from './types';
 import {asDate} from './date-to-string';
 
@@ -84,17 +84,21 @@ export class GotCFToolsClient implements CFToolsClient {
         return {
             names: player.omega.name_history,
             statistics: {
-                kills: player.game.general?.kills || 0,
-                deaths: player.game.general?.deaths || 0,
-                suicides: player.game.general?.suicides || 0,
-                environmentDeaths: player.game.general?.environment_deaths || 0,
-                infectedDeaths: player.game.general?.infected_deaths || 0,
-                hits: player.game.general?.hits || 0,
-                longestShot: player.game.general?.longest_shot || 0,
-                longestKill: player.game.general?.longest_kill || 0,
-                weaponsBreakdown: toWeaponBreakdown(player.game.general?.weapons),
-                hitZones: toHitZones(player.game.general?.zones),
-                killDeathRatio: player.game.general?.kdratio || 0,
+                dayz: {
+                    distanceTraveled: player.dayz?.distance_traveled || 0,
+                    shots: {
+                        fired: player.dayz?.shots.fired || 0,
+                        hit: player.dayz?.shots.hit || 0,
+                        hitPlayers: player.dayz?.shots.hit_players || 0,
+                        hitInfected: player.dayz?.shots.hit_infected || 0,
+                        hitAnimals: player.dayz?.shots.hit_animals || 0,
+                        hitVehicles: player.dayz?.shots.hit_vehicles || 0,
+                    },
+                    kills: {
+                        infected: player.dayz?.kills.infected || 0,
+                        animals: player.dayz?.kills.animals || 0,
+                    },
+                },
             },
             playtime: player.omega.playtime,
             sessions: player.omega.sessions,

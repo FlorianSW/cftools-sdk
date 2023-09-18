@@ -36,8 +36,8 @@ describe('CFToolsClient', () => {
     beforeEach(() => {
         config();
         client = new CFToolsClientBuilder()
-            .withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '')
-            .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
+            .withServerApiId('339347e8-90bb-4d46-8b57-e905ab0fe2c5')
+            .withCredentials('60a5563018bfe6c12dec7f55', 'DQ4NDSlnjL5wm4Unu6m+M3i0K/I3hatUmBvo2n5SZ64=')
             .build();
 
         banlist = Banlist.of(process.env.CFTOOLS_BANLIST || '');
@@ -67,33 +67,12 @@ describe('CFToolsClient', () => {
         });
 
         it('returns player for CFTools ID', async () => {
-            await expect(client.getPlayerDetails(existingCfToolsId)).resolves.toStrictEqual({
+            const player = await client.getPlayerDetails(CFToolsId.of("5fc7f9a050ae5adf01df9bdd"));
+
+            expect(player).toStrictEqual({
                 names: expect.arrayContaining(['FlorianSW']),
                 playtime: expect.any(Number),
                 sessions: expect.any(Number),
-                statistics: {
-                    infectedDeaths: expect.any(Number),
-                    deaths: expect.any(Number),
-                    kills: expect.any(Number),
-                    environmentDeaths: expect.any(Number),
-                    suicides: expect.any(Number),
-                    hits: expect.any(Number),
-                    killDeathRatio: expect.any(Number),
-                    longestKill: expect.any(Number),
-                    longestShot: expect.any(Number),
-                    hitZones: {
-                        brain: expect.any(Number),
-                        head: expect.any(Number),
-                        leftArm: expect.any(Number),
-                        leftFoot: expect.any(Number),
-                        leftLeg: expect.any(Number),
-                        rightArm: expect.any(Number),
-                        rightHand: expect.any(Number),
-                        rightLeg: expect.any(Number),
-                        torso: expect.any(Number),
-                    },
-                    weaponsBreakdown: {},
-                }
             } as Player);
         });
 

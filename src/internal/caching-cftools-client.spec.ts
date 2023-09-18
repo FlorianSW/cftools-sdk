@@ -39,6 +39,9 @@ describe('CachingCFToolsClient', () => {
             deleteBan: jest.fn(),
             deleteBans: jest.fn(),
             resolve: jest.fn(),
+            gameLabsAction: jest.fn(),
+            killPlayer: jest.fn(),
+            healPlayer: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
             priorityQueue: 30,
@@ -261,6 +264,7 @@ describe('CachingCFToolsClient', () => {
                 coordinates: {
                     x: 100,
                     y: 100,
+                    z: 100,
                 }
             }
             await client.teleport(teleportRequest);
