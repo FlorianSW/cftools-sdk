@@ -198,11 +198,6 @@ export interface AuthorizationProvider {
     provide(): Promise<Authorization>;
 
     /**
-     * Returns an extra authorization that can be used in conjunction with the CFTools Data Enterprise API. The provided token has no expiration time.
-     */
-    provideEnterpriseAuthorization(): string | undefined;
-
-    /**
      * A back-channel for users of the provided authorization from provide(). Should be used, when the authorization is,
      * different than expected, reported to be expired from CFTools. This should only be used while a request was made in
      * a reasonable amount of time after the authorization was gathered from the provider.
@@ -221,7 +216,13 @@ export enum AuthorizationType {
     BEARER = 'Bearer'
 }
 
-export class Authorization {
+export interface Authorization {
+    asHeader(): Record<string, string | string[] | undefined>;
+
+    throwExpired(url: string): TokenExpired;
+}
+
+export class BearerAuthorization implements Authorization {
     /**
      * An authorization for use with the CFTools Data API. The authorization consists of a type (currently, only Bearer
      * is supported by CFTools) as well as the value (token) needed to use within the authorization. The token is an
@@ -230,8 +231,38 @@ export class Authorization {
     constructor(readonly type: AuthorizationType, readonly token: string, readonly created: Date, readonly expiresAt: Date) {
     }
 
-    asHeader(): string {
-        return this.type + ' ' + this.token;
+    asHeader(): Record<string, string | string[] | undefined> {
+        return {
+            Authorization: this.type + ' ' + this.token,
+        };
+    }
+
+    throwExpired(url: string): TokenExpired {
+        return new TokenExpired(url, {
+            type: this.type,
+            token: this.token,
+            created: this.created,
+            expiresAt: this.expiresAt,
+        })
+    }
+}
+
+export class EnterpriseAuthorization implements Authorization {
+    private constructor(private readonly enterpriseToken: string, private readonly parent: Authorization) {
+    }
+
+    static from(token: string, auth: Authorization): EnterpriseAuthorization {
+        return new EnterpriseAuthorization(token, auth);
+    }
+
+    asHeader(): Record<string, string | string[] | undefined> {
+        const val = this.parent.asHeader();
+        val['X-Enterprise-Access-Token'] = this.enterpriseToken;
+        return val;
+    }
+
+    throwExpired(url: string): TokenExpired {
+        return this.parent.throwExpired(url);
     }
 }
 

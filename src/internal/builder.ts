@@ -3,12 +3,13 @@ import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
 import {GotHttpClient, httpClient, HttpClient} from './http';
-import {CFToolsAuthorizationProvider} from './auth';
+import {CFToolsAuthorizationProvider, EnterpriseAuthorizationProvider} from './auth';
 
 export type HttpClientBuilder = (auth?: AuthorizationProvider) => HttpClient;
 
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
+    private enterpriseToken: string | undefined;
     private credentials: LoginCredentials | undefined;
     private cache: Cache | undefined;
     private cacheConfig: CacheConfiguration = {
@@ -22,7 +23,7 @@ export class CFToolsClientBuilder {
         banlist: 10,
         resolve: Number.MAX_SAFE_INTEGER,
     };
-    private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(httpClient(this.credentials != undefined && this.credentials.enterpriseToken != undefined), auth);
+    private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(httpClient(this.enterpriseToken !== undefined), auth);
 
     /**
      * Set the default server api ID identifying the CFTools Cloud server instance.
@@ -33,6 +34,18 @@ export class CFToolsClientBuilder {
      */
     public withServerApiId(serverApiId: string): CFToolsClientBuilder {
         this.serverApiId = ServerApiId.of(serverApiId);
+        return this;
+    }
+
+    /**
+     * The enterprise API is functionally equal with the data API, however, it looses the rate limits and with that allows
+     * much more requests per time unit compared to the general available data API. To use it, you require an enterprise access
+     * token.
+     *
+     * @param token The Enterprise Access Token provided by CFTools
+     */
+    public withEnterpriseApi(token: string): CFToolsClientBuilder {
+        this.enterpriseToken = token;
         return this;
     }
 
@@ -74,7 +87,9 @@ export class CFToolsClientBuilder {
 
     public build(): CFToolsClient {
         let auth: AuthorizationProvider | undefined = undefined;
-        if (this.credentials) {
+        if (this.credentials && this.enterpriseToken) {
+            auth = new EnterpriseAuthorizationProvider(this.credentials, this.enterpriseToken);
+        } else if (this.credentials) {
             auth = new CFToolsAuthorizationProvider(this.credentials);
         }
         const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, auth);

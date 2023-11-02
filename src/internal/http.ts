@@ -1,10 +1,12 @@
 import got, {Got, HTTPError, Response} from 'got';
 import {
-    Authorization, AuthorizationProvider,
+    Authorization,
+    AuthorizationProvider,
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
-    RequestLimitExceeded, ResourceNotConfigured,
+    RequestLimitExceeded,
+    ResourceNotConfigured,
     ResourceNotFound,
     TimeoutError,
     TokenExpired,
@@ -62,10 +64,10 @@ export class GotHttpClient implements HttpClient {
 
     protected populateContext(options?: OptionsOfTextResponseBody, contextOverride?: Record<string, unknown>): OptionsOfTextResponseBody | undefined {
         const context = contextOverride || options?.context;
-        if (options && context?.authorization && context.authorization instanceof Authorization) {
+        if (options && context?.authorization) {
             options.headers = {
                 ...options.headers,
-                Authorization: context.authorization.asHeader()
+                ...(context.authorization as Authorization).asHeader(),
             }
         }
         return options;
@@ -119,12 +121,7 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
         return new GrantRequired(error.request.requestUrl);
     }
     if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
-        return new TokenExpired(error.request.requestUrl, {
-            type: auth!!.type,
-            token: auth!!.token,
-            created: auth!!.created,
-            expiresAt: auth!!.expiresAt,
-        });
+        return auth!!.throwExpired(error.request.requestUrl);
     }
     if (response.statusCode === 500 && errorMessage(response) === 'unexpected-error') {
         return new UnknownError(error.request.requestUrl, JSON.parse(response.body as string).request_id);
@@ -138,14 +135,8 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
     return error;
 }
 
-export function httpClient(enterprise?: boolean) {
-    if(enterprise != undefined && enterprise) {
-        return got.extend({
-            prefixUrl: enterpriseBaseUrl
-        });
-    } else {
-        return got.extend({
-            prefixUrl: baseUrl,
-        });
-    }
+export function httpClient(enterprise: boolean) {
+    return got.extend({
+        prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl
+    });
 }
