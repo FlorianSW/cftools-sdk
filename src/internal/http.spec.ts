@@ -3,7 +3,7 @@ import {Got} from 'got';
 import {GotHttpClient, HttpClient, httpClient} from './http';
 import {
     Authorization,
-    AuthorizationType,
+    AuthorizationType, BearerAuthorization,
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
@@ -42,14 +42,14 @@ describe('http', () => {
             });
         });
 
-        client = httpClient.extend({
+        client = httpClient(false).extend({
             retry: 0,
             prefixUrl: 'http://127.0.0.1:8081'
         });
     });
 
     beforeEach(() => {
-        http = new GotHttpClient(undefined, client);
+        http = new GotHttpClient(client, undefined);
         httpResponse = {
             code: 200,
             errorText: 'none',
@@ -108,7 +108,7 @@ describe('http', () => {
         it('does retry the request when token-expired error occurs', async () => {
             const auth = {
                 async provide(): Promise<Authorization> {
-                    return new Authorization(AuthorizationType.BEARER, '', new Date(), new Date());
+                    return new BearerAuthorization(AuthorizationType.BEARER, '', new Date(), new Date());
                 },
                 reportExpired() {
                     httpResponse = {code: 200, errorText: ''};
@@ -127,7 +127,7 @@ describe('http', () => {
         it('throws TokenExpired on 403 with expired-token after authorization reported as expired', async () => {
             const auth = {
                 async provide(): Promise<Authorization> {
-                    return new Authorization(AuthorizationType.BEARER, '', new Date(), new Date());
+                    return new BearerAuthorization(AuthorizationType.BEARER, '', new Date(), new Date());
                 },
                 reportExpired() {
                 }
