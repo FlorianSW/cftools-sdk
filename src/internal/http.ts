@@ -13,6 +13,7 @@ import {
 import {OptionsOfTextResponseBody} from 'got/dist/source/types';
 
 const baseUrl = 'https://data.cftools.cloud';
+const enterpriseBaseUrl = 'https://epr-data.cftools.cloud';
 
 export interface HttpClient {
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
@@ -28,7 +29,8 @@ interface RequestWithContext<T> {
 }
 
 export class GotHttpClient implements HttpClient {
-    constructor(private readonly auth?: AuthorizationProvider, private readonly client: Got = httpClient) {
+    constructor(private readonly client: Got, public readonly auth?: AuthorizationProvider) {
+
     }
 
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
@@ -136,6 +138,14 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
     return error;
 }
 
-export const httpClient = got.extend({
-    prefixUrl: baseUrl,
-});
+export function httpClient(enterprise?: boolean) {
+    if(enterprise != undefined && enterprise) {
+        return got.extend({
+            prefixUrl: enterpriseBaseUrl
+        });
+    } else {
+        return got.extend({
+            prefixUrl: baseUrl,
+        });
+    }
+}

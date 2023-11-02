@@ -77,6 +77,9 @@ export class GotCFToolsClient implements CFToolsClient {
                 },
                 context: {
                     authorization: await this.auth!.provide(),
+                },
+                headers: {
+                    "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
                 }
             }
         );
@@ -121,6 +124,9 @@ export class GotCFToolsClient implements CFToolsClient {
             searchParams: params,
             context: {
                 authorization: await this.auth!.provide(),
+            },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
             }
         });
         return response.leaderboard.map((raw) => {
@@ -151,6 +157,9 @@ export class GotCFToolsClient implements CFToolsClient {
             },
             context: {
                 authorization: await this.auth!.provide(),
+            },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
             }
         });
         const entry = response.entries.find((e) => e.user.cftools_id === id.id);
@@ -180,6 +189,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -193,6 +205,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -205,6 +220,9 @@ export class GotCFToolsClient implements CFToolsClient {
             },
             context: {
                 authorization: await this.auth!.provide(),
+            },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
             }
         });
         if (response.entries.length === 0) {
@@ -234,6 +252,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -247,6 +268,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -324,6 +348,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
 
         let game: Game;
@@ -348,6 +375,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
 
         return response.sessions.map((s) => {
@@ -476,6 +506,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -509,6 +542,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
         if (response.entries.length === 0) {
             return [];
@@ -544,6 +580,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -573,6 +612,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
     }
 
@@ -604,6 +646,9 @@ export class GotCFToolsClient implements CFToolsClient {
             context: {
                 authorization: await this.auth!.provide(),
             },
+            headers: {
+                "X-Enterprise-Access-Token": this.auth!.provideEnterpriseAuthorization()
+            }
         });
         return CFToolsId.of(response.cftools_id);
     }

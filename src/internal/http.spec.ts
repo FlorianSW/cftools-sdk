@@ -114,7 +114,7 @@ describe('http', () => {
                     httpResponse = {code: 200, errorText: ''};
                 }
             };
-            http = new GotHttpClient(auth, client)
+            http = new GotHttpClient(client, auth)
             httpResponse = {code: 403, errorText: 'expired-token'};
 
             await expect(http.get('expired-token', {
@@ -132,7 +132,7 @@ describe('http', () => {
                 reportExpired() {
                 }
             };
-            http = new GotHttpClient(auth, client)
+            http = new GotHttpClient(client, auth)
             httpResponse = {code: 403, errorText: 'expired-token'};
 
             await expect(http.get('expired-token', {

@@ -2,7 +2,7 @@ import {AuthorizationProvider, Cache, CacheConfiguration, CFToolsClient, LoginCr
 import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
-import {GotHttpClient, HttpClient} from './http';
+import {GotHttpClient, httpClient, HttpClient} from './http';
 import {CFToolsAuthorizationProvider} from './auth';
 
 export type HttpClientBuilder = (auth?: AuthorizationProvider) => HttpClient;
@@ -22,7 +22,7 @@ export class CFToolsClientBuilder {
         banlist: 10,
         resolve: Number.MAX_SAFE_INTEGER,
     };
-    private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(auth);
+    private clientBuilder: HttpClientBuilder = (auth?: AuthorizationProvider) => new GotHttpClient(httpClient(this.credentials != undefined && this.credentials.enterpriseToken != undefined), auth);
 
     /**
      * Set the default server api ID identifying the CFTools Cloud server instance.
@@ -42,8 +42,8 @@ export class CFToolsClientBuilder {
      * unauthenticated requests. Whenever an endpoint requires authentication, these credentials must be set in order
      * for the method to succeed.
      */
-    public withCredentials(applicationId: string, secret: string): CFToolsClientBuilder {
-        this.credentials = LoginCredentials.of(applicationId, secret);
+    public withCredentials(applicationId: string, secret: string, enterpriseToken?: string): CFToolsClientBuilder {
+        this.credentials = LoginCredentials.of(applicationId, secret, enterpriseToken);
         return this;
     }
 

@@ -30,6 +30,10 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
         }
     }
 
+    provideEnterpriseAuthorization(): string | undefined {
+        return this.credentials.enterpriseToken;
+    }
+
     reportExpired() {
         this.token = undefined;
         this.expired = undefined;
@@ -48,7 +52,10 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
 
     private async fetchToken(): Promise<string> {
         try {
-            const response = await httpClient.post('v1/auth/register', {
+            const response = await httpClient(this.credentials.enterpriseToken != undefined).post('v1/auth/register', {
+                headers: {
+                  "X-Enterprise-Access-Token": this.credentials.enterpriseToken
+                },
                 body: JSON.stringify({
                     application_id: this.credentials.applicationId,
                     secret: this.credentials.secret

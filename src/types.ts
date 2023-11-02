@@ -198,6 +198,11 @@ export interface AuthorizationProvider {
     provide(): Promise<Authorization>;
 
     /**
+     * Returns an extra authorization that can be used in conjunction with the CFTools Data Enterprise API. The provided token has no expiration time.
+     */
+    provideEnterpriseAuthorization(): string | undefined;
+
+    /**
      * A back-channel for users of the provided authorization from provide(). Should be used, when the authorization is,
      * different than expected, reported to be expired from CFTools. This should only be used while a request was made in
      * a reasonable amount of time after the authorization was gathered from the provider.
@@ -266,11 +271,11 @@ export class ServerApiId {
  * These credentials can be retrieved from the CFTools developer portal. You need to create an application first.
  */
 export class LoginCredentials {
-    private constructor(public readonly applicationId: string, public readonly secret: string) {
+    private constructor(public readonly applicationId: string, public readonly secret: string, public readonly enterpriseToken?: string) {
     }
 
-    static of(applicationId: string, secret: string): LoginCredentials {
-        return new LoginCredentials(applicationId, secret);
+    static of(applicationId: string, secret: string, enterpriseToken?: string): LoginCredentials {
+        return new LoginCredentials(applicationId, secret, enterpriseToken);
     }
 }
 
