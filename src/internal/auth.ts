@@ -7,7 +7,7 @@ import {
     LoginCredentials
 } from '../types';
 import {Headers, HTTPError} from 'got';
-import {httpClient} from './http';
+import {HttpClient, httpClient} from './http';
 
 interface GetTokenRequest {
     application_id: string,
@@ -55,13 +55,13 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
 
     private async fetchToken(): Promise<string> {
         try {
-            const response = await httpClient(this.credentials.enterpriseToken != undefined).post('v1/auth/register', {
+            const response = await this.httpClient().post<GetTokenResponse>('v1/auth/register', {
                 headers: this.fetchTokenHeaders(),
                 body: JSON.stringify({
                     application_id: this.credentials.applicationId,
                     secret: this.credentials.secret
-                } as GetTokenRequest)
-            }).json<GetTokenResponse>();
+                } as GetTokenRequest),
+            });
             this.setToken(response.token);
             return response.token;
         } catch (error) {
@@ -75,6 +75,10 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
     protected fetchTokenHeaders(): Headers {
         return {};
     }
+
+    protected httpClient(): HttpClient {
+        return httpClient(false);
+    }
 }
 
 export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvider {
@@ -87,9 +91,13 @@ export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvide
         return EnterpriseAuthorization.from(this.enterpriseToken, parent);
     }
 
+    protected httpClient(): HttpClient {
+        return httpClient(true);
+    }
+
     protected fetchTokenHeaders(): Headers {
         return {
-            "X-Enterprise-Access-Token": this.enterpriseToken
+            "X-Enterprise-Access-Token": this.enterpriseToken,
         };
     }
 }

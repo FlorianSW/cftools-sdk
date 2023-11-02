@@ -55,8 +55,8 @@ export class CFToolsClientBuilder {
      * unauthenticated requests. Whenever an endpoint requires authentication, these credentials must be set in order
      * for the method to succeed.
      */
-    public withCredentials(applicationId: string, secret: string, enterpriseToken?: string): CFToolsClientBuilder {
-        this.credentials = LoginCredentials.of(applicationId, secret, enterpriseToken);
+    public withCredentials(applicationId: string, secret: string): CFToolsClientBuilder {
+        this.credentials = LoginCredentials.of(applicationId, secret);
         return this;
     }
 

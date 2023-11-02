@@ -302,11 +302,11 @@ export class ServerApiId {
  * These credentials can be retrieved from the CFTools developer portal. You need to create an application first.
  */
 export class LoginCredentials {
-    private constructor(public readonly applicationId: string, public readonly secret: string, public readonly enterpriseToken?: string) {
+    private constructor(public readonly applicationId: string, public readonly secret: string) {
     }
 
-    static of(applicationId: string, secret: string, enterpriseToken?: string): LoginCredentials {
-        return new LoginCredentials(applicationId, secret, enterpriseToken);
+    static of(applicationId: string, secret: string): LoginCredentials {
+        return new LoginCredentials(applicationId, secret);
     }
 }
 
