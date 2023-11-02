@@ -36,8 +36,8 @@ describe('CFToolsClient', () => {
     beforeEach(() => {
         config();
         client = new CFToolsClientBuilder()
-            .withServerApiId('339347e8-90bb-4d46-8b57-e905ab0fe2c5')
-            .withCredentials('60a5563018bfe6c12dec7f55', 'DQ4NDSlnjL5wm4Unu6m+M3i0K/I3hatUmBvo2n5SZ64=')
+            .withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '')
+            .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', process.env.CFTOOLS_SECRET || '')
             .build();
 
         banlist = Banlist.of(process.env.CFTOOLS_BANLIST || '');
