@@ -1,3 +1,5 @@
+import {HttpClient} from './internal/http';
+
 export interface CFToolsClient {
     /**
      * Returns metadata about an individual player.
@@ -195,7 +197,7 @@ export interface AuthorizationProvider {
      * However, implementations should consider caching the authorization for as long as the authorization is valid (if
      * this information is available by the provider where the authorization was gathered from).
      */
-    provide(): Promise<Authorization>;
+    provide(client: HttpClient): Promise<Authorization>;
 
     /**
      * A back-channel for users of the provided authorization from provide(). Should be used, when the authorization is,

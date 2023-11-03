@@ -2,12 +2,13 @@ import {
     Authorization,
     AuthorizationProvider,
     AuthorizationType,
-    BearerAuthorization, EnterpriseAuthorization,
+    BearerAuthorization,
+    EnterpriseAuthorization,
     InvalidCredentials,
     LoginCredentials
 } from '../types';
 import {Headers, HTTPError} from 'got';
-import {HttpClient, httpClient} from './http';
+import {HttpClient} from './http';
 
 interface GetTokenRequest {
     application_id: string,
@@ -29,17 +30,21 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
         }
     }
 
-    async provide(): Promise<Authorization> {
+    async provide(client: HttpClient): Promise<Authorization> {
         if (this.hasToken()) {
             return new BearerAuthorization(AuthorizationType.BEARER, this.token as string, this.created!!, this.expired!!);
         } else {
-            return new BearerAuthorization(AuthorizationType.BEARER, await this.fetchToken(), this.created!!, this.expired!!);
+            return new BearerAuthorization(AuthorizationType.BEARER, await this.fetchToken(client), this.created!!, this.expired!!);
         }
     }
 
     reportExpired() {
         this.token = undefined;
         this.expired = undefined;
+    }
+
+    protected fetchTokenHeaders(): Headers {
+        return {};
     }
 
     private setToken(token: string) {
@@ -53,9 +58,9 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
         return !!this.token && !!this.expired && this.expired.getTime() <= new Date().getTime();
     }
 
-    private async fetchToken(): Promise<string> {
+    private async fetchToken(client: HttpClient): Promise<string> {
         try {
-            const response = await this.httpClient().post<GetTokenResponse>('v1/auth/register', {
+            const response = await client.post<GetTokenResponse>('v1/auth/register', {
                 headers: this.fetchTokenHeaders(),
                 body: JSON.stringify({
                     application_id: this.credentials.applicationId,
@@ -71,14 +76,6 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
             throw error;
         }
     }
-
-    protected fetchTokenHeaders(): Headers {
-        return {};
-    }
-
-    protected httpClient(): HttpClient {
-        return httpClient(false);
-    }
 }
 
 export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvider {
@@ -86,18 +83,14 @@ export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvide
         super(credentials);
     }
 
-    async provide(): Promise<Authorization> {
-        const parent = await super.provide();
+    async provide(client: HttpClient): Promise<Authorization> {
+        const parent = await super.provide(client);
         return EnterpriseAuthorization.from(this.enterpriseToken, parent);
-    }
-
-    protected httpClient(): HttpClient {
-        return httpClient(true);
     }
 
     protected fetchTokenHeaders(): Headers {
         return {
-            "X-Enterprise-Access-Token": this.enterpriseToken,
+            'X-Enterprise-Access-Token': this.enterpriseToken,
         };
     }
 }

@@ -32,7 +32,6 @@ interface RequestWithContext<T> {
 
 export class GotHttpClient implements HttpClient {
     constructor(private readonly client: Got, public readonly auth?: AuthorizationProvider) {
-
     }
 
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
@@ -81,7 +80,7 @@ export class GotHttpClient implements HttpClient {
             const err = fromHttpError(error, r.context?.authorization as Authorization);
             if (err instanceof TokenExpired) {
                 this.auth?.reportExpired();
-                const authorization = await this.auth?.provide();
+                const authorization = await this.auth?.provide(this.client);
                 try {
                     return await requestFn({
                         ...r.context,
