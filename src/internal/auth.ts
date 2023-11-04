@@ -1,6 +1,14 @@
-import {Authorization, AuthorizationProvider, AuthorizationType, InvalidCredentials, LoginCredentials} from '../types';
-import {HTTPError} from 'got';
-import {httpClient} from './http';
+import {
+    Authorization,
+    AuthorizationProvider,
+    AuthorizationType,
+    BearerAuthorization,
+    EnterpriseAuthorization,
+    InvalidCredentials,
+    LoginCredentials
+} from '../types';
+import {Headers, HTTPError} from 'got';
+import {HttpClient} from './http';
 
 interface GetTokenRequest {
     application_id: string,
@@ -22,17 +30,21 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
         }
     }
 
-    async provide(): Promise<Authorization> {
+    async provide(client: HttpClient): Promise<Authorization> {
         if (this.hasToken()) {
-            return new Authorization(AuthorizationType.BEARER, this.token as string, this.created!!, this.expired!!);
+            return new BearerAuthorization(AuthorizationType.BEARER, this.token as string, this.created!!, this.expired!!);
         } else {
-            return new Authorization(AuthorizationType.BEARER, await this.fetchToken(), this.created!!, this.expired!!);
+            return new BearerAuthorization(AuthorizationType.BEARER, await this.fetchToken(client), this.created!!, this.expired!!);
         }
     }
 
     reportExpired() {
         this.token = undefined;
         this.expired = undefined;
+    }
+
+    protected fetchTokenHeaders(): Headers {
+        return {};
     }
 
     private setToken(token: string) {
@@ -46,14 +58,15 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
         return !!this.token && !!this.expired && this.expired.getTime() <= new Date().getTime();
     }
 
-    private async fetchToken(): Promise<string> {
+    private async fetchToken(client: HttpClient): Promise<string> {
         try {
-            const response = await httpClient.post('v1/auth/register', {
+            const response = await client.post<GetTokenResponse>('v1/auth/register', {
+                headers: this.fetchTokenHeaders(),
                 body: JSON.stringify({
                     application_id: this.credentials.applicationId,
                     secret: this.credentials.secret
-                } as GetTokenRequest)
-            }).json<GetTokenResponse>();
+                } as GetTokenRequest),
+            });
             this.setToken(response.token);
             return response.token;
         } catch (error) {
@@ -62,5 +75,22 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
             }
             throw error;
         }
+    }
+}
+
+export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvider {
+    constructor(credentials: LoginCredentials, private readonly enterpriseToken: string) {
+        super(credentials);
+    }
+
+    async provide(client: HttpClient): Promise<Authorization> {
+        const parent = await super.provide(client);
+        return EnterpriseAuthorization.from(this.enterpriseToken, parent);
+    }
+
+    protected fetchTokenHeaders(): Headers {
+        return {
+            'X-Enterprise-Access-Token': this.enterpriseToken,
+        };
     }
 }

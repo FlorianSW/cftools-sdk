@@ -1,10 +1,12 @@
 import got, {Got, HTTPError, Response} from 'got';
 import {
-    Authorization, AuthorizationProvider,
+    Authorization,
+    AuthorizationProvider,
     CFToolsUnavailable,
     DuplicateResourceCreation,
     GrantRequired,
-    RequestLimitExceeded, ResourceNotConfigured,
+    RequestLimitExceeded,
+    ResourceNotConfigured,
     ResourceNotFound,
     TimeoutError,
     TokenExpired,
@@ -13,6 +15,7 @@ import {
 import {OptionsOfTextResponseBody} from 'got/dist/source/types';
 
 const baseUrl = 'https://data.cftools.cloud';
+const enterpriseBaseUrl = 'https://epr-data.cftools.cloud';
 
 export interface HttpClient {
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
@@ -28,7 +31,7 @@ interface RequestWithContext<T> {
 }
 
 export class GotHttpClient implements HttpClient {
-    constructor(private readonly auth?: AuthorizationProvider, private readonly client: Got = httpClient) {
+    constructor(private readonly client: Got, public readonly auth?: AuthorizationProvider) {
     }
 
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T> {
@@ -60,10 +63,10 @@ export class GotHttpClient implements HttpClient {
 
     protected populateContext(options?: OptionsOfTextResponseBody, contextOverride?: Record<string, unknown>): OptionsOfTextResponseBody | undefined {
         const context = contextOverride || options?.context;
-        if (options && context?.authorization && context.authorization instanceof Authorization) {
+        if (options && context?.authorization) {
             options.headers = {
                 ...options.headers,
-                Authorization: context.authorization.asHeader()
+                ...(context.authorization as Authorization).asHeader(),
             }
         }
         return options;
@@ -77,7 +80,7 @@ export class GotHttpClient implements HttpClient {
             const err = fromHttpError(error, r.context?.authorization as Authorization);
             if (err instanceof TokenExpired) {
                 this.auth?.reportExpired();
-                const authorization = await this.auth?.provide();
+                const authorization = await this.auth?.provide(this.client);
                 try {
                     return await requestFn({
                         ...r.context,
@@ -117,12 +120,7 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
         return new GrantRequired(error.request.requestUrl);
     }
     if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
-        return new TokenExpired(error.request.requestUrl, {
-            type: auth!!.type,
-            token: auth!!.token,
-            created: auth!!.created,
-            expiresAt: auth!!.expiresAt,
-        });
+        return auth!!.throwExpired(error.request.requestUrl);
     }
     if (response.statusCode === 500 && errorMessage(response) === 'unexpected-error') {
         return new UnknownError(error.request.requestUrl, JSON.parse(response.body as string).request_id);
@@ -136,6 +134,8 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
     return error;
 }
 
-export const httpClient = got.extend({
-    prefixUrl: baseUrl,
-});
+export function httpClient(enterprise: boolean) {
+    return got.extend({
+        prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl
+    });
+}
