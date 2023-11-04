@@ -62,6 +62,27 @@ client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueIte
 
 Note, that mutable operations (like adding a priority queue entry) will never be cached.
 
+### Enterprise API
+
+By default, the cftools-sdk uses the general purpose [Data API](https://developer.cftools.cloud/documentation/data-api).
+In addition to that, the enterprise API is supported as well, which is a special-built API with some restrictions of the Data API lifted.
+
+You can setup the SDK to use the Enterprise API with the builder:
+
+```typescript
+import {CFToolsClientBuilder, SteamId64} from 'cftools-sdk';
+
+const client = new CFToolsClientBuilder()
+    .withServerApiId('your-server-api-id')
+    .withCredentials('your-application-id', 'your-secret')
+    .withEnterpriseApi('your-enterprise-api-key')
+    .build();
+
+client.getPriorityQueue(SteamId64.of('a-steam-id')).then((item: PriorityQueueItem) => {
+    // Do something
+});
+```
+
 ## Contribution
 
 This library is not complete yet and needs your help: What methods and features are missing?
