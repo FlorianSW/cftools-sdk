@@ -51,6 +51,15 @@ The SDK ships with one Cache, which holds responses in-memory.</p>
 </code></pre>
 <p>Note, that mutable operations (like adding a priority queue entry) will never be cached.</p>
 
+<a href="#enterprise-api" id="enterprise-api" style="color: inherit; text-decoration: none;">
+  <h3>Enterprise API</h3>
+</a>
+<p>By default, the cftools-sdk uses the general purpose <a href="https://developer.cftools.cloud/documentation/data-api">Data API</a>.
+In addition to that, the enterprise API is supported as well, which is a special-built API with some restrictions of the Data API lifted.</p>
+<p>You can setup the SDK to use the Enterprise API with the builder:</p>
+<pre><code class="language-typescript"><span class="hl-1">import</span><span class="hl-0"> {</span><span class="hl-2">CFToolsClientBuilder</span><span class="hl-0">, </span><span class="hl-2">SteamId64</span><span class="hl-0">} </span><span class="hl-1">from</span><span class="hl-0"> </span><span class="hl-3">&#39;cftools-sdk&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-4">const</span><span class="hl-0"> </span><span class="hl-5">client</span><span class="hl-0"> = </span><span class="hl-4">new</span><span class="hl-0"> </span><span class="hl-6">CFToolsClientBuilder</span><span class="hl-0">()</span><br/><span class="hl-0">    .</span><span class="hl-6">withServerApiId</span><span class="hl-0">(</span><span class="hl-3">&#39;your-server-api-id&#39;</span><span class="hl-0">)</span><br/><span class="hl-0">    .</span><span class="hl-6">withCredentials</span><span class="hl-0">(</span><span class="hl-3">&#39;your-application-id&#39;</span><span class="hl-0">, </span><span class="hl-3">&#39;your-secret&#39;</span><span class="hl-0">)</span><br/><span class="hl-0">    .</span><span class="hl-6">withEnterpriseApi</span><span class="hl-0">(</span><span class="hl-3">&#39;your-enterprise-api-key&#39;</span><span class="hl-0">)</span><br/><span class="hl-0">    .</span><span class="hl-6">build</span><span class="hl-0">();</span><br/><br/><span class="hl-2">client</span><span class="hl-0">.</span><span class="hl-6">getPriorityQueue</span><span class="hl-0">(</span><span class="hl-2">SteamId64</span><span class="hl-0">.</span><span class="hl-6">of</span><span class="hl-0">(</span><span class="hl-3">&#39;a-steam-id&#39;</span><span class="hl-0">)).</span><span class="hl-6">then</span><span class="hl-0">((</span><span class="hl-2">item</span><span class="hl-0">: </span><span class="hl-7">PriorityQueueItem</span><span class="hl-0">) </span><span class="hl-4">=&gt;</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-8">// Do something</span><br/><span class="hl-0">});</span>
+</code></pre>
+
 <a href="#contribution" id="contribution" style="color: inherit; text-decoration: none;">
   <h2>Contribution</h2>
 </a>
