@@ -462,6 +462,7 @@ export interface Player {
         battleye: BattlEyeGUID,
         bohemia: BohemiaInteractiveId,
         steam: SteamId64,
+        cftools: CFToolsId,
     },
     /**
      * Playtime in seconds

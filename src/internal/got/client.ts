@@ -122,6 +122,7 @@ export class GotCFToolsClient implements CFToolsClient {
                 battleye: BattlEyeGUID.of(identities.battleye.guid),
                 bohemia: BohemiaInteractiveId.of(identities.bohemiainteractive.uid),
                 steam: SteamId64.of(identities.steam.steam64),
+                cftools: id
             }
         };
     }
