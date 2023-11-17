@@ -92,20 +92,20 @@ export class GotCFToolsClient implements CFToolsClient {
             statistics: {
                 dayz: {
                     deaths: {
-                        animals: player.dayz?.animal_deaths || 0,
-                        environment: player.dayz?.environment_deaths || 0,
-                        explosions: player.dayz?.explosion_deaths || 0,
-                        other: player.dayz?.deaths || 0,
-                        infected: player.dayz?.infected_deaths || 0,
-                        suicides: player.dayz?.suicides || 0,
+                        animals: player.game.dayz?.animal_deaths || 0,
+                        environment: player.game.dayz?.environment_deaths || 0,
+                        explosions: player.game.dayz?.explosion_deaths || 0,
+                        other: player.game.dayz?.deaths || 0,
+                        infected: player.game.dayz?.infected_deaths || 0,
+                        suicides: player.game.dayz?.suicides || 0,
                     },
-                    hits: player.dayz?.hits || 0,
-                    kills: player.dayz?.kills || 0,
-                    kdratio: player.dayz?.kdratio || 0,
-                    longestKill: player.dayz?.longest_kill || 0,
-                    longestShot: player.dayz?.longest_shot || 0,
-                    zones: toHitZones(player.dayz?.zones),
-                    weapons: Object.fromEntries(Object.entries(player.dayz?.weapons || {}).map((e) => {
+                    hits: player.game.dayz?.hits || 0,
+                    kills: player.game.dayz?.kills || 0,
+                    kdratio: player.game.dayz?.kdratio || 0,
+                    longestKill: player.game.dayz?.longest_kill || 0,
+                    longestShot: player.game.dayz?.longest_shot || 0,
+                    zones: toHitZones(player.game.dayz?.zones),
+                    weapons: Object.fromEntries(Object.entries(player.game.dayz?.weapons || {}).map((e) => {
                         const w = e[1];
                         return [e[0], {
                             ...w,

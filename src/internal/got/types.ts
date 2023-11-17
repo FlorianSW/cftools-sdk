@@ -36,30 +36,32 @@ export interface GetPlayerResponsePlayer {
         playtime: number,
         sessions: number,
     },
-    dayz?: {
-        animal_deaths: number,
-        deaths: number,
-        environment_deaths: number,
-        explosion_deaths: number,
-        hits: number,
-        infected_deaths: number,
-        kdratio: number,
-        kills: number,
-        longest_kill: number,
-        longest_shot: number,
-        suicides: number,
-        weapons: {
-            [weaponName: string]: {
-                damage: number,
-                deaths: number,
-                hits: number,
-                kills: number,
-                longest_kill: number,
-                longest_shot: number,
-                zones: GetPlayerResponseHitZones,
+    game: {
+        dayz?: {
+            animal_deaths: number,
+            deaths: number,
+            environment_deaths: number,
+            explosion_deaths: number,
+            hits: number,
+            infected_deaths: number,
+            kdratio: number,
+            kills: number,
+            longest_kill: number,
+            longest_shot: number,
+            suicides: number,
+            weapons: {
+                [weaponName: string]: {
+                    damage: number,
+                    deaths: number,
+                    hits: number,
+                    kills: number,
+                    longest_kill: number,
+                    longest_shot: number,
+                    zones: GetPlayerResponseHitZones,
+                },
             },
-        },
-        zones: GetPlayerResponseHitZones,
+            zones: GetPlayerResponseHitZones,
+        }
     },
 }
 
