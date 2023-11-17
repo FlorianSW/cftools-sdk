@@ -3,8 +3,11 @@ import {
     AuthenticationRequired,
     AuthorizationProvider,
     Ban,
+    BattlEyeGUID,
+    BohemiaInteractiveId,
     CFToolsClient,
     CFToolsId,
+    DayZStatistics,
     DeleteBanRequest,
     DeleteBansRequest,
     DeletePriorityQueueRequest,
@@ -50,10 +53,12 @@ import {
     GetGameServerDetailsResponse,
     GetLeaderboardResponse,
     GetPlayerResponse,
+    GetPlayerResponsePlayer,
     GetPriorityQueueEntry,
     GetServerInfoResponse,
     GetUserLookupResponse,
-    ListGameSessionsResponse
+    ListGameSessionsResponse,
+    toHitZones
 } from './types';
 import {asDate} from './date-to-string';
 
@@ -70,7 +75,7 @@ export class GotCFToolsClient implements CFToolsClient {
         this.assertAuthentication();
         const id = await this.resolve(playerId);
         const response = await this.client.get<GetPlayerResponse>(
-            `v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`,
+            `v2/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`,
             {
                 searchParams: {
                     cftools_id: id.id,
@@ -80,28 +85,44 @@ export class GotCFToolsClient implements CFToolsClient {
                 },
             }
         );
-        const player = response[id.id];
+        const player = response[id.id] as GetPlayerResponsePlayer;
+        const identities = response.identities;
         return {
             names: player.omega.name_history,
             statistics: {
                 dayz: {
-                    distanceTraveled: player.dayz?.distance_traveled || 0,
-                    shots: {
-                        fired: player.dayz?.shots.fired || 0,
-                        hit: player.dayz?.shots.hit || 0,
-                        hitPlayers: player.dayz?.shots.hit_players || 0,
-                        hitInfected: player.dayz?.shots.hit_infected || 0,
-                        hitAnimals: player.dayz?.shots.hit_animals || 0,
-                        hitVehicles: player.dayz?.shots.hit_vehicles || 0,
+                    deaths: {
+                        animals: player.dayz?.animal_deaths || 0,
+                        environment: player.dayz?.environment_deaths || 0,
+                        explosions: player.dayz?.explosion_deaths || 0,
+                        other: player.dayz?.deaths || 0,
+                        infected: player.dayz?.infected_deaths || 0,
+                        suicides: player.dayz?.suicides || 0,
                     },
-                    kills: {
-                        infected: player.dayz?.kills.infected || 0,
-                        animals: player.dayz?.kills.animals || 0,
-                    },
+                    hits: player.dayz?.hits || 0,
+                    kills: player.dayz?.kills || 0,
+                    kdratio: player.dayz?.kdratio || 0,
+                    longestKill: player.dayz?.longest_kill || 0,
+                    longestShot: player.dayz?.longest_shot || 0,
+                    zones: toHitZones(player.dayz?.zones),
+                    weapons: Object.fromEntries(Object.entries(player.dayz?.weapons || {}).map((e) => {
+                        const w = e[1];
+                        return [e[0], {
+                            ...w,
+                            zones: toHitZones(w.zones),
+                            longestKill: w.longest_kill,
+                            longestShot: w.longest_shot,
+                        } as DayZStatistics["weapons"][string]];
+                    })),
                 },
             },
             playtime: player.omega.playtime,
             sessions: player.omega.sessions,
+            identities: {
+                battleye: BattlEyeGUID.of(identities.battleye.guid),
+                bohemia: BohemiaInteractiveId.of(identities.bohemiainteractive.uid),
+                steam: SteamId64.of(identities.steam.steam64),
+            }
         };
     }
 
@@ -135,7 +156,6 @@ export class GotCFToolsClient implements CFToolsClient {
                 id: CFToolsId.of(raw.cftools_id),
                 hits: raw.hits,
                 killDeathRatio: raw.kdratio,
-                killDeathRation: raw.kdratio,
                 longestKill: raw.longest_kill,
                 longestShot: raw.longest_shot,
             } as LeaderboardItem;

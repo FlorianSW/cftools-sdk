@@ -1,4 +1,4 @@
-import {BanStatus, HitZones, WeaponStatistic} from '../../types';
+import {BanStatus, HitZones} from '../../types';
 
 export function toHitZones(zones?: GetPlayerResponseHitZones): HitZones {
     return {
@@ -6,30 +6,14 @@ export function toHitZones(zones?: GetPlayerResponseHitZones): HitZones {
         rightLeg: zones?.rightleg || 0,
         rightHand: zones?.righthand || 0,
         rightArm: zones?.rightarm || 0,
+        rightFoot: zones?.rightfoot || 0,
         leftLeg: zones?.leftleg || 0,
         head: zones?.head || 0,
         leftFoot: zones?.leftfoot || 0,
         leftArm: zones?.leftarm || 0,
+        leftHand: zones?.lefthand || 0,
         brain: zones?.brain || 0,
     };
-}
-
-export function toWeaponBreakdown(weapons?: GetPlayerResponseWeapons): { [className: string]: WeaponStatistic } {
-    const entries = weapons ? Object.entries(weapons) : [];
-    const result: { [className: string]: WeaponStatistic } = {};
-    for (let w of entries) {
-        result[w[0]] = {
-            damage: w[1].damage || 0,
-            hits: w[1].hits || 0,
-            deaths: w[1].deaths || 0,
-            kills: w[1].kills || 0,
-            longestKill: w[1].longest_kill || 0,
-            longestShot: w[1].longest_shot || 0,
-            hitZones: toHitZones(w[1].zones),
-        } as WeaponStatistic
-    }
-
-    return result;
 }
 
 export interface GetPlayerResponseHitZones {
@@ -38,47 +22,57 @@ export interface GetPlayerResponseHitZones {
     leftarm?: number,
     leftfoot?: number,
     leftleg?: number,
+    lefthand?: number,
     rightarm?: number,
     righthand?: number,
     rightleg?: number,
+    rightfoot?: number,
     torso?: number,
 }
 
-export interface GetPlayerResponseWeapons {
-    [className: string]: {
-        damage?: number,
-        deaths?: number,
-        hits?: number,
-        kills?: number,
-        longest_kill?: number,
-        longest_shot?: number,
-        zones?: GetPlayerResponseHitZones,
-    }
+export interface GetPlayerResponsePlayer {
+    omega: {
+        name_history: string[],
+        playtime: number,
+        sessions: number,
+    },
+    dayz?: {
+        animal_deaths: number,
+        deaths: number,
+        environment_deaths: number,
+        explosion_deaths: number,
+        hits: number,
+        infected_deaths: number,
+        kdratio: number,
+        kills: number,
+        longest_kill: number,
+        longest_shot: number,
+        suicides: number,
+        weapons: {
+            [weaponName: string]: {
+                damage: number,
+                deaths: number,
+                hits: number,
+                kills: number,
+                longest_kill: number,
+                longest_shot: number,
+                zones: GetPlayerResponseHitZones,
+            },
+        },
+        zones: GetPlayerResponseHitZones,
+    },
+}
+
+export interface GetPlayerResponseIdentities {
+    battleye: { guid: string },
+    bohemiainteractive: { uid: string },
+    steam: { steam64: string },
 }
 
 export interface GetPlayerResponse {
-    [key: string]: {
-        omega: {
-            name_history: string[],
-            playtime: number,
-            sessions: number,
-        },
-        dayz?: {
-            distance_traveled: number,
-            shots: {
-                fired: number,
-                hit: number,
-                hit_players: number,
-                hit_infected: number,
-                hit_animals: number,
-                hit_vehicles: number,
-            },
-            kills: {
-                infected: number,
-                animals: number,
-            },
-        },
-    },
+    identities: GetPlayerResponseIdentities,
+
+    [key: string]: GetPlayerResponseIdentities | GetPlayerResponsePlayer,
 }
 
 export interface GetUserLookupResponse {

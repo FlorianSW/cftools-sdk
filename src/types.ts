@@ -420,10 +420,6 @@ export interface LeaderboardItem {
     suicides: number,
     kills: number,
     hits: number,
-    /**
-     * @deprecated Use killDeathRatio instead
-     */
-    killDeathRation: number,
     killDeathRatio: number,
     longestKill: number,
     longestShot: number,
@@ -462,6 +458,11 @@ export interface Player {
     statistics: {
         dayz: DayZStatistics,
     },
+    identities: {
+        battleye: BattlEyeGUID,
+        bohemia: BohemiaInteractiveId,
+        steam: SteamId64,
+    },
     /**
      * Playtime in seconds
      */
@@ -470,19 +471,31 @@ export interface Player {
 }
 
 export interface DayZStatistics {
-    distanceTraveled: number,
-    shots: {
-        fired: number,
-        hit: number,
-        hitPlayers: number,
-        hitInfected: number,
-        hitAnimals: number,
-        hitVehicles: number,
-    },
-    kills: {
-        infected: number,
+    deaths: {
         animals: number,
+        environment: number,
+        explosions: number,
+        infected: number,
+        suicides: number,
+        other: number,
     },
+    hits: number,
+    kdratio: number,
+    kills: number,
+    longestKill: number,
+    longestShot: number,
+    zones: HitZones,
+    weapons: {
+        [weaponName: string]: {
+            damage: number,
+            deaths: number,
+            hits: number,
+            kills: number,
+            longestKill: number,
+            longestShot: number,
+            zones: HitZones,
+        }
+    }
 }
 
 export interface HitZones {
@@ -491,20 +504,12 @@ export interface HitZones {
     leftArm: number,
     leftFoot: number,
     leftLeg: number,
+    leftHand: number,
     rightArm: number,
+    rightFoot: number,
     rightHand: number,
     rightLeg: number,
     torso: number,
-}
-
-export interface WeaponStatistic {
-    damage: number,
-    deaths: number,
-    hits: number
-    kills: number,
-    longestKill: number,
-    longestShot: number,
-    hitZones: HitZones
 }
 
 export enum Game {
