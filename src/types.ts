@@ -482,7 +482,11 @@ export interface DayZStatistics {
     },
     hits: number,
     kdratio: number,
-    kills: number,
+    kills: {
+        animals: number,
+        infected: number,
+        players: number,
+    },
     longestKill: number,
     longestShot: number,
     zones: HitZones,
