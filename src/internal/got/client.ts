@@ -100,10 +100,10 @@ export class GotCFToolsClient implements CFToolsClient {
                         suicides: player.game.dayz?.suicides || 0,
                     },
                     hits: player.game.dayz?.hits || 0,
-                    kills: player.game.dayz?.kills || {
-                        players: 0,
-                        infected: 0,
-                        animals: 0,
+                    kills: {
+                        players: player.game.dayz?.kills?.players || 0,
+                        infected: player.game.dayz?.kills?.infected || 0,
+                        animals: player.game.dayz?.kills?.animals || 0,
                     },
                     kdratio: player.game.dayz?.kdratio || 0,
                     longestKill: player.game.dayz?.longest_kill || 0,

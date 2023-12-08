@@ -46,9 +46,9 @@ export interface GetPlayerResponsePlayer {
             infected_deaths: number,
             kdratio: number,
             kills: {
-                animals: number,
-                infected: number,
-                players: number,
+                animals?: number,
+                infected?: number,
+                players?: number,
             },
             longest_kill: number,
             longest_shot: number,
