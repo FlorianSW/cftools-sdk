@@ -100,7 +100,11 @@ export class GotCFToolsClient implements CFToolsClient {
                         suicides: player.game.dayz?.suicides || 0,
                     },
                     hits: player.game.dayz?.hits || 0,
-                    kills: player.game.dayz?.kills || 0,
+                    kills: player.game.dayz?.kills || {
+                        players: 0,
+                        infected: 0,
+                        animals: 0,
+                    },
                     kdratio: player.game.dayz?.kdratio || 0,
                     longestKill: player.game.dayz?.longest_kill || 0,
                     longestShot: player.game.dayz?.longest_shot || 0,
@@ -112,7 +116,7 @@ export class GotCFToolsClient implements CFToolsClient {
                             zones: toHitZones(w.zones),
                             longestKill: w.longest_kill,
                             longestShot: w.longest_shot,
-                        } as DayZStatistics["weapons"][string]];
+                        } as DayZStatistics['weapons'][string]];
                     })),
                 },
             },
@@ -278,8 +282,7 @@ export class GotCFToolsClient implements CFToolsClient {
         hash.update(request.port.toString(10));
         const serverResource = hash.digest('hex');
 
-        const response = await this.client.get<GetGameServerDetailsResponse>(
-            `v1/gameserver/${serverResource}`,
+        const response = await this.client.get<GetGameServerDetailsResponse>(`v1/gameserver/${serverResource}`,
             {
                 context: {
                     authorization: await this.auth!.provide(this.client),
