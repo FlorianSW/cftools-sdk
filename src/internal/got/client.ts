@@ -282,11 +282,13 @@ export class GotCFToolsClient implements CFToolsClient {
         hash.update(request.port.toString(10));
         const serverResource = hash.digest('hex');
 
-        const response = await this.client.get<GetGameServerDetailsResponse>(`v1/gameserver/${serverResource}`, {
-            context: {
-                authorization: await this.auth!.provide(this.client),
+        const response = await this.client.get<GetGameServerDetailsResponse>(`v1/gameserver/${serverResource}`,
+            {
+                context: {
+                    authorization: await this.auth!.provide(this.client),
+                },
             }
-        });
+        );
         const server = response[serverResource];
         if (server._object.error !== 'GameServerQueryError.NONE') {
             throw new GameServerQueryError(server._object.error);
