@@ -55,7 +55,7 @@ export class CFToolsAuthorizationProvider implements AuthorizationProvider {
     }
 
     private hasToken(): boolean {
-        return !!this.token && !!this.expired && this.expired.getTime() <= new Date().getTime();
+        return !!this.token && this.expired !== undefined && this.expired.getTime() >= new Date().getTime();
     }
 
     private async fetchToken(client: HttpClient): Promise<string> {
