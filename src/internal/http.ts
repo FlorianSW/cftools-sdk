@@ -1,4 +1,4 @@
-import got, {Got, HTTPError, Response} from 'got';
+import got, {Got, Headers, Hooks, HTTPError, Response} from 'got';
 import {
     Authorization,
     AuthorizationProvider,
@@ -16,6 +16,14 @@ import {OptionsOfTextResponseBody} from 'got/dist/source/types';
 
 const baseUrl = 'https://data.cftools.cloud';
 const enterpriseBaseUrl = 'https://epr-data.cftools.cloud';
+
+const redactHeaders = [
+    'x-enterprise-access-token',
+    'Authorization'
+];
+const redactPaths = [
+    '/v1/auth/register'
+];
 
 export interface HttpClient {
     get<T>(url: string, options?: OptionsOfTextResponseBody): Promise<T>
@@ -61,7 +69,7 @@ export class GotHttpClient implements HttpClient {
         });
     }
 
-    protected populateContext(options?: OptionsOfTextResponseBody, contextOverride?: Record<string, unknown>): OptionsOfTextResponseBody | undefined {
+    protected populateContext(options?: OptionsOfTextResponseBody, contextOverride?: Record<string, unknown>): OptionsOfTextResponseBody {
         const context = contextOverride || options?.context;
         if (options && context?.authorization) {
             options.headers = {
@@ -69,7 +77,7 @@ export class GotHttpClient implements HttpClient {
                 ...(context.authorization as Authorization).asHeader(),
             }
         }
-        return options;
+        return options ? options : {};
     }
 
     protected async withErrorHandler<T>(requestFn: (newContext?: Record<string, unknown>) => RequestWithContext<T>): Promise<T> {
@@ -80,7 +88,7 @@ export class GotHttpClient implements HttpClient {
             const err = fromHttpError(error, r.context?.authorization as Authorization);
             if (err instanceof TokenExpired) {
                 this.auth?.reportExpired();
-                const authorization = await this.auth?.provide(this.client);
+                const authorization: Authorization | undefined = await this.auth?.provide(this.client);
                 try {
                     return await requestFn({
                         ...r.context,
@@ -101,7 +109,7 @@ function errorMessage(response: Response) {
     return 'error' in body ? body.error : '';
 }
 
-export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
+export function fromHttpError(error: HTTPError, auth?: Authorization): Error | HTTPError {
     const response = error.response;
     if (response.statusCode === 404 && errorMessage(response) === 'invalid-bucket') {
         const parts = error.request.requestUrl.split('/');
@@ -134,8 +142,74 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error {
     return error;
 }
 
-export function httpClient(enterprise: boolean) {
+export interface HttpClientOptions {
+    enableDebugLogging?: boolean,
+    logBody?: boolean,
+}
+
+function redactedHeaders(h: Headers): Headers {
+    const r = {...h};
+    for (let header of redactHeaders) {
+        if (header in r) {
+            r[header] = '[REDACTED]';
+        }
+    }
+    return r;
+}
+
+/**
+ * Helper method to create an instance of HttpClient. The return type is Got, the internal HTTP client library used
+ * in this SDK.
+ * This method is exported for pure development usage, only. Its API is not guaranteed to be stable in any way and may
+ * change, even in patch releases.
+ * It may or may not exist in future releases, may be renamed, moved, unexported or anything alike. Use with caution and
+ * only, if you really know what you do.
+ *
+ * @unstable
+ * @param enterprise
+ * @param options
+ */
+export function httpClient(enterprise: boolean, options?: HttpClientOptions): Got {
+    const hooks: Hooks = {};
+    if (options?.enableDebugLogging) {
+        hooks.beforeError = [(error) => {
+            let body = '[DISABLED]';
+            if (options.logBody) {
+                const raw = error.response?.rawBody.toString();
+                body = raw ? raw : body;
+            }
+            console.log(`RequestError: ${error.request?.options.method} ${error.request?.options.url} - ${error.response?.statusCode} - ${error.code} - ${body}`);
+            return error;
+        }];
+        hooks.beforeRequest = [(op) => {
+            let body = '[DISABLED]';
+            const raw = op.body;
+            if (options.logBody && raw) {
+                if (redactPaths.includes(op.url.pathname)) {
+                    body = '[REDACTED]';
+                } else if (typeof raw === 'string') {
+                    body = raw;
+                } else if ('toString' in raw) {
+                    body = raw.toString();
+                } else {
+                    body = `[UNSUPPORTED ${typeof body}]`;
+                }
+            }
+            console.log(`Doing: ${op.method} ${op.url} - ${JSON.stringify(redactedHeaders(op.headers))} - ${body}`);
+        }];
+        hooks.afterResponse = [(response, retryWithMergedOptions) => {
+            let body = '[DISABLED]';
+            if (redactPaths.includes(response.request.options.url.pathname) && response.statusCode < 400) {
+                body = '[REDACTED]';
+            } else if (options.logBody) {
+                body = response.rawBody.toString();
+            }
+            console.log(`Response: ${response.method} ${response.requestUrl} - ${response.statusCode} - ${body}`);
+            return response;
+        }];
+    }
     return got.extend({
-        prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl
+        prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl,
+        hooks: hooks,
     });
 }
