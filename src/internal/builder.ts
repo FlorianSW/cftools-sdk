@@ -3,7 +3,7 @@ import {InMemoryCache} from './in-memory-cache';
 import {GotCFToolsClient} from './got/client';
 import {CachingCFToolsClient} from './caching-cftools-client';
 import {GotHttpClient, httpClient, HttpClient} from './http';
-import {CFToolsAuthorizationProvider, EnterpriseAuthorizationProvider} from './auth';
+import {CFToolsAuthorizationProvider, EnterpriseAuthorizationProvider, NoOpAuthorizationProvider} from './auth';
 
 export type HttpClientBuilder = (auth?: AuthorizationProvider) => HttpClient;
 
@@ -91,6 +91,8 @@ export class CFToolsClientBuilder {
             auth = new EnterpriseAuthorizationProvider(this.credentials, this.enterpriseToken);
         } else if (this.credentials) {
             auth = new CFToolsAuthorizationProvider(this.credentials);
+        } else {
+            auth = new NoOpAuthorizationProvider();
         }
         const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, auth);
         if (this.cache !== undefined) {

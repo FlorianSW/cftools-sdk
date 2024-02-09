@@ -5,7 +5,8 @@ import {
     BearerAuthorization,
     EnterpriseAuthorization,
     InvalidCredentials,
-    LoginCredentials
+    LoginCredentials,
+    TokenExpired
 } from '../types';
 import {Headers, HTTPError} from 'got';
 import {HttpClient} from './http';
@@ -92,5 +93,25 @@ export class EnterpriseAuthorizationProvider extends CFToolsAuthorizationProvide
         return {
             'X-Enterprise-Access-Token': this.enterpriseToken,
         };
+    }
+}
+
+export class NoOpAuthorizationProvider implements AuthorizationProvider {
+    async provide(): Promise<Authorization> {
+        return {
+            asHeader(): Record<string, string | string[] | undefined> {
+                return {};
+            },
+            throwExpired(url: string): TokenExpired {
+                return new TokenExpired(url, {
+                    type: AuthorizationType.NOOP,
+                    token: '',
+                    created: new Date(),
+                    expiresAt: new Date(),
+                })
+            }
+        };
+    }
+    reportExpired(): void {
     }
 }

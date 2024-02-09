@@ -215,7 +215,8 @@ export interface AuthorizationProvider {
 }
 
 export enum AuthorizationType {
-    BEARER = 'Bearer'
+    BEARER = 'Bearer',
+    NOOP = 'NoOp',
 }
 
 export interface Authorization {
