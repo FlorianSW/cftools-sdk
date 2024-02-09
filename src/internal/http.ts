@@ -19,7 +19,7 @@ const enterpriseBaseUrl = 'https://epr-data.cftools.cloud';
 
 const redactHeaders = [
     'x-enterprise-access-token',
-    'Authorization'
+    'authorization'
 ];
 const redactPaths = [
     '/v1/auth/register'
