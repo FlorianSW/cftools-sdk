@@ -9,6 +9,14 @@ export interface CFToolsClient {
     getPlayerDetails(id: GenericId | GetPlayerDetailsRequest): Promise<Player>
 
     /**
+     * Deletes the player details of the requested player. This will remove all information about the player from the
+     * CFTools Cloud database. This action is irreversible.
+     * 
+     * This request requires an authenticated client.
+     */
+    deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest): Promise<void>
+
+    /**
      * Creates a leaderboard based on the requested statistic in the requested order.
      * The fields of an individual leaderboard item may vary based on the requested base statistics.
      *
@@ -393,6 +401,9 @@ interface IdRequest extends OverrideServerApiId {
 }
 
 export interface GetPlayerDetailsRequest extends IdRequest {
+}
+
+export interface DeletePlayerDetailsRequest extends IdRequest {
 }
 
 export interface GetPriorityQueueRequest extends IdRequest {

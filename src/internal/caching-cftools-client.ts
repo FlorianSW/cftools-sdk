@@ -12,6 +12,7 @@ import {
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
+    DeletePlayerDetailsRequest,
     GetPriorityQueueRequest,
     GetWhitelistRequest,
     LeaderboardItem,
@@ -93,6 +94,10 @@ export class CachingCFToolsClient implements CFToolsClient {
     getPlayerDetails(id: GenericId | GetPlayerDetailsRequest): Promise<Player> {
         const key = `${this.serverApiId(id).id}:${playerId(id).id}`;
         return this.cacheOrDefault('playerDetails', key, () => this.client.getPlayerDetails(id));
+    }
+
+    deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest): Promise<void> {
+        return this.client.deletePlayerDetails(id);
     }
 
     getPriorityQueue(id: GenericId | GetPriorityQueueRequest): Promise<PriorityQueueItem | null> {
