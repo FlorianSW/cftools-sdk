@@ -1,6 +1,7 @@
 import {
     Banlist,
     CFToolsClient, CFToolsId,
+    DeletePlayerDetailsRequest,
     Game,
     GameServerItem, GameSession,
     GetLeaderboardRequest,
@@ -24,6 +25,7 @@ describe('CachingCFToolsClient', () => {
             getGameServerDetails: jest.fn(),
             getLeaderboard: jest.fn(),
             getPlayerDetails: jest.fn(),
+            deletePlayerDetails: jest.fn(),
             getPriorityQueue: jest.fn(),
             putPriorityQueue: jest.fn(),
             deletePriorityQueue: jest.fn(),
@@ -86,6 +88,18 @@ describe('CachingCFToolsClient', () => {
             expect(stubClient.getPlayerDetails).toHaveBeenCalledTimes(1);
             expect(firstResponse).toEqual(secondResponse);
         });
+
+        it('deletePlayerDetails', async () => {
+            stubClient.deletePlayerDetails = jest.fn(() => Promise.resolve());
+            const request: DeletePlayerDetailsRequest = {
+                playerId: SteamId64.of('123456789'),
+            };
+            const firstResponse = await client.deletePlayerDetails(request);
+            const secondResponse = await client.deletePlayerDetails(SteamId64.of('123456789'));
+
+            expect(stubClient.deletePlayerDetails).toHaveBeenCalledTimes(2);
+            expect(firstResponse).toEqual(secondResponse);
+        })
 
         it('getPriorityQueue', async () => {
             stubClient.getPriorityQueue = jest.fn(() => Promise.resolve({

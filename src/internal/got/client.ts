@@ -21,6 +21,7 @@ import {
     GetGameServerDetailsRequest,
     GetLeaderboardRequest,
     GetPlayerDetailsRequest,
+    DeletePlayerDetailsRequest,
     GetPriorityQueueRequest,
     GetServerInfoRequest,
     GetWhitelistRequest,
@@ -129,6 +130,19 @@ export class GotCFToolsClient implements CFToolsClient {
                 cftools: id
             }
         };
+    }
+
+    async deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest): Promise<void> {
+        this.assertAuthentication();
+        const cftoolsId = await this.resolve(id);
+        await this.client.delete(`v2/server/${this.resolveServerApiId('serverApiId' in id ? id : undefined).id}/player`, {
+            searchParams: {
+                cftools_id: cftoolsId.id,
+            },
+            context: {
+                authorization: await this.auth!.provide(this.client),
+            },
+        });
     }
 
     async getLeaderboard(request: GetLeaderboardRequest): Promise<LeaderboardItem[]> {
