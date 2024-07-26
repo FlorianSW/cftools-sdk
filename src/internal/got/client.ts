@@ -44,7 +44,9 @@ import {
     SpawnItemRequest,
     SteamId64,
     TeleportPlayerRequest,
-    WhitelistItem
+    WhitelistItem,
+    AppGrants,
+    RawAppGrants
 } from '../../types';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
@@ -69,6 +71,27 @@ export class GotCFToolsClient implements CFToolsClient {
     constructor(private client: HttpClient, private serverApiId?: ServerApiId, auth?: AuthorizationProvider) {
         if (auth) {
             this.auth = auth;
+        }
+    }
+
+    async getAppGrants(): Promise<AppGrants> {
+        this.assertAuthentication();
+        const response = await this.client.get<RawAppGrants>('v1/@app/grants', {
+            context: {
+                authorization: await this.auth!.provide(this.client),
+            },
+        });
+        return {
+            banlist: response.banlist?.map((e) => ({
+                ...e,
+                created: new Date(e.created_at),
+                created_at: undefined
+            })) ?? [],
+            server: response.server?.map((e) => ({
+                ...e,
+                created: new Date(e.created_at),
+                created_at: undefined
+            })) ?? [],
         }
     }
 

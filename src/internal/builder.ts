@@ -13,6 +13,7 @@ export class CFToolsClientBuilder {
     private credentials: LoginCredentials | undefined;
     private cache: Cache | undefined;
     private cacheConfig: CacheConfiguration = {
+        appGrants: 60,
         leaderboard: 30,
         serverInfo: 30,
         gameSessions: 10,

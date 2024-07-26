@@ -22,6 +22,7 @@ describe('CachingCFToolsClient', () => {
 
     beforeEach(() => {
         stubClient = {
+            getAppGrants: jest.fn(),
             getGameServerDetails: jest.fn(),
             getLeaderboard: jest.fn(),
             getPlayerDetails: jest.fn(),
@@ -46,6 +47,7 @@ describe('CachingCFToolsClient', () => {
             healPlayer: jest.fn(),
         };
         client = new CachingCFToolsClient(new InMemoryCache(), {
+            appGrants: 60,
             priorityQueue: 30,
             gameSessions: 10,
             serverInfo: 30,
@@ -59,6 +61,18 @@ describe('CachingCFToolsClient', () => {
     });
 
     describe('caches', () => {
+        it('getAppGrants', async () => {
+            stubClient.getAppGrants = jest.fn(() => Promise.resolve({
+                server: [],
+                banlist: []
+            }));
+            const firstResponse = await client.getAppGrants();
+            const secondResponse = await client.getAppGrants();
+
+            expect(stubClient.getAppGrants).toHaveBeenCalledTimes(1);
+            expect(firstResponse).toEqual(secondResponse);
+        })
+
         it('getGameServerDetails', async () => {
             stubClient.getGameServerDetails = jest.fn(() => Promise.resolve({
                 name: 'someName'
