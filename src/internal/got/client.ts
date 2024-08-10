@@ -1,8 +1,10 @@
 import {
     AmbiguousDeleteBanRequest,
+    AppGrants,
     AuthenticationRequired,
     AuthorizationProvider,
     Ban,
+    BaseResource,
     BattlEyeGUID,
     BohemiaInteractiveId,
     CFToolsClient,
@@ -41,12 +43,11 @@ import {
     ServerApiId,
     ServerApiIdRequired,
     ServerInfo,
+    ServerResource,
     SpawnItemRequest,
     SteamId64,
     TeleportPlayerRequest,
     WhitelistItem,
-    AppGrants,
-    RawAppGrants
 } from '../../types';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
@@ -64,6 +65,22 @@ import {
     toHitZones
 } from './types';
 import {asDate} from './date-to-string';
+
+interface RawBanListAppGrant {
+    created_at: string,
+    resource: BaseResource,
+}
+
+interface RawServerAppGrant {
+    created_at: string,
+    resource: ServerResource,
+}
+
+interface RawAppGrants {
+    status: boolean;
+    banlist: RawBanListAppGrant[],
+    server: RawServerAppGrant[],
+}
 
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: AuthorizationProvider;

@@ -1,4 +1,5 @@
 import {
+    AppGrants,
     Ban,
     Cache,
     CacheConfiguration,
@@ -30,7 +31,6 @@ import {
     ListGameSessionsRequest,
     GameSession,
     SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest, HealPlayerRequest, KillPlayerRequest,
-    AppGrants
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {

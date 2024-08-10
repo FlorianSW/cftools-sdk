@@ -403,47 +403,6 @@ export enum Statistic {
     KILL_DEATH_RATION = 'kdratio',
 }
 
-export interface AppGrants {
-    banlist: BanListAppGrant[],
-    server: ServerAppGrant[],
-}
-
-export interface BaseResource {
-    id: string,
-    identifier: string,
-    object_id: string,
-}
-
-export interface ServerResource extends BaseResource {
-    gameserver_id: string,
-}
-
-export interface RawBanListAppGrant {
-    created_at: string,
-    resource: BaseResource,
-}
-
-export interface RawServerAppGrant {
-    created_at: string,
-    resource: ServerResource,
-}
-
-export interface RawAppGrants {
-    status: boolean;
-    banlist: RawBanListAppGrant[],
-    server: RawServerAppGrant[],
-}
-
-export interface BanListAppGrant {
-    created: Date,
-    resource: BaseResource,
-}
-
-export interface ServerAppGrant {
-    created: Date,
-    resource: ServerResource,
-}
-
 interface IdRequest extends OverrideServerApiId {
     playerId: GenericId,
 }
@@ -1045,4 +1004,25 @@ export class AmbiguousDeleteBanRequest extends Error {
         super('AmbiguousDeleteBanRequest');
         Object.setPrototypeOf(this, AmbiguousDeleteBanRequest.prototype);
     }
+}
+
+export interface BaseResource {
+    id: string,
+    identifier: string,
+    object_id: string,
+}
+
+export interface ServerResource extends BaseResource {
+    gameserver_id: string,
+}
+
+export interface AppGrants {
+    banlist: {
+        created: Date,
+        resource: BaseResource,
+    }[],
+    server: {
+        created: Date,
+        resource: ServerResource,
+    }[],
 }
