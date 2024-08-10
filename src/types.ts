@@ -2,6 +2,12 @@ import {HttpClient} from './internal/http';
 
 export interface CFToolsClient {
     /**
+     * Returns a list of CFTools resources that have authorized the application to access them.
+     * 
+     * This request requires an authenticated client.
+     */
+    getAppGrants(): Promise<AppGrants>
+    /**
      * Returns metadata about an individual player.
      *
      * This request requires an authenticated client.
@@ -284,6 +290,7 @@ export class EnterpriseAuthorization implements Authorization {
  * can execute. The value specifies the time in seconds the result of the action should be cached.
  */
 export interface CacheConfiguration {
+    appGrants: number,
     gameServerDetails: number,
     serverInfo: number,
     gameSessions: number,
@@ -997,4 +1004,25 @@ export class AmbiguousDeleteBanRequest extends Error {
         super('AmbiguousDeleteBanRequest');
         Object.setPrototypeOf(this, AmbiguousDeleteBanRequest.prototype);
     }
+}
+
+export interface BaseResource {
+    id: string,
+    identifier: string,
+    object_id: string,
+}
+
+export interface ServerResource extends BaseResource {
+    gameserver_id: string,
+}
+
+export interface AppGrants {
+    banlist: {
+        created: Date,
+        resource: BaseResource,
+    }[],
+    server: {
+        created: Date,
+        resource: ServerResource,
+    }[],
 }

@@ -1,8 +1,10 @@
 import {
     AmbiguousDeleteBanRequest,
+    AppGrants,
     AuthenticationRequired,
     AuthorizationProvider,
     Ban,
+    BaseResource,
     BattlEyeGUID,
     BohemiaInteractiveId,
     CFToolsClient,
@@ -41,10 +43,11 @@ import {
     ServerApiId,
     ServerApiIdRequired,
     ServerInfo,
+    ServerResource,
     SpawnItemRequest,
     SteamId64,
     TeleportPlayerRequest,
-    WhitelistItem
+    WhitelistItem,
 } from '../../types';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
@@ -63,12 +66,49 @@ import {
 } from './types';
 import {asDate} from './date-to-string';
 
+interface RawBanListAppGrant {
+    created_at: string,
+    resource: BaseResource,
+}
+
+interface RawServerAppGrant {
+    created_at: string,
+    resource: ServerResource,
+}
+
+interface RawAppGrants {
+    status: boolean;
+    banlist: RawBanListAppGrant[],
+    server: RawServerAppGrant[],
+}
+
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: AuthorizationProvider;
 
     constructor(private client: HttpClient, private serverApiId?: ServerApiId, auth?: AuthorizationProvider) {
         if (auth) {
             this.auth = auth;
+        }
+    }
+
+    async getAppGrants(): Promise<AppGrants> {
+        this.assertAuthentication();
+        const response = await this.client.get<RawAppGrants>('v1/@app/grants', {
+            context: {
+                authorization: await this.auth!.provide(this.client),
+            },
+        });
+        return {
+            banlist: response.banlist?.map((e) => ({
+                ...e,
+                created: new Date(e.created_at),
+                created_at: undefined
+            })) ?? [],
+            server: response.server?.map((e) => ({
+                ...e,
+                created: new Date(e.created_at),
+                created_at: undefined
+            })) ?? [],
         }
     }
 

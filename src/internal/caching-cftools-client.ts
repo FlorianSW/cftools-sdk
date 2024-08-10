@@ -1,4 +1,5 @@
 import {
+    AppGrants,
     Ban,
     Cache,
     CacheConfiguration,
@@ -29,7 +30,7 @@ import {
     GetServerInfoRequest,
     ListGameSessionsRequest,
     GameSession,
-    SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest, HealPlayerRequest, KillPlayerRequest
+    SpawnItemRequest, TeleportPlayerRequest, CFToolsId, GameLabsActionRequest, HealPlayerRequest, KillPlayerRequest,
 } from '../types';
 
 function playerId(id: GenericId | { playerId: GenericId }): GenericId {
@@ -49,6 +50,11 @@ export class CachingCFToolsClient implements CFToolsClient {
         private readonly client: CFToolsClient,
         private readonly defaultServerApiId?: ServerApiId
     ) {
+    }
+
+    getAppGrants(): Promise<AppGrants> {
+        const key = 'appGrants';
+        return this.cacheOrDefault('appGrants', key, () => this.client.getAppGrants());
     }
 
     getGameServerDetails(request: GetGameServerDetailsRequest): Promise<GameServerItem> {
