@@ -78,8 +78,10 @@ interface RawServerAppGrant {
 
 interface RawAppGrants {
     status: boolean;
-    banlist: RawBanListAppGrant[],
-    server: RawServerAppGrant[],
+    tokens?: {
+        banlist?: RawBanListAppGrant[];
+        server?: RawServerAppGrant[];
+    };
 }
 
 export class GotCFToolsClient implements CFToolsClient {
@@ -99,12 +101,12 @@ export class GotCFToolsClient implements CFToolsClient {
             },
         });
         return {
-            banlist: response.banlist?.map((e) => ({
+            banlist: response.tokens?.banlist?.map((e) => ({
                 ...e,
                 created: new Date(e.created_at),
                 created_at: undefined
             })) ?? [],
-            server: response.server?.map((e) => ({
+            server: response.tokens?.server?.map((e) => ({
                 ...e,
                 created: new Date(e.created_at),
                 created_at: undefined
