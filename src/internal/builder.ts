@@ -66,6 +66,23 @@ export class CFToolsClientBuilder {
         return this;
     }
 
+    /**
+     * Allows to set the HTTP Client library builder. Intended use case is to modify the options that is passed to the
+     * built-in client builder, however, this can also be used to use your own preferred HTTP library with the sdk, as
+     * long as it adheres to the HttpClientBuilder contract.
+     *
+     * Example use case enabling debug logging and setting your own User Agent in requests:
+     * ```
+     * import {CFToolsClientBuilder, httpClient} from 'cftools-sdk';
+     *
+     * new CFToolsClientBuilder()
+     *   .withHttpClient(() => new GotHttpClient(httpClient(false, {userAgent: 'myTool/1.0.0 (https://github.com/username/tool-repo)', enableDebugLogging: true})))
+     *   .withServerApiId(process.env.CFTOOLS_SERVER_API_ID)
+     *   .withCredentials(process.env.CFTOOLS_APPLICATION_ID, process.env.CFTOOLS_APPLICATION_SECRET)
+     *   .build()
+     * ```
+     * @param clientBuilder
+     */
     public withHttpClient(clientBuilder: HttpClientBuilder): CFToolsClientBuilder {
         this.clientBuilder = clientBuilder;
         return this;

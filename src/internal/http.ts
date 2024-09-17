@@ -146,6 +146,8 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error | H
 export interface HttpClientOptions {
     enableDebugLogging?: boolean,
     logBody?: boolean,
+
+    userAgent?: string,
 }
 
 function redactedHeaders(h: Headers): Headers {
@@ -209,11 +211,15 @@ export function httpClient(enterprise: boolean, options?: HttpClientOptions): Go
             return response;
         }];
     }
+    const headers: Headers = {};
+    if (options?.userAgent) {
+        headers['user-agent'] = options.userAgent;
+    } else {
+        headers['user-agent'] = `cftools-sdk/${pkg.version} (https://github.com/floriansw/cftools-sdk)`;
+    }
     return got.extend({
         prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl,
         hooks: hooks,
-        headers: {
-            'user-agent': `cftools-sdk/${pkg.version} (https://github.com/floriansw/cftools-sdk)`
-        }
+        headers: headers,
     });
 }
