@@ -28,7 +28,8 @@ import {CFToolsClientBuilder, httpClient} from './index';
 import {GotCFToolsClient} from './internal/got/client';
 import {GotHttpClient, HttpClient} from './internal/http';
 
-describe('CFToolsClient', () => {
+// disabled as I do not own a CFTools subscription/server anymore, so no way to test against it in this :(
+xdescribe('CFToolsClient', () => {
     const existingCfToolsId = CFToolsId.of('5fc7f9a050ae5adf01df9bdd');
     let client: CFToolsClient;
     let banlist: Banlist;
@@ -47,7 +48,6 @@ describe('CFToolsClient', () => {
         it('returns invalid credentials on wrong credentials', async () => {
             process.env.CFTOOLS_API_TOKEN = '';
             client = new CFToolsClientBuilder()
-                .withHttpClient(() => new GotHttpClient(httpClient(false, {userAgent: 'myTool/1.0.0 (https://github.com/username/tool-repo)', enableDebugLogging: true})))
                 .withServerApiId(process.env.CFTOOLS_SERVER_API_ID || '')
                 .withCredentials(process.env.CFTOOLS_APPLICATION_ID || '', 'INVALID')
                 .build();
