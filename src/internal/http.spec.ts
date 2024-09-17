@@ -32,6 +32,7 @@ describe('http', () => {
                 error: httpResponse.errorText,
                 request_id: httpResponse.request_id || undefined,
                 status: httpResponse.code === 200,
+                headers: req.headers,
             }));
             res.end();
         });
@@ -54,6 +55,12 @@ describe('http', () => {
             code: 200,
             errorText: 'none',
         };
+    });
+
+    it('uses own user-agent', async () => {
+        httpResponse = {code: 200, errorText: ''};
+
+        await expect(http.get('exists')).resolves.toMatchObject({headers: expect.objectContaining({'user-agent': expect.stringMatching('^cftools-sdk/.*')})});
     });
 
     it('throws ResourceNotFound on 404', async () => {
@@ -121,7 +128,7 @@ describe('http', () => {
                 context: {
                     authorization: await auth.provide(),
                 }
-            })).resolves.toEqual({error: '', status: true});
+            })).resolves.toMatchObject({error: '', status: true});
         });
 
         it('throws TokenExpired on 403 with expired-token after authorization reported as expired', async () => {
