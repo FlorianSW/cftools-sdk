@@ -11,7 +11,7 @@
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
     "outDir": "lib",
-    "rootDir": ".",
+    "rootDir": "src",
     "lib": [
       "es2018",
       "dom"

@@ -2,3 +2,5 @@
 node_modules/
 lib/
 .env
+
+src/internal/version.ts

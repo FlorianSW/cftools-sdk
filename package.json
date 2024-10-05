@@ -7,6 +7,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
+    "prebuild": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/internal/version.ts",
     "build": "rm -rf lib && tsc",
     "prepare": "npm run build"
   },

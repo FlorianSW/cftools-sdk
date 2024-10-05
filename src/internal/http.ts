@@ -13,7 +13,7 @@ import {
     UnknownError
 } from '../types';
 import {OptionsOfTextResponseBody} from 'got/dist/source/types';
-import pkg from "../../package.json";
+import { VERSION } from './version';
 
 const baseUrl = 'https://data.cftools.cloud';
 const enterpriseBaseUrl = 'https://epr-data.cftools.cloud';
@@ -215,7 +215,7 @@ export function httpClient(enterprise: boolean, options?: HttpClientOptions): Go
     if (options?.userAgent) {
         headers['user-agent'] = options.userAgent;
     } else {
-        headers['user-agent'] = `cftools-sdk/${pkg.version} (https://github.com/floriansw/cftools-sdk)`;
+        headers['user-agent'] = `cftools-sdk/${VERSION} (https://github.com/floriansw/cftools-sdk)`;
     }
     return got.extend({
         prefixUrl: enterprise ? enterpriseBaseUrl : baseUrl,
