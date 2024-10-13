@@ -675,7 +675,6 @@ export class GotCFToolsClient implements CFToolsClient {
         }
     }
 
-    async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId>
     async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
         let playerId: GenericId;
         if ('playerId' in id) {
