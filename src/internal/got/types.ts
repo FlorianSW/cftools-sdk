@@ -85,6 +85,10 @@ export interface GetUserLookupResponse {
     cftools_id: string,
 }
 
+export interface GetPlayerLookupResponseWithNotice extends GetUserLookupResponse {
+    notice: string;
+}
+
 export interface GetLeaderboardResponse {
     leaderboard: {
         cftools_id: string,

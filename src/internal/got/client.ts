@@ -48,6 +48,7 @@ import {
     SteamId64,
     TeleportPlayerRequest,
     WhitelistItem,
+    AccountCreationFailed,
 } from '../../types';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
@@ -56,6 +57,7 @@ import {
     GetBanResponse,
     GetGameServerDetailsResponse,
     GetLeaderboardResponse,
+    GetPlayerLookupResponseWithNotice,
     GetPlayerResponse,
     GetPlayerResponsePlayer,
     GetPriorityQueueEntry,
@@ -87,7 +89,7 @@ interface RawAppGrants {
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: AuthorizationProvider;
 
-    constructor(private client: HttpClient, private serverApiId?: ServerApiId, auth?: AuthorizationProvider) {
+    constructor(private client: HttpClient, private serverApiId?: ServerApiId, private enterpriseToken?: string, private hasAccountCreationAccess?: boolean, auth?: AuthorizationProvider) {
         if (auth) {
             this.auth = auth;
         }
@@ -673,6 +675,7 @@ export class GotCFToolsClient implements CFToolsClient {
         }
     }
 
+    async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId>
     async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
         let playerId: GenericId;
         if ('playerId' in id) {
@@ -684,14 +687,41 @@ export class GotCFToolsClient implements CFToolsClient {
             return playerId;
         }
 
-        const response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
-            searchParams: {
-                identifier: playerId.id,
-            },
-            context: {
-                authorization: await this.auth!.provide(this.client),
-            },
-        });
+        const requestUsesAccountCreation = this.hasAccountCreationAccess === true
+            && this.enterpriseToken !== undefined
+            && playerId instanceof SteamId64;
+
+        let response;
+        try {
+            response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
+                searchParams: {
+                    identifier: playerId.id,
+                },
+                context: {
+                    authorization: await this.auth!.provide(this.client),
+                },
+            });
+        } catch (err) {
+            // Note: We could just apply the `create` param above, but this parameter is only ever
+            // allowed when there is no existing user with the supplied identity token.
+            if (requestUsesAccountCreation) {
+                response = await this.client.get<GetPlayerLookupResponseWithNotice>('v1/users/lookup', {
+                    searchParams: {
+                        identifier: playerId.id,
+                        create: true,
+                    },
+                    context: {
+                        authorization: await this.auth!.provide(this.client),
+                    },
+                });
+                if (response.notice !== 'Account Creation API account created') {
+                    throw new AccountCreationFailed(playerId.id, response.notice);
+                }
+            }
+            else {
+                throw err;
+            }
+        }
         return CFToolsId.of(response.cftools_id);
     }
 

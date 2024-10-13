@@ -844,6 +844,16 @@ export class ResourceNotFound extends Error {
 }
 
 /**
+ * Indicates that an account could not be created through the Account Creation API using the provided identity token.
+ */
+export class AccountCreationFailed extends Error {
+    constructor(identityToken: string, notice: string) {
+        super('AccountCreationFailed: ' + identityToken + ' (' + notice + ')');
+        Object.setPrototypeOf(this, AccountCreationFailed.prototype);
+    }
+}
+
+/**
  * Indicates that the requested resource was found, however, the action on it could not be fulfilled as the required
  * bucket (like queuepriority or whitelist) was not configured on this resource. You should only retry this request
  * when you ensured that the respective bucket is now configured for the resource correctly.
