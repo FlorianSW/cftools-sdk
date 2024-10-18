@@ -85,6 +85,10 @@ interface RawAppGrants {
     };
 }
 
+/**
+ * Options to use when resolving a generic player identifier to a CFTools ID. This method is used throughout
+ * the SDK to resolve identifiers to CFTools IDs for other available methods.
+ */
 interface ResolveRequestOptions {
     /**
      * The CFTools Enterprise API comes with special endpoint parameter for `/v1/users/resolve` (`client#resolve`), which allows to
@@ -127,9 +131,9 @@ export class GotCFToolsClient implements CFToolsClient {
         }
     }
 
-    async getPlayerDetails(playerId: GetPlayerDetailsRequest | GenericId): Promise<Player> {
+    async getPlayerDetails(playerId: GetPlayerDetailsRequest | GenericId, resolveOptions?: ResolveRequestOptions): Promise<Player> {
         this.assertAuthentication();
-        const id = await this.resolve(playerId);
+        const id = await this.resolve(playerId, resolveOptions);
         const response = await this.client.get<GetPlayerResponse>(
             `v2/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/player`,
             {
@@ -187,9 +191,9 @@ export class GotCFToolsClient implements CFToolsClient {
         };
     }
 
-    async deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest): Promise<void> {
+    async deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest, resolveOptions?: ResolveRequestOptions): Promise<void> {
         this.assertAuthentication();
-        const cftoolsId = await this.resolve(id);
+        const cftoolsId = await this.resolve(id, resolveOptions);
         await this.client.delete(`v2/server/${this.resolveServerApiId('serverApiId' in id ? id : undefined).id}/player`, {
             searchParams: {
                 cftools_id: cftoolsId.id,
@@ -236,9 +240,9 @@ export class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async getPriorityQueue(playerId: GetPriorityQueueRequest | GenericId): Promise<PriorityQueueItem | null> {
+    async getPriorityQueue(playerId: GetPriorityQueueRequest | GenericId, resolveOptions?: ResolveRequestOptions): Promise<PriorityQueueItem | null> {
         this.assertAuthentication();
-        const id = await this.resolve(playerId);
+        const id = await this.resolve(playerId, resolveOptions);
         const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id,
@@ -259,9 +263,9 @@ export class GotCFToolsClient implements CFToolsClient {
         } as PriorityQueueItem;
     }
 
-    async putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void> {
+    async putPriorityQueue(request: PutPriorityQueueItemRequest, resolveOptions?: ResolveRequestOptions): Promise<void> {
         this.assertAuthentication();
-        const id = await this.resolve(request.id);
+        const id = await this.resolve(request.id, resolveOptions);
         const requestBody: any = {
             cftools_id: id.id,
             comment: request.comment,
@@ -277,9 +281,9 @@ export class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async deletePriorityQueue(playerId: DeletePriorityQueueRequest | GenericId): Promise<void> {
+    async deletePriorityQueue(playerId: DeletePriorityQueueRequest | GenericId, resolveOptions?: ResolveRequestOptions): Promise<void> {
         this.assertAuthentication();
-        const id = await this.resolve(playerId);
+        const id = await this.resolve(playerId, resolveOptions);
         await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/queuepriority`, {
             searchParams: {
                 cftools_id: id.id
@@ -290,9 +294,9 @@ export class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async getWhitelist(playerId: GetWhitelistRequest | GenericId): Promise<WhitelistItem | null> {
+    async getWhitelist(playerId: GetWhitelistRequest | GenericId, resolveOptions?: ResolveRequestOptions): Promise<WhitelistItem | null> {
         this.assertAuthentication();
-        const id = await this.resolve(playerId);
+        const id = await this.resolve(playerId, resolveOptions);
         const response = await this.client.get<GetPriorityQueueEntry>(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
             searchParams: {
                 cftools_id: id.id,
@@ -313,9 +317,9 @@ export class GotCFToolsClient implements CFToolsClient {
         } as WhitelistItem;
     }
 
-    async putWhitelist(request: PutWhitelistItemRequest): Promise<void> {
+    async putWhitelist(request: PutWhitelistItemRequest, resolveOptions?: ResolveRequestOptions): Promise<void> {
         this.assertAuthentication();
-        const id = await this.resolve(request.id);
+        const id = await this.resolve(request.id, resolveOptions);
         const requestBody: any = {
             cftools_id: id.id,
             comment: request.comment,
@@ -331,9 +335,9 @@ export class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async deleteWhitelist(playerId: DeleteWhitelistRequest | GenericId): Promise<void> {
+    async deleteWhitelist(playerId: DeleteWhitelistRequest | GenericId, resolveOptions?: ResolveRequestOptions): Promise<void> {
         this.assertAuthentication();
-        const id = await this.resolve(playerId);
+        const id = await this.resolve(playerId, resolveOptions);
         await this.client.delete(`v1/server/${this.resolveServerApiId('serverApiId' in playerId ? playerId : undefined).id}/whitelist`, {
             searchParams: {
                 cftools_id: id.id
@@ -597,10 +601,10 @@ export class GotCFToolsClient implements CFToolsClient {
         await this.gameLabsAction(body);
     }
 
-    async listBans(request: ListBansRequest): Promise<Ban[]> {
+    async listBans(request: ListBansRequest, resolveOptions?: ResolveRequestOptions): Promise<Ban[]> {
         let playerId: GenericId = request.playerId;
         if (!isIpAddress(request.playerId)) {
-            playerId = (await this.resolve(request))
+            playerId = (await this.resolve(request, resolveOptions))
         }
         const response = await this.client.get<GetBanResponse>(`v1/banlist/${request.list.id}/bans`, {
             searchParams: {
@@ -624,7 +628,7 @@ export class GotCFToolsClient implements CFToolsClient {
         });
     }
 
-    async putBan(request: PutBanRequest): Promise<void> {
+    async putBan(request: PutBanRequest, resolveOptions?: ResolveRequestOptions): Promise<void> {
         const requestBody: any = {
             reason: request.reason,
         };
@@ -633,7 +637,7 @@ export class GotCFToolsClient implements CFToolsClient {
             requestBody.identifier = id.id;
             requestBody.format = 'ipv4';
         } else {
-            requestBody.identifier = (await this.resolve({playerId: request.playerId})).id;
+            requestBody.identifier = (await this.resolve({playerId: request.playerId}, resolveOptions)).id;
             requestBody.format = 'cftools_id';
         }
         if (request.expiration && request.expiration !== 'Permanent') {
