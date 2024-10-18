@@ -85,10 +85,22 @@ interface RawAppGrants {
     };
 }
 
+interface ResolveRequestOptions {
+    /**
+     * The CFTools Enterprise API comes with special endpoint parameter for `/v1/users/resolve` (`client#resolve`), which allows to
+     * create a new CFTools account for an identity token that has never played on a CFTools Cloud-enabled server before.
+     * This functionality is not available to everyone with an Enterprise API token, but requires explicit access by CFTools.
+     * This parameter allows to enable this functionality.
+     * @throws AccountCreationFailed if the account creation failed.
+     * @throws A generic API error if you enable this without having the required permissions obtained by CFTools.
+     */
+    autoCreateAccount?: boolean;
+}
+
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: AuthorizationProvider;
 
-    constructor(private client: HttpClient, private serverApiId?: ServerApiId, private hasAccountCreationAccess?: boolean, auth?: AuthorizationProvider) {
+    constructor(private client: HttpClient, private serverApiId?: ServerApiId, auth?: AuthorizationProvider) {
         if (auth) {
             this.auth = auth;
         }
@@ -674,7 +686,7 @@ export class GotCFToolsClient implements CFToolsClient {
         }
     }
 
-    async resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId> {
+    async resolve(id: GenericId | { playerId: GenericId }, requestOptions?: ResolveRequestOptions): Promise<CFToolsId> {
         let playerId: GenericId;
         if ('playerId' in id) {
             playerId = id.playerId;
@@ -685,7 +697,7 @@ export class GotCFToolsClient implements CFToolsClient {
             return playerId;
         }
 
-        const requestUsesAccountCreation = this.hasAccountCreationAccess === true
+        const requestUsesAccountCreation = requestOptions?.autoCreateAccount === true
             && playerId instanceof SteamId64;
 
         let response;

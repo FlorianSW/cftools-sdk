@@ -10,7 +10,6 @@ export type HttpClientBuilder = (auth?: AuthorizationProvider) => HttpClient;
 export class CFToolsClientBuilder {
     private serverApiId: ServerApiId | undefined;
     private enterpriseToken: string | undefined;
-    private hasAccountCreationAccess: boolean | undefined;
     private credentials: LoginCredentials | undefined;
     private cache: Cache | undefined;
     private cacheConfig: CacheConfiguration = {
@@ -48,20 +47,6 @@ export class CFToolsClientBuilder {
      */
     public withEnterpriseApi(token: string): CFToolsClientBuilder {
         this.enterpriseToken = token;
-        return this;
-    }
-
-    /**
-     * The Enterprise API comes with special endpoint parameter for `/v1/users/resolve` (`client#resolve`), which allows to
-     * create a new CFTools account for an identity token that has never played on a CFTools Cloud-enabled server before.
-     * This functionality is not available to everyone with an Enterprise API token, but requires explicit access by CFTools.
-     * @param status Whether to enable the account creation API
-     */
-    public withAccountCreationAPI(status: boolean): CFToolsClientBuilder {
-        this.hasAccountCreationAccess = status;
-        if (this.hasAccountCreationAccess && !this.enterpriseToken) {
-            throw new Error('Account creation API requires an Enterprise API access token');
-        }
         return this;
     }
 
@@ -127,7 +112,7 @@ export class CFToolsClientBuilder {
         } else {
             auth = new NoOpAuthorizationProvider();
         }
-        const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, this.hasAccountCreationAccess, auth);
+        const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, auth);
         if (this.cache !== undefined) {
             return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
         }
