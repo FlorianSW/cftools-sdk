@@ -127,7 +127,7 @@ export class CFToolsClientBuilder {
         } else {
             auth = new NoOpAuthorizationProvider();
         }
-        const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, this.enterpriseToken, this.hasAccountCreationAccess, auth);
+        const client = new GotCFToolsClient(this.clientBuilder(auth), this.serverApiId, this.hasAccountCreationAccess, auth);
         if (this.cache !== undefined) {
             return new CachingCFToolsClient(this.cache, this.cacheConfig, client, this.serverApiId);
         }

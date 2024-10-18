@@ -88,7 +88,7 @@ interface RawAppGrants {
 export class GotCFToolsClient implements CFToolsClient {
     private readonly auth?: AuthorizationProvider;
 
-    constructor(private client: HttpClient, private serverApiId?: ServerApiId, private enterpriseToken?: string, private hasAccountCreationAccess?: boolean, auth?: AuthorizationProvider) {
+    constructor(private client: HttpClient, private serverApiId?: ServerApiId, private hasAccountCreationAccess?: boolean, auth?: AuthorizationProvider) {
         if (auth) {
             this.auth = auth;
         }
@@ -686,7 +686,6 @@ export class GotCFToolsClient implements CFToolsClient {
         }
 
         const requestUsesAccountCreation = this.hasAccountCreationAccess === true
-            && this.enterpriseToken !== undefined
             && playerId instanceof SteamId64;
 
         let response;
