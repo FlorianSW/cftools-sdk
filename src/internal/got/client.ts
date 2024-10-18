@@ -57,7 +57,6 @@ import {
     GetBanResponse,
     GetGameServerDetailsResponse,
     GetLeaderboardResponse,
-    GetPlayerLookupResponseWithNotice,
     GetPlayerResponse,
     GetPlayerResponsePlayer,
     GetPriorityQueueEntry,
@@ -704,7 +703,7 @@ export class GotCFToolsClient implements CFToolsClient {
             // Note: We could just apply the `create` param above, but this parameter is only ever
             // allowed when there is no existing user with the supplied identity token.
             if (requestUsesAccountCreation) {
-                response = await this.client.get<GetPlayerLookupResponseWithNotice>('v1/users/lookup', {
+                response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
                     searchParams: {
                         identifier: playerId.id,
                         create: true,
@@ -714,7 +713,7 @@ export class GotCFToolsClient implements CFToolsClient {
                     },
                 });
                 if (response.notice !== 'Account Creation API account created') {
-                    throw new AccountCreationFailed(playerId.id, response.notice);
+                    throw new AccountCreationFailed(playerId.id, response.notice ?? 'Unknown error');
                 }
             }
             else {

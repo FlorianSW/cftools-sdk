@@ -83,10 +83,7 @@ export interface GetPlayerResponse {
 
 export interface GetUserLookupResponse {
     cftools_id: string,
-}
-
-export interface GetPlayerLookupResponseWithNotice extends GetUserLookupResponse {
-    notice: string;
+    notice?: string,
 }
 
 export interface GetLeaderboardResponse {
