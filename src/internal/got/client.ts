@@ -48,7 +48,7 @@ import {
     SteamId64,
     TeleportPlayerRequest,
     WhitelistItem,
-    AccountCreationFailed,
+    AccountCreationFailed, ResolveRequestOptions,
 } from '../../types';
 import {HttpClient} from '../http';
 import {URLSearchParams} from 'url';
@@ -83,22 +83,6 @@ interface RawAppGrants {
         banlist?: RawBanListAppGrant[];
         server?: RawServerAppGrant[];
     };
-}
-
-/**
- * Options to use when resolving a generic player identifier to a CFTools ID. This method is used throughout
- * the SDK to resolve identifiers to CFTools IDs for other available methods.
- */
-interface ResolveRequestOptions {
-    /**
-     * The CFTools Enterprise API comes with special endpoint parameter for `/v1/users/resolve` (`client#resolve`), which allows to
-     * create a new CFTools account for an identity token that has never played on a CFTools Cloud-enabled server before.
-     * This functionality is not available to everyone with an Enterprise API token, but requires explicit access by CFTools.
-     * This parameter allows to enable this functionality.
-     * @throws AccountCreationFailed if the account creation failed.
-     * @throws A generic API error if you enable this without having the required permissions obtained by CFTools.
-     */
-    autoCreateAccount?: boolean;
 }
 
 export class GotCFToolsClient implements CFToolsClient {
@@ -704,36 +688,17 @@ export class GotCFToolsClient implements CFToolsClient {
         const requestUsesAccountCreation = requestOptions?.autoCreateAccount === true
             && playerId instanceof SteamId64;
 
-        let response;
-        try {
-            response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
-                searchParams: {
-                    identifier: playerId.id,
-                },
-                context: {
-                    authorization: await this.auth!.provide(this.client),
-                },
-            });
-        } catch (err) {
-            // Note: We could just apply the `create` param above, but this parameter is only ever
-            // allowed when there is no existing user with the supplied identity token.
-            if (requestUsesAccountCreation) {
-                response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
-                    searchParams: {
-                        identifier: playerId.id,
-                        create: true,
-                    },
-                    context: {
-                        authorization: await this.auth!.provide(this.client),
-                    },
-                });
-                if (response.notice !== 'Account Creation API account created') {
-                    throw new AccountCreationFailed(playerId.id, response.notice ?? 'Unknown error');
-                }
-            }
-            else {
-                throw err;
-            }
+        const response = await this.client.get<GetUserLookupResponse>('v1/users/lookup', {
+            searchParams: {
+                identifier: playerId.id,
+                create: requestUsesAccountCreation,
+            },
+            context: {
+                authorization: await this.auth!.provide(this.client),
+            },
+        });
+        if (requestUsesAccountCreation && response.notice !== 'Account Creation API account created') {
+            throw new AccountCreationFailed(playerId.id, response.notice ?? 'Unknown error');
         }
         return CFToolsId.of(response.cftools_id);
     }

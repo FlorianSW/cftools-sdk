@@ -1,10 +1,11 @@
 import got, {Got, Headers, Hooks, HTTPError, Response} from 'got';
 import {
+    AccountCreationFailed,
     Authorization,
     AuthorizationProvider,
     CFToolsUnavailable,
     DuplicateResourceCreation,
-    GrantRequired,
+    GrantRequired, RequestForbidden,
     RequestLimitExceeded,
     ResourceNotConfigured,
     ResourceNotFound,
@@ -130,6 +131,12 @@ export function fromHttpError(error: HTTPError, auth?: Authorization): Error | H
     }
     if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
         return auth!!.throwExpired(error.request.requestUrl);
+    }
+    if (response.statusCode === 403 && errorMessage(response) === 'expired-token') {
+        return auth!!.throwExpired(error.request.requestUrl);
+    }
+    if (response.statusCode === 403) {
+        return new RequestForbidden(errorMessage(response));
     }
     if (response.statusCode === 500 && errorMessage(response) === 'unexpected-error') {
         return new UnknownError(error.request.requestUrl, JSON.parse(response.body as string).request_id);
