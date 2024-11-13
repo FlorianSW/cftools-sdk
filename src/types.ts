@@ -12,7 +12,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    getPlayerDetails(id: GenericId | GetPlayerDetailsRequest): Promise<Player>
+    getPlayerDetails(id: GenericId | GetPlayerDetailsRequest, resolveOptions?: ResolveRequestOptions): Promise<Player>
 
     /**
      * Deletes the player details of the requested player. This will remove all information about the player from the
@@ -20,7 +20,7 @@ export interface CFToolsClient {
      * 
      * This request requires an authenticated client.
      */
-    deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest): Promise<void>
+    deletePlayerDetails(id: GenericId | DeletePlayerDetailsRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Creates a leaderboard based on the requested statistic in the requested order.
@@ -36,7 +36,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    getPriorityQueue(id: GenericId | GetPriorityQueueRequest): Promise<PriorityQueueItem | null>
+    getPriorityQueue(id: GenericId | GetPriorityQueueRequest, resolveOptions?: ResolveRequestOptions): Promise<PriorityQueueItem | null>
 
     /**
      * Creates a priority queue entry for the given player. The entry will grant the player either permanent or
@@ -45,7 +45,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    putPriorityQueue(request: PutPriorityQueueItemRequest): Promise<void>
+    putPriorityQueue(request: PutPriorityQueueItemRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Drops the priority queue of the player if the player has a priority queue entry for the server. Does not error
@@ -53,7 +53,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest): Promise<void>
+    deletePriorityQueue(id: GenericId | DeletePriorityQueueRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Returns the meta information of the whitelist entry of the player. If the player does
@@ -61,7 +61,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    getWhitelist(id: GenericId | GetWhitelistRequest): Promise<WhitelistItem | null>
+    getWhitelist(id: GenericId | GetWhitelistRequest, resolveOptions?: ResolveRequestOptions): Promise<WhitelistItem | null>
 
     /**
      * Creates a whitelist entry for the given player. If the player already has a whitelist entry,
@@ -69,7 +69,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    putWhitelist(request: PutWhitelistItemRequest): Promise<void>
+    putWhitelist(request: PutWhitelistItemRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Drops the whitelist entry of the player if the player has a whitelist entry for the server. Does not error
@@ -77,7 +77,7 @@ export interface CFToolsClient {
      *
      * This request requires an authenticated client.
      */
-    deleteWhitelist(id: GenericId | DeleteWhitelistRequest): Promise<void>
+    deleteWhitelist(id: GenericId | DeleteWhitelistRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Return information about a specific game server instance. These information are not related to a specific
@@ -145,13 +145,13 @@ export interface CFToolsClient {
      *
      * If the requested user is not and was never banned so far, an empty list is returned.
      */
-    listBans(request: ListBansRequest): Promise<Ban[]>
+    listBans(request: ListBansRequest, resolveOptions?: ResolveRequestOptions): Promise<Ban[]>
 
     /**
      * Creates a new entry in the banlist for the provided player. A reason is required to ban a player. It is either
      * a temporary or permanent ban, based on the provided expiration.
      */
-    putBan(request: PutBanRequest): Promise<void>
+    putBan(request: PutBanRequest, resolveOptions?: ResolveRequestOptions): Promise<void>
 
     /**
      * Deletes an entry on the ban list for the provided player or ban. Given the player is not banned, this method
@@ -159,7 +159,7 @@ export interface CFToolsClient {
      * providing the ban you want to delete (as requested with the listBans method).
      *
      * This method will delete the ban, instead of just revoking it. The ban details will not be available in the
-     * banlist afterwards anymore.
+     * banlist afterward anymore.
      */
     deleteBan(request: DeleteBanRequest): Promise<void>
 
@@ -180,7 +180,24 @@ export interface CFToolsClient {
      * Resolves the CFToolsId of the passed in players generic ID (e.g. a Steam ID, BE GUID or alike). The CFToolsId
      * returned identifies the same player as the passed in generic ID.
      */
-    resolve(id: GenericId | { playerId: GenericId }): Promise<CFToolsId>
+    resolve(id: GenericId | { playerId: GenericId }, resolveOptions?: ResolveRequestOptions): Promise<CFToolsId>
+}
+
+/**
+ * Request options for a request to resolve a player ID to a CFTools ID.
+ */
+export interface ResolveRequestOptions {
+    /**
+     * The CFTools Enterprise API allows a caller to automatically create a CFTools account for a SteamID64, which
+     * never connected to a CFTools-enabled server. Hence, a user account for this SteamID64 does not yet exist.
+     *
+     * Requires a CFToolsClient with an enterprise authorization setup, otherwise the request fails with a
+     * RequestForbidden error.
+     *
+     * @throws AccountCreationFailed if the account creation failed.
+     * @throws RequestForbidden if the request is forbidden (no Enterprise account, e.g.).
+     */
+    autoCreateAccount?: boolean;
 }
 
 export interface Cache {
@@ -844,6 +861,16 @@ export class ResourceNotFound extends Error {
 }
 
 /**
+ * Indicates that an account could not be created through the Account Creation API using the provided identity token.
+ */
+export class AccountCreationFailed extends Error {
+    constructor(identityToken: string, notice: string) {
+        super('AccountCreationFailed: ' + identityToken + ' (' + notice + ')');
+        Object.setPrototypeOf(this, AccountCreationFailed.prototype);
+    }
+}
+
+/**
  * Indicates that the requested resource was found, however, the action on it could not be fulfilled as the required
  * bucket (like queuepriority or whitelist) was not configured on this resource. You should only retry this request
  * when you ensured that the respective bucket is now configured for the resource correctly.
@@ -957,6 +984,18 @@ export class GrantRequired extends Error {
     constructor(url: string) {
         super('GrantRequired: ' + url);
         Object.setPrototypeOf(this, GrantRequired.prototype);
+    }
+}
+
+/**
+ * A generic error indicating that a request was rejected because the client is not allowed to either access the requested
+ * resource, execute the requested action or alike.
+ * More details might be available in the #message property, if the API provided it.
+ */
+export class RequestForbidden extends Error {
+    constructor(public readonly message: string) {
+        super('RequestForbidden: ' + message);
+        Object.setPrototypeOf(this, RequestForbidden.prototype);
     }
 }
 

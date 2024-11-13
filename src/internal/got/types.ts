@@ -83,6 +83,7 @@ export interface GetPlayerResponse {
 
 export interface GetUserLookupResponse {
     cftools_id: string,
+    notice?: string,
 }
 
 export interface GetLeaderboardResponse {
