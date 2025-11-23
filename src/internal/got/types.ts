@@ -67,6 +67,8 @@ export interface GetPlayerResponsePlayer {
             zones: GetPlayerResponseHitZones,
         }
     },
+    created_at: Date,
+    updated_at: Date
 }
 
 export interface GetPlayerResponseIdentities {

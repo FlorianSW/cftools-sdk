@@ -505,6 +505,8 @@ export interface Player {
      */
     playtime: number,
     sessions: number,
+    firstSeen: Date,
+    lastSeen: Date,
 }
 
 export interface DayZStatistics {

@@ -166,6 +166,8 @@ export class GotCFToolsClient implements CFToolsClient {
             },
             playtime: player.omega.playtime,
             sessions: player.omega.sessions,
+            firstSeen: new Date(player.created_at),
+            lastSeen: new Date(player.updated_at),
             identities: {
                 battleye: BattlEyeGUID.of(identities.battleye.guid),
                 bohemia: BohemiaInteractiveId.of(identities.bohemiainteractive.uid),
